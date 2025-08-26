@@ -2,16 +2,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './Layout/Header';
-import { Login, Register } from './components';
-
+import { Loader, Login, Register } from './components';
 
 const MainApp = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className='grid place-items-center min-h-screen'>
+        <Loader />
       </div>
     );
   }
