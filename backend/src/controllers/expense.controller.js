@@ -64,4 +64,30 @@ export const createExpense = async (req, res) => {
   }
 };
 
+// Update an existing expense
+export const updateExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount, description, type, date, startDate, endDate, categoryId } = req.body;
+
+    const expense = await prisma.expense.update({
+      where: { id: parseInt(id) },
+      data: {
+        amount: amount !== undefined ? parseFloat(amount) : undefined,
+        description,
+        type,
+        date: date ? new Date(date) : undefined,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
+        categoryId: categoryId !== undefined ? parseInt(categoryId) : undefined,
+      },
+    });
+
+    res.status(200).json(expense);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error updating expense', error });
+  }
+};
+
 
