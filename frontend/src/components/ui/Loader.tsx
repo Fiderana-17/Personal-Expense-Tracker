@@ -15,7 +15,7 @@ const Loader: React.FC = () => {
         />
       </svg>
 
-      <style jsx>{`
+      <style>{`
         @keyframes rotate {
           100% {
             transform: rotate(360deg);
