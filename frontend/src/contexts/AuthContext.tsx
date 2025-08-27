@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User } from '../types';
-import { login as apiLogin, register as apiRegister } from '../api/auth';
+import { login as apiLogin, register as apiRegister, getMe  } from '../api/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -32,8 +32,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Vérifie le token au démarrage
   useEffect(() => {
+  const fetchUser = async () => {
+    if (token) {
+      try {
+        const data = await getMe(token);
+        if (data.id) {
+          setUser(data);
+        } else {
+          setUser(null);
+          localStorage.removeItem("token");
+          setToken(null);
+        }
+      } catch (err) {
+        console.error("Erreur fetchUser:", err);
+        setUser(null);
+        localStorage.removeItem("token");
+        setToken(null);
+      }
+    }
     setIsLoading(false);
-  }, []);
+  };
+
+  fetchUser();
+}, [token]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);

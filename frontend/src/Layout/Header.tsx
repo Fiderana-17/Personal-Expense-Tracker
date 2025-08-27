@@ -1,6 +1,7 @@
 import React from 'react';
 import { LogOut, User, Bell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import Switch from '@/components/ui/Switch';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -39,6 +40,7 @@ const Header: React.FC = () => {
                   <User className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
+              <Switch />
 
               {/* Logout */}
               <button
