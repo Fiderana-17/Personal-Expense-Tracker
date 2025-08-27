@@ -90,4 +90,16 @@ export const updateExpense = async (req, res) => {
   }
 };
 
+// Delete an expense
+export const deleteExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.expense.delete({ where: { id: parseInt(id) } });
+
+    res.status(200).json({ message: 'Expense deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting expense', error });
+  }
+};
 
