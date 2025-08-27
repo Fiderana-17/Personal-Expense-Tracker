@@ -32,18 +32,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Vérifie le token au démarrage
   useEffect(() => {
-    if (token) {
-      // Ici tu pourrais décoder le JWT pour récupérer l'user réel
-      // Pour simplifier, on stocke le token et un user minimal
-      setUser({
-        id: '', // tu peux récupérer depuis le JWT
-        name: '',
-        email: '',
-        createdAt: new Date().toISOString()
-      });
-    }
     setIsLoading(false);
-  }, [token]);
+  }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
@@ -67,7 +57,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const res = await apiRegister(name, email, password);
       if (!res.userId) {
         throw new Error(res.message || 'Signup failed');
-    } }finally {
+      }
+    } finally {
       setIsLoading(false);
     }
   };

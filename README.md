@@ -69,3 +69,28 @@ Personal-Expense-Tracker/
 │── README.md  
 
 ```
+
+---
+# 1️⃣ Install deps
+npm install
+
+# 2️⃣ Setup DB
+=> create your database 
+
+=> Modify the file .env.template -> .env
+
+=> echo DATABASE_URL=postgresql://username:your_password@localhost:5432/your_Database
+     PORT=3000
+     JWT_SECRET=your_secretKey
+
+=> npx prisma init
+
+npx prisma generate
+
+npx prisma db push
+
+
+# 3️⃣ Run apps (root directory)
+npm run dev  # backend
+
+npm run dev  # frontend
