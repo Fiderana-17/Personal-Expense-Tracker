@@ -17,3 +17,13 @@ export async function login(email: string, password: string) {
   });
   return res.json();
 }
+
+export const getMe = async (token: string) => {
+  const res = await fetch(`${API_BASE}/auth/me`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.json();
+};

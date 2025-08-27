@@ -78,12 +78,12 @@ npm install
 => create your database 
 
 => Modify the file .env.template -> .env
-
-=> echo DATABASE_URL=postgresql://username:your_password@localhost:5432/your_Database
+```
+ echo DATABASE_URL=postgresql://username:your_password@localhost:5432/your_Database
      PORT=3000
      JWT_SECRET=your_secretKey
 
-=> npx prisma init
+npx prisma init
 
 npx prisma generate
 
@@ -94,3 +94,4 @@ npx prisma db push
 npm run dev  # backend
 
 npm run dev  # frontend
+```
