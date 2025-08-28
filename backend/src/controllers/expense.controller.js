@@ -1,20 +1,21 @@
 import prisma from '../prismaClient.js';
 
-//  Get a list of all expenses for the user
-export const getExpensesByUser = async (req, res) => {
+// Get all expenses
+export const getAllExpenses = async (req, res) => {
   try {
-    const { userId } = req.params;
-
     const expenses = await prisma.expense.findMany({
-      where: { userId: parseInt(userId) },
-      include: { category: true, receipt: true },
+      include: { category: true, receipt: true, user: true },
+      orderBy: { createdAt: 'desc' } // optionnel : trier par date
     });
 
     res.status(200).json(expenses);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching expenses', error });
+    console.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des dépenses', error });
   }
 };
+
+
 
 //  Get a single expense by ID
 export const getExpenseById = async (req, res) => {
@@ -35,15 +36,30 @@ export const getExpenseById = async (req, res) => {
 };
 
 
-//  Create a new expense
+// Create a new expense
 export const createExpense = async (req, res) => {
   try {
     const { amount, description, type, date, startDate, endDate, userId, categoryId } = req.body;
 
+    // Validation des champs obligatoires
     if (!amount || !userId || !categoryId) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return res.status(400).json({ message: 'Les champs amount, userId et categoryId sont requis' });
     }
 
+    // Vérifie si une dépense identique existe déjà
+    const existingExpense = await prisma.expense.findFirst({
+      where: {
+        userId: parseInt(userId),
+        categoryId: parseInt(categoryId),
+        amount: parseFloat(amount),
+        date: date ? new Date(date) : null,
+      },
+    });
+
+    if (existingExpense) {
+      return res.status(400).json({ message: 'Cette dépense existe déjà' });
+    }
+    // Crée la nouvelle dépense
     const expense = await prisma.expense.create({
       data: {
         amount: parseFloat(amount),
@@ -57,12 +73,14 @@ export const createExpense = async (req, res) => {
       },
     });
 
-    res.status(201).json(expense);
+    res.status(201).json({ message: 'Expense created', data: expense });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error creating expense', error });
+    res.status(500).json({ message: 'Erreur lors de la création de la dépense', error });
   }
 };
+
 
 // Update an existing expense
 export const updateExpense = async (req, res) => {
