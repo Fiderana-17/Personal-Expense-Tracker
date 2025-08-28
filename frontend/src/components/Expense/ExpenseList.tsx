@@ -1,59 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { Plus, Search, Filter, Receipt, Edit, Trash2, Calendar } from 'lucide-react';
 import { type Expense } from '../../types';
 
 const ExpensesList: React.FC = () => {
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
 
-  const expenses: Expense[] = [
-    {
-      id: '1',
-      amount: 85.50,
-      date: '2024-01-15',
-      categoryId: '1',
-      category: { id: '1', name: 'Food & Dining', userId: '1' },
-      description: 'Grocery shopping at Whole Foods',
-      type: 'one-time',
-      userId: '1',
-    },
-    {
-      id: '2',
-      amount: 1200.00,
-      date: '2024-01-01',
-      categoryId: '2',
-      category: { id: '2', name: 'Housing', userId: '1' },
-      description: 'Monthly rent payment',
-      type: 'recurring',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-      userId: '1',
-    },
-    {
-      id: '3',
-      amount: 65.00,
-      date: '2024-01-14',
-      categoryId: '3',
-      category: { id: '3', name: 'Transportation', userId: '1' },
-      description: 'Gas station fill-up',
-      type: 'one-time',
-      receiptId: 'receipt-123',
-      userId: '1',
-    },
-  ];
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/expenses`);
+        const data = await res.json();
+        setExpenses(data);
+      } catch (err) {
+        console.error("Erreur fetch expenses:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchExpenses();
+  }, []);
 
   const categories = ['all', 'Food & Dining', 'Housing', 'Transportation', 'Entertainment'];
   const types = ['all', 'one-time', 'recurring'];
 
   const filteredExpenses = expenses.filter(expense => {
-    const matchesSearch = expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          expense.category?.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || expense.category?.name === selectedCategory;
-    const matchesType = selectedType === 'all' || expense.type === selectedType;
-    
+    const matchesSearch =
+      expense.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === 'all' || expense.category?.name === selectedCategory;
+    const matchesType =
+      selectedType === 'all' || expense.type === selectedType;
     return matchesSearch && matchesCategory && matchesType;
   });
+
+  if (loading) {
+    return <p className="text-center text-gray-500">Chargement des dépenses...</p>;
+  }
 
   return (
     <div className="space-y-6">
