@@ -18,6 +18,7 @@ app.use('/api/auth', authRoutes);
 app.use("/api/categories", categoryRoutes);
 
 
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

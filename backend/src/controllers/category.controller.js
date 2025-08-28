@@ -22,6 +22,7 @@ export const createCategory = async (req, res) => {
   }
 };
 
+
 //  Récupérer toutes les catégories d’un utilisateur
 export const getCategoriesByUser = async (req, res) => {
   try {
