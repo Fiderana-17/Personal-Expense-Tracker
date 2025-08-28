@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './Layout/Header';
 import { Loader, Login, Register } from './components';
+import ExpensesList from './components/Expense/ExpenseList';
 
 const MainApp = () => {
   const { user, isLoading } = useAuth();
