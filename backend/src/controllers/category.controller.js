@@ -41,3 +41,20 @@ export const getCategoriesByUser = async (req, res) => {
     res.status(500).json({ message: 'Error fetching categories', error });
   }
 };
+
+// Mettre à jour une catégorie
+export const updateCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    const category = await prisma.category.update({
+      where: { id: parseInt(id) },
+      data: { name },
+    });
+
+    res.status(200).json(category);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating category', error });
+  }
+};
