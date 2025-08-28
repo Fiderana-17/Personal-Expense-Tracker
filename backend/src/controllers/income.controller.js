@@ -1,14 +1,13 @@
 import prisma from "../prismaClient.js";
 
 // GET /api/incomes
-export const getIncomesByUser = async (req, res) => {
+export const getAllIncomes = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.query;
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
-
 
     const incomes = await prisma.income.findMany({
       where: { userId: parseInt(userId) },
