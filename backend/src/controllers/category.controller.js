@@ -22,3 +22,22 @@ export const createCategory = async (req, res) => {
   }
 };
 
+//  Récupérer toutes les catégories d’un utilisateur
+export const getCategoriesByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const categories = await prisma.category.findMany({
+      where: {
+        userId: parseInt(userId),
+      },
+      include: {
+        expenses: true, // optionnel : si tu veux aussi les dépenses liées
+      },
+    });
+
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching categories', error });
+  }
+};
