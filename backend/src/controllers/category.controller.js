@@ -1,15 +1,24 @@
-export const getCategories = (req, res) => {
-  res.json([{ id: 1, name: "Food" }, { id: 2, name: "Travel" }]);
+import prisma from '../prismaClient.js';
+
+//Créer une nouvelle catégorie
+export const createCategory = async (req, res) => {
+  try {
+    const { name, userId } = req.body;
+
+    if (!name || !userId) {
+      return res.status(400).json({ message: 'Name and userId are required' });
+    }
+
+    const category = await prisma.category.create({
+      data: {
+        name,
+        userId: parseInt(userId),
+      },
+    });
+
+    res.status(201).json(category);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating category', error });
+  }
 };
 
-export const createCategory = (req, res) => {
-  res.json({ message: "Category created", data: req.body });
-};
-
-export const updateCategory = (req, res) => {
-  res.json({ message: `Category ${req.params.id} updated`, data: req.body });
-};
-
-export const deleteCategory = (req, res) => {
-  res.json({ message: `Category ${req.params.id} deleted` });
-};
