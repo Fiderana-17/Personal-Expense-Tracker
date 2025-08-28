@@ -58,3 +58,18 @@ export const updateCategory = async (req, res) => {
     res.status(500).json({ message: 'Error updating category', error });
   }
 };
+
+//Supprimer une catégorie
+export const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.category.delete({
+      where: { id: parseInt(id) },
+    });
+
+    res.status(200).json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting category', error });
+  }
+};
