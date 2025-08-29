@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User } from '../types';
-import { login as apiLogin, register as apiRegister, getMe  } from '../api/auth';
+import { login as apiLogin, signup as apiSignup, getMe  } from '../api/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signup = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     try {
-      const res = await apiRegister(name, email, password);
+      const res = await apiSignup(name, email, password);
       if (!res.userId) {
         throw new Error(res.message || 'Signup failed');
       }
