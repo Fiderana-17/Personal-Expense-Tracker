@@ -6,8 +6,10 @@ import {
   FolderOpen, 
   PieChart,
   Receipt,
-  Settings
+  Settings,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -15,6 +17,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
+  const { logout } = useAuth();
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'expenses', label: 'Expenses', icon: CreditCard },
@@ -26,7 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   ];
 
   return (
-    <aside className="w-64 bg-white shadow-xs border-r border-gray-200 h-full">
+    <aside className="w-64 bg-white shadow-xs border-r border-gray-200 h-[calc(100vh-66px)] flex flex-col justify-between">
       <nav className="mt-8">
         <div className="px-4">
           {menuItems.map((item) => {
@@ -50,6 +54,16 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           })}
         </div>
       </nav>
+
+      <div className="px-4 pb-6">
+        <button
+          onClick={logout}
+          className="w-full flex items-center px-4 py-3 text-left rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200"
+        >
+          <LogOut className="h-5 w-5 mr-3 text-red-600" />
+          <span className="font-medium">Logout</span>
+        </button>
+      </div>
     </aside>
   );
 };
