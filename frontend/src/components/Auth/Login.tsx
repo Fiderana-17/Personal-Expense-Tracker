@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, CreditCard } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -83,7 +83,7 @@ const Login: React.FC = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+            <a href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
               Don’t have an account? Sign up
             </a>
           </div>

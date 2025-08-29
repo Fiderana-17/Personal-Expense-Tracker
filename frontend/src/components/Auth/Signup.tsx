@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, CreditCard } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
-const Register: React.FC = () => {
+const Signup: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -112,4 +112,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register;
+export default Signup;
