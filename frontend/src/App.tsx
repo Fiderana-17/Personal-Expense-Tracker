@@ -1,15 +1,15 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Header from './Layout/Header';
-import { Loader, Login, Register } from './components';
-import ExpensesList from './components/Expense/ExpenseList';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Loader, Login, Signup } from "./components";
+import MainLayout from "./Layout/MainLayout";
+import { useAuth } from "./hooks/useAuth";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const MainApp = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className='grid place-items-center min-h-screen'>
+      <div className="grid place-items-center min-h-screen">
         <Loader />
       </div>
     );
@@ -17,19 +17,16 @@ const MainApp = () => {
 
   return (
     <Routes>
-      {/* Si l'utilisateur n'est pas connecté */}
       {!user ? (
         <>
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          {/* Redirection par défaut vers /login */}
+          <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </>
       ) : (
         <>
-          {/* Si l'utilisateur est connecté */}
-          <Route path="/" element={<Header />} />
-          {/* Redirection par défaut vers / */}
+          {/* Layout principal avec Sidebar + Header */}
+          <Route path="/" element={<MainLayout> </MainLayout>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
       )}
