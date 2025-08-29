@@ -1,20 +1,16 @@
 import express from 'express';
-import {createExpense,getExpensesByUser,getExpenseById,updateExpense,deleteExpense} from '../controllers/expense.controller.js';
+import { getAllExpenses,createExpense,getExpenseById,updateExpense,deleteExpense} from '../controllers/expense.controller.js';
 
 const router = express.Router();
 
+// GET /api/expenses
+router.get('/', getAllExpenses);
 // POST /api/expenses
 router.post('/', createExpense);
-
-// GET /api/expenses/user/:userId
-router.get('/user/:userId', getExpensesByUser);
-
-// GET /api/expenses/:id
+// GET /api/expenses/:userId
 router.get('/:id', getExpenseById);
-
 // PUT /api/expenses/:id
 router.put('/:id', updateExpense);
-
 // DELETE /api/expenses/:id
 router.delete('/:id', deleteExpense);
 
