@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LogOut, User, Bell } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import Switch from '@/components/ui/Switch';
 import assets from '@/assets/image/assets';
+import { useAuth } from '@/hooks/useAuth';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();

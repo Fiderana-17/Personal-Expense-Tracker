@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, CreditCard } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const Signup: React.FC = () => {
   const [name, setName] = useState('');

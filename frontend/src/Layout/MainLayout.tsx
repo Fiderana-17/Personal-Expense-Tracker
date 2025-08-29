@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import { useAuth } from "@/contexts/AuthContext";
 import Dashboard from "@/components/Dashboard/Dashboard";
+import { useAuth } from "@/hooks/useAuth";
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, CreditCard } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');

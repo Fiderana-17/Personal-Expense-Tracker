@@ -1,7 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Loader, Login, Signup } from "./components";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import MainLayout from "./Layout/MainLayout";
+import { useAuth } from "./hooks/useAuth";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const MainApp = () => {
   const { user, isLoading } = useAuth();
