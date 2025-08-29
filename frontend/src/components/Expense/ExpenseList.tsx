@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Search, Filter, Receipt, Edit, Trash2, Calendar } from 'lucide-react';
 import { type Expense, getAllExpenses, deleteExpense, createExpense } from '../../api/expense.ts';
 
+
 const ExpensesList: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
