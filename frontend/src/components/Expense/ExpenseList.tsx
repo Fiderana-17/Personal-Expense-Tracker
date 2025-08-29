@@ -21,12 +21,13 @@ const ExpensesList: React.FC = () => {
     date: new Date().toISOString().split('T')[0], // yyyy-mm-dd
   });
 
+  // Charger les dépenses depuis l’API
   const fetchExpenses = async () => {
     try {
       const data = await getAllExpenses();
-      const normalized = data.map((exp) => ({
+      const normalized = data.map(exp => ({
         ...exp,
-        type: (exp.type as any)?.toUpperCase?.() || exp.type, // ONE_TIME | RECURRING
+        type: (exp.type as any)?.toUpperCase?.() || exp.type,
         amount: typeof exp.amount === 'string' ? parseFloat(exp.amount as any) : exp.amount,
       }));
       setExpenses(normalized);
@@ -45,25 +46,25 @@ const ExpensesList: React.FC = () => {
     if (!window.confirm('Voulez-vous vraiment supprimer cette dépense ?')) return;
     try {
       await deleteExpense(id);
-      setExpenses((prev) => prev.filter((e) => e.id !== id));
+      setExpenses(prev => prev.filter(e => e.id !== id));
     } catch (err: any) {
       alert(err.message);
     }
   };
 
-  // ✅ nouvelle version qui pousse la bonne forme et utilise la MAJ fonctionnelle
-  const handleCreate = async (e: React.FormEvent) => {
+  // ✅ Création d’une dépense et mise à jour immédiate de la liste
+  const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const created = await createExpense(formData); // ⬅️ renvoie maintenant l'objet expense
+      const res = await createExpense(formData); // { message, data }
 
       const normalized = {
-        ...created,
-        type: (created.type as any)?.toUpperCase?.() || created.type,
-        amount: typeof created.amount === 'string' ? parseFloat(created.amount as any) : created.amount,
+        ...res.data,
+        type: (res.data.type as any)?.toUpperCase?.() || res.data.type,
+        amount: typeof res.data.amount === 'string' ? parseFloat(res.data.amount as any) : res.data.amount,
       };
 
-      setExpenses((prev) => [normalized, ...prev]); // ✅ pas besoin de recharger la page
+      setExpenses(prev => [normalized, ...prev]); // ajout en haut
       setShowForm(false);
 
       setFormData({
@@ -110,7 +111,7 @@ const ExpensesList: React.FC = () => {
 
       {/* Formulaire d’ajout */}
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <form onSubmit={handleAddExpense} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium">Description</label>
             <input
@@ -205,7 +206,7 @@ const ExpensesList: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900">{filteredExpenses.length} Expenses Found</h3>
         </div>
         <div className="divide-y divide-gray-200">
-          {filteredExpenses.map((expense) => (
+          {filteredExpenses.map(expense => (
             <div key={expense.id} className="p-6 hover:bg-gray-50 transition-colors duration-150 flex justify-between items-center">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
@@ -224,25 +225,15 @@ const ExpensesList: React.FC = () => {
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <div className="flex items-center space-x-1">
                     <Calendar className="h-4 w-4" />
-                    <span>
-                      {expense.date ? new Date(expense.date).toLocaleDateString() : '—'}
-                    </span>
+                    <span>{expense.date ? new Date(expense.date).toLocaleDateString() : '—'}</span>
                   </div>
                   <span>•</span>
                   <span className="font-medium text-gray-700">{expense.category?.name || 'Sans catégorie'}</span>
-                  {expense.type === 'RECURRING' && expense.startDate && expense.endDate && (
-                    <>
-                      <span>•</span>
-                      <span>Recurring: {expense.startDate} to {expense.endDate}</span>
-                    </>
-                  )}
                 </div>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-red-600">
-                    -{Number(expense.amount).toFixed(2)}
-                  </p>
+                  <p className="text-2xl font-bold text-red-600">-{Number(expense.amount).toFixed(2)}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
@@ -250,7 +241,7 @@ const ExpensesList: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleDelete(expense.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors durée-200"
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
