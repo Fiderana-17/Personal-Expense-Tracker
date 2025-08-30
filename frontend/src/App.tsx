@@ -5,6 +5,7 @@ import Header from './Layout/Header';
 import { Login, Register } from './components';
 
 
+
 const MainApp = () => {
   const { user, isLoading } = useAuth();
 
@@ -30,6 +31,7 @@ const MainApp = () => {
         <>
           {/* Si l'utilisateur est connecté */}
           <Route path="/" element={<Header />} />
+          
           {/* Redirection par défaut vers / */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
