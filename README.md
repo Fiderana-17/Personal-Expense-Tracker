@@ -1,38 +1,41 @@
 # <div align="center">📊 Personal Expense Tracker 📊</div>
 
-A full-stack web application that enables users to track personal expenses and income, upload receipts, set up recurring expenses with a defined duration, and receive alerts when they exceed their monthly budget.
-
-## 🚀 Technologies utilisées
-
-| Frontend | Backend | Base de données | Outils |
-|----------|--------|-----------------|--------|
-| React + Vite | Express.js | PostgreSQL | Tailwind CSS |
-| React Router | Node.js | Prisma | Typescript |
-|      | Multer (upload fichiers) |  | JWT (authentification) |
+A full-stack web application that allows users to track personal expenses and income, upload receipts, set up recurring expenses with a defined duration, and receive alerts when they exceed their monthly budget.
 
 ---
 
-## 👥 Équipe du projet
+## 🚀 Technologies Used
 
-| Référence | Nom             | Prénom                  | Rôle dans le projet                           |
-|-----------|-----------------|-------------------------|-----------------------------------------------|
-| STD24013  | RAKOTOARISON    | Santatriniaina Fiderana | Développeur – Catégories et Tableau de bord   |
-| STD24039  | RANDRIAMANANTENA| Mitia Jessica           | Développeur – Gestion des revenus             |
-| STD24060  | RAKOTOARISON    | Irina Stéphane          | Développeur – Authentification et Sécurité    |
-| STD24071  | NOMENJANAHARY   | Tsikiniaina Tsilavina   | Développeur – Gestion des dépenses            |
+| Frontend      | Backend     | Database    | Tools               |
+|---------------|-------------|-------------|---------------------|
+| React + Vite  | Express.js  | PostgreSQL  | Tailwind CSS        |
+| React Router  | Node.js     | Prisma      | TypeScript          |
+|               | Multer (file upload) |   | JWT (authentication) |
 
+---
 
-## 📌 Fonctionnalités
+## 👥 Project Team
 
-- **Authentification sécurisée** (JWT)
-- **Gestion des dépenses et revenus**
-- **Catégories personnalisables**
-- **Upload de reçus** (JPG, PNG, PDF)
-- **Résumé mensuel** avec graphiques
-- **Alerte budget** si dépenses > revenus
-- **Mode sombre** (optionnel)
+| Reference | Last Name        | First Name              | Role in the Project                        |
+|-----------|------------------|-------------------------|--------------------------------------------|
+| STD24013  | RAKOTOARISON     | Santatriniaina Fiderana | Developer – Categories & Dashboard         |
+| STD24039  | RANDRIAMANANTENA | Mitia Jessica           | Developer – Income Management              |
+| STD24060  | RAKOTOARISON     | Irina Stéphane          | Developer – Authentication & Security      |
+| STD24071  | NOMENJANAHARY    | Tsikiniaina Tsilavina   | Developer – Expense Management             |
 
+---
 
+## 📌 Features
+
+- **Secure Authentication** (JWT)  
+- **Expense and Income Management**  
+- **Customizable Categories**  
+- **Receipt Upload** (JPG, PNG, PDF)  
+- **Monthly Summary** with charts  
+- **Budget Alert** if expenses > income  
+- **Dark Mode** (optional)  
+
+---
 
 ## 🚀 Setup & Run
 
@@ -66,7 +69,7 @@ npm run dev
 
 ---
 
-## 📂 Structure du projet
+## 📂 Project structure
 ```
 Personal-Expense-Tracker/  
 │  
