@@ -24,7 +24,6 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-xs border-b border-gray-200">
       <div className="px-4 sm:px-6 lg:px-10">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <div className="flex items-center gap-7">
             <img src={assets.logo} alt="logo" className="w-14" />
             <h1 className="text-2xl font-bold text-gray-900 font-[Poppins]">
@@ -32,7 +31,6 @@ const Header: React.FC = () => {
             </h1>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center space-x-4 relative">
             <Switch />
             {/* Notifications */}
@@ -84,9 +82,7 @@ const Header: React.FC = () => {
                     Sign out
                   </button>
                 </div>
-              </div>
-
-              
+              </div>              
             </div>
           </div>
         </div>

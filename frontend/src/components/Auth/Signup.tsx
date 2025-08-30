@@ -42,8 +42,6 @@ const Signup: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center px-4 relative">
-      {/* ✅ Message d'erreur animé en haut */}
-      {/* ✅ Notification succès animé en haut */}
       <AnimatePresence>
         {success && (
           <motion.div

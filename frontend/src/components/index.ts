@@ -1,3 +1,11 @@
 export { default as Login } from "./Auth/Login";
 export { default as Signup } from "./Auth/Signup";
 export { default as Loader } from "./ui/Loader";
+export { default as Dashboard } from "./Dashboard/Dashboard";
+export { default as ExpensesList } from "./Expense/ExpenseList";
+export { default as Switch } from "./ui/Switch";
+// export { default as Income } from "./Income/Income";
+// export { default as Categories } from "./Categories/Categories";
+// export { default as Reports } from "./Reports/Reports";
+// export { default as Receipts } from "./Receipts/Receipts";
+// export { default as Profile } from "./Profile/Profile";

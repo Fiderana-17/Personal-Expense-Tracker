@@ -1,18 +1,16 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Loader, Login, Signup } from "./components";
+import { Loader, Login, Signup, ExpensesList, Dashboard } from "./components";
 import MainLayout from "./Layout/MainLayout";
-import { useAuth } from "./hooks/useAuth";
 import { AuthProvider } from "./contexts/AuthContext";
+import { useAuth } from "./hooks/useAuth";
 
 const MainApp = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="grid place-items-center min-h-screen">
-        <Loader />
-      </div>
-    );
+    return <div className="grid place-items-center min-h-screen">
+      <Loader />
+    </div>;
   }
 
   return (
@@ -25,9 +23,17 @@ const MainApp = () => {
         </>
       ) : (
         <>
-          {/* Layout principal avec Sidebar + Header */}
-          <Route path="/" element={<MainLayout> </MainLayout>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="expenses" element={<ExpensesList />} />
+            <Route path="income" element={<p className="text-amber-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+            <Route path="categories" element={<p className="text-green-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+            <Route path="reports" element={<p className="text-fuchsia-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+            <Route path="receipts" element={<p className="text-lime-500 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+            <Route path="profile" element={<p className="text-red-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+          </Route>
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </>
       )}
     </Routes>
