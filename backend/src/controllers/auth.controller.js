@@ -12,12 +12,16 @@ export const signup = async (req, res) => {
 
     if (!name || !email || !password){
       return res.status(400).json({ message: 'Missing fields' });
-    } 
-
+    }  
+    
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing){
-      return res.status(409).json({ message: 'Email already used' });
-    } 
+      if (existing){
+        return res.status(409).json({ message: 'Email already used' });
+      } 
+    
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
 
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
     const user = await prisma.user.create({
@@ -43,12 +47,12 @@ export const login = async (req, res) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user){
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "This email doesn't exist" });
     } 
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid){
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Wrong password. Try again' });
     } 
 
     const token = jwt.sign(
