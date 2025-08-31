@@ -3,13 +3,13 @@ import { LogOut, User, Bell } from 'lucide-react';
 import Switch from '@/components/ui/Switch';
 import assets from '@/assets/image/assets';
 import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  // Fermer le menu si on clique en dehors
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -33,7 +33,6 @@ const Header: React.FC = () => {
 
           <div className="flex items-center space-x-4 relative">
             <Switch />
-            {/* Notifications */}
             <button className="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
               <Bell className="h-6 w-6" />
               <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -41,17 +40,14 @@ const Header: React.FC = () => {
               </span>
             </button>
 
-            {/* User Info */}
             <div className="flex items-center space-x-3" ref={menuRef}>
               <div className="flex items-center space-x-3 relative">
-                {/* Nom */}
                 <div className="flex flex-col items-end">
                   <span className="text-sm font-semibold text-gray-900">
                     {user?.name}
                   </span>
                 </div>
 
-                {/* Avatar cliquable */}
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
                   className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center shadow-sm focus:outline-hidden"
@@ -59,7 +55,6 @@ const Header: React.FC = () => {
                   <User className="h-5 w-5 text-blue-600" />
                 </button>
 
-                {/* Menu déroulant avec transition */}
                 <div
                   className={`absolute right-0 top-12.5 w-48 rounded-md bg-white shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${
                     menuOpen
@@ -67,13 +62,13 @@ const Header: React.FC = () => {
                       : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
                   }`}
                 >
-                  <a
-                    href="#"
+                  <Link
+                    to="/profile"
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     <User className="h-4 w-4 text-gray-500" />
                     Your profile
-                  </a>
+                  </Link>
                   <button
                     onClick={logout}
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"

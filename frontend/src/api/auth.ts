@@ -27,3 +27,21 @@ export const getMe = async (token: string) => {
   });
   return res.json();
 };
+
+export async function changePassword(oldPassword: string, newPassword: string, token: string) {
+  const res = await fetch(`${API_BASE}/auth/changePassword`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ oldPassword, newPassword }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || 'Failed to change password');
+  }
+
+  return res.json();
+}

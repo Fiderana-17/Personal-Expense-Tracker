@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Loader, Login, Signup, ExpensesList, Dashboard } from "./components";
+import { Loader, Login, Signup, ExpensesList, Dashboard, Profile } from "./components";
 import MainLayout from "./Layout/MainLayout";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./hooks/useAuth";
@@ -31,7 +31,7 @@ const MainApp = () => {
             <Route path="categories" element={<p className="text-green-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
             <Route path="reports" element={<p className="text-fuchsia-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
             <Route path="receipts" element={<p className="text-lime-500 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
-            <Route path="profile" element={<p className="text-red-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+            <Route path="profile" element={<Profile />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </>
