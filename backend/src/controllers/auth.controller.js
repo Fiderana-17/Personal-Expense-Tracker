@@ -16,7 +16,7 @@ export const signup = async (req, res) => {
     
     const existing = await prisma.user.findUnique({ where: { email } });
       if (existing){
-        return res.status(409).json({ message: 'Email already used' });
+          return res.status(409).json({ message: 'Email already used' });
       } 
     
     if (password.length < 6) {
@@ -71,6 +71,47 @@ export const login = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Changer le mot de passe
+export const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'Missing fields' });
+    }
+    
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Your current password is incorrect' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters' });
+    }
+
+    
+    const hashed = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashed },
+    });
+
+    return res.json({ message: 'Password changed successfully' });
+  } catch (err) {
+    console.error('Error in changePassword:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 export const getMe = async (req, res) => {
   try {
