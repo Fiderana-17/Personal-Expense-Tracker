@@ -1,39 +1,40 @@
-
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Header from './Layout/Header';
-import { Login, Register } from './components';
-
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Loader, Login, Signup, ExpensesList, Dashboard, Profile, CategoriesList } from "./components";
+import MainLayout from "./Layout/MainLayout";
+import { AuthProvider } from "./contexts/AuthContext";
+import { useAuth } from "./hooks/useAuth";
 
 
 const MainApp = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <div className="grid place-items-center min-h-screen">
+      <Loader />
+    </div>;
   }
 
   return (
     <Routes>
-      {/* Si l'utilisateur n'est pas connecté */}
       {!user ? (
         <>
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          {/* Redirection par défaut vers /login */}
+          <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </>
       ) : (
         <>
-          {/* Si l'utilisateur est connecté */}
-          <Route path="/" element={<Header />} />
-          
-          {/* Redirection par défaut vers / */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="expenses" element={<ExpensesList />} />
+            <Route path="income" element={<p className="text-amber-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+            <Route path="categories" element={<CategoriesList />} />
+            <Route path="reports" element={<p className="text-fuchsia-600 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+            <Route path="receipts" element={<p className="text-lime-500 text-3xl text-center mt-40">contenu à changer dans <br /> App.tsx</p>} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </>
       )}
     </Routes>
