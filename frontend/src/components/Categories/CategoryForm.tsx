@@ -24,3 +24,13 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
       setUserId(1);
     }
   }, [mode, initial]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await onSubmit({ id: initial?.id, name, userId });
+    } finally {
+      setSaving(false);
+    }
+  };
