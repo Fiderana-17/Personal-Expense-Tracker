@@ -42,3 +42,32 @@ const CategoryPage: React.FC = () => {
       ),
     [categories, searchTerm]
   );
+
+    // Ouvrir formulaire d'ajout
+  const openCreateForm = () => {
+    setMode("create");
+    setEditing(null);
+    setShowForm((prev) => !prev); // toggle Add ⇄ Close
+  };
+
+  // Ouvrir formulaire d'édition
+  const openEditForm = (category: Category) => {
+    setMode("edit");
+    setEditing({ id: category.id, name: category.name, userId: category.userId });
+    setShowForm(true);
+    // on peut faire défiler vers le formulaire si besoin
+    // document.getElementById("category-form")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Soumission du formulaire (create ou edit)
+  const handleSubmit = async (values: { id?: number; name: string; userId: number }) => {
+    if (mode === "create") {
+      await createCategory({ name: values.name, userId: values.userId });
+    } else if (mode === "edit" && values.id != null) {
+      // ⚠️ backend demande aussi userId dans update
+      await updateCategory(values.id, { name: values.name, userId: values.userId });
+    }
+    await fetchCategories();
+    setShowForm(false);
+    setEditing(null);
+  };
