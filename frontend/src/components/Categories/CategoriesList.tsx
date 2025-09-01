@@ -71,3 +71,17 @@ const CategoryPage: React.FC = () => {
     setShowForm(false);
     setEditing(null);
   };
+
+  // Supprimer
+  const handleDeleteCategory = async (id: number) => {
+    if (confirm("Supprimer cette catégorie ?")) {
+      try {
+        await deleteCategory(id);
+        setCategories((prev) => prev.filter((cat) => cat.id !== id));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  if (loading) return <p>Chargement des catégories...</p>;
