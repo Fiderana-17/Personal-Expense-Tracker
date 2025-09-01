@@ -85,7 +85,6 @@ const Header: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <Switch />
 
               
             </div>

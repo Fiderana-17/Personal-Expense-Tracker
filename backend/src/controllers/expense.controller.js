@@ -1,19 +1,29 @@
 import prisma from '../prismaClient.js';
 
 // Get all expenses
+
 export const getAllExpenses = async (req, res) => {
   try {
+    const { userId } = req.query;
+
     const expenses = await prisma.expense.findMany({
+      where: userId ? { userId: Number(userId) } : undefined,
       include: { category: true, receipt: true, user: true },
-      orderBy: { createdAt: 'desc' } // optionnel : trier par date
+      orderBy: { createdAt: 'desc' }
     });
 
     res.status(200).json(expenses);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Erreur lors de la récupération des dépenses', error });
+    res.status(500).json({
+      message: 'Erreur lors de la récupération des dépenses',
+      error: error.message,
+    });
   }
 };
+
+
+
 
 
 

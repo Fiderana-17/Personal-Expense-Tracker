@@ -3,6 +3,8 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Dashboard from "@/components/Dashboard/Dashboard";
 import { useAuth } from "@/hooks/useAuth";
+import ExpensesList from "@/components/Expense/ExpenseList";
+
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -25,8 +27,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       case 'dashboard':
         return <Dashboard />;
       case 'expenses':
-        return <p className="text-blue-600 text-3xl text-center mt-40">contenu à changer dans <br /> components/Layout/MainLayout.tsx</p>;
-      case 'income':
+        return <ExpensesList/>
+      case 'income': 
         return <p className="text-amber-600 text-3xl text-center mt-40">contenu à changer dans <br /> components/Layout/MainLayout.tsx</p>;
       case 'categories':
         return <p className="text-green-600 text-3xl text-center mt-40">contenu à changer dans <br /> components/Layout/MainLayout.tsx</p>;

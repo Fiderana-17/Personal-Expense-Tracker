@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Search, Filter, Receipt, Edit, Trash2, Calendar } from 'lucide-react';
-import { type Expense, getAllExpenses, deleteExpense, createExpense } from '../../api/expense.ts';
-
+import { type Expense, deleteExpense, createExpense, updateExpense, getExpenses} from '../../api/expense.ts';
 
 const ExpensesList: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -13,19 +12,21 @@ const ExpensesList: React.FC = () => {
   const [selectedType, setSelectedType] = useState('all');
 
   const [showForm, setShowForm] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+
   const [formData, setFormData] = useState({
     description: '',
     amount: 0,
     categoryId: 1,
     userId: 1,
-    type: 'ONE_TIME', // enum Prisma
-    date: new Date().toISOString().split('T')[0], // yyyy-mm-dd
+    type: 'ONE_TIME',
+    date: new Date().toISOString().split('T')[0],
   });
 
   // Charger les dépenses depuis l’API
   const fetchExpenses = async () => {
     try {
-      const data = await getAllExpenses();
+      const data = await getExpenses(formData.userId);
       const normalized = data.map(exp => ({
         ...exp,
         type: (exp.type as any)?.toUpperCase?.() || exp.type,
@@ -53,21 +54,30 @@ const ExpensesList: React.FC = () => {
     }
   };
 
-  // ✅ Création d’une dépense et mise à jour immédiate de la liste
-  const handleAddExpense = async (e: React.FormEvent) => {
+  // ✅ Créer ou mettre à jour une dépense
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await createExpense(formData); // { message, data }
+      if (editingExpense) {
+        // Update
+        const updated = await updateExpense(editingExpense.id, formData);
+        setExpenses(prev =>
+          prev.map(e => (e.id === editingExpense.id ? { ...e, ...updated } : e))
+        );
+      } else {
+        // Create
+        const res = await createExpense(formData); // { message, data }
+        const expense = {
+          ...res.data,
+          type: (res.data.type as any)?.toUpperCase?.() || res.data.type,
+          amount: typeof res.data.amount === 'string' ? parseFloat(res.data.amount as any) : res.data.amount,
+        };
+        setExpenses(prev => [expense, ...prev]);
+      }
 
-      const normalized = {
-        ...res.data,
-        type: (res.data.type as any)?.toUpperCase?.() || res.data.type,
-        amount: typeof res.data.amount === 'string' ? parseFloat(res.data.amount as any) : res.data.amount,
-      };
-
-      setExpenses(prev => [normalized, ...prev]); // ajout en haut
+      // reset
       setShowForm(false);
-
+      setEditingExpense(null);
       setFormData({
         description: '',
         amount: 0,
@@ -79,6 +89,32 @@ const ExpensesList: React.FC = () => {
     } catch (err: any) {
       alert(err.message);
     }
+  };
+
+  const handleEdit = (expense: Expense) => {
+    setEditingExpense(expense);
+    setFormData({
+      description: expense.description ?? '',
+      amount: Number(expense.amount),
+      categoryId: expense.categoryId,
+      userId: expense.userId,
+      type: expense.type,
+      date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : '',
+    });
+    setShowForm(true);
+  };
+
+  const handleAddClick = () => {
+    setEditingExpense(null);
+    setFormData({
+      description: '',
+      amount: 0,
+      categoryId: 1,
+      userId: 1,
+      type: 'ONE_TIME',
+      date: new Date().toISOString().split('T')[0],
+    });
+    setShowForm(true);
   };
 
   const categories = ['all', ...Array.from(new Set(expenses.map(e => e.category?.name || '')))];
@@ -102,7 +138,7 @@ const ExpensesList: React.FC = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={handleAddClick}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
         >
           <Plus className="h-4 w-4" />
@@ -110,9 +146,12 @@ const ExpensesList: React.FC = () => {
         </button>
       </div>
 
-      {/* Formulaire d’ajout */}
+      {/* Formulaire */}
       {showForm && (
-        <form onSubmit={handleAddExpense} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+          <h3 className="text-lg font-semibold">
+            {editingExpense ? 'Edit Expense' : 'Add Expense'}
+          </h3>
           <div>
             <label className="block text-sm font-medium">Description</label>
             <input
@@ -154,7 +193,7 @@ const ExpensesList: React.FC = () => {
             </select>
           </div>
           <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-            Save Expense
+            {editingExpense ? 'Update Expense' : 'Save Expense'}
           </button>
         </form>
       )}
@@ -237,7 +276,10 @@ const ExpensesList: React.FC = () => {
                   <p className="text-2xl font-bold text-red-600">-{Number(expense.amount).toFixed(2)}</p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                  <button
+                    onClick={() => handleEdit(expense)}
+                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                  >
                     <Edit className="h-4 w-4" />
                   </button>
                   <button

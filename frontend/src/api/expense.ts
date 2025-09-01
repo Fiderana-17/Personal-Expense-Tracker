@@ -17,11 +17,12 @@ export interface Expense {
 }
 
 // GET all expenses
-export async function getAllExpenses(): Promise<Expense[]> {
-  const res = await fetch(`${API_BASE}/expenses`);
-  if (!res.ok) throw new Error('Erreur lors de la récupération des dépenses');
+export async function getExpenses(userId: number): Promise<Expense[]> {
+  const res = await fetch(`${API_BASE}/expenses?userId=${userId}`);
+  if (!res.ok) throw new Error("Erreur lors de la récupération des dépenses");
   return res.json();
 }
+
 
 // GET expense by ID
 export async function getExpenseById(id: number): Promise<Expense> {
@@ -31,7 +32,7 @@ export async function getExpenseById(id: number): Promise<Expense> {
 }
 
 // CREATE new expense
-export async function createExpense(data: Partial<Expense>): Promise<Expense> {
+export async function createExpense(data: Partial<Expense>): Promise<{ message: string; data: Expense }> {
   const res = await fetch(`${API_BASE}/expenses`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -42,7 +43,10 @@ export async function createExpense(data: Partial<Expense>): Promise<Expense> {
 }
 
 // UPDATE expense
-export async function updateExpense(id: number, data: Partial<Expense>): Promise<Expense> {
+export async function updateExpense(
+  id: number,
+  data: Partial<Expense>
+): Promise<{ message: string; data: Expense }> {
   const res = await fetch(`${API_BASE}/expenses/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -52,8 +56,13 @@ export async function updateExpense(id: number, data: Partial<Expense>): Promise
   return res.json();
 }
 
+
+
 // DELETE expense
 export async function deleteExpense(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/expenses/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Erreur lors de la suppression de la dépense');
 }
+
+
+
