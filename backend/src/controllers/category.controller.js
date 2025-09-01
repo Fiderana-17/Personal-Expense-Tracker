@@ -11,8 +11,6 @@ export const getCategories = async (req, res) => {
   }
 };
 
-
-
 // Crée une nouvelle catégorie
 export const createCategory = async (req, res) => {
   try {
@@ -33,4 +31,29 @@ export const createCategory = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Erreur lors de la création de la catégorie", error });
     }
+};
+
+// Renomme une catégorie existante
+export const updateCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, userId } = req.body;
+
+    if (!name || !userId) {
+      return res.status(400).json({ message: "Le champ 'name' et 'userId' sont requis" });
+    }
+
+    const category = await prisma.category.update({
+      where: { id: parseInt(id) },
+      data: {
+        name,
+        userId: parseInt(userId) // met à jour l'utilisateur si nécessaire
+      },
+    });
+
+    res.status(200).json({ message: "Category updated", data: category });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors de la mise à jour de la catégorie", error });
+  }
 };
