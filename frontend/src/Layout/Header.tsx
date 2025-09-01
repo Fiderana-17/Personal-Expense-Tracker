@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LogOut, User, Bell } from 'lucide-react';
 import Switch from '@/components/ui/Switch';
-import assets from '@/assets/image/assets';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
+import Logo from '@/components/ui/Logo';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -21,18 +22,18 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="bg-white shadow-xs border-b border-gray-200">
+    <header className="bg-background shadow-xs border-b border-white/10">
       <div className="px-4 sm:px-6 lg:px-10">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-7">
-            <img src={assets.logo} alt="logo" className="w-14" />
-            <h1 className="text-2xl font-bold text-gray-900 font-[Poppins]">
+            <Logo isDark={isDark} />
+            <h1 className="text-3xl font-bold text-title font-[Raleway]">
               Expense<span className="text-blue-500">Tracker</span>
             </h1>
           </div>
 
           <div className="flex items-center space-x-4 relative">
-            <Switch />
+            <Switch onToggle={setIsDark} />
             <button className="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
               <Bell className="h-6 w-6" />
               <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -43,7 +44,7 @@ const Header: React.FC = () => {
             <div className="flex items-center space-x-3" ref={menuRef}>
               <div className="flex items-center space-x-3 relative">
                 <div className="flex flex-col items-end">
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-title">
                     {user?.name}
                   </span>
                 </div>

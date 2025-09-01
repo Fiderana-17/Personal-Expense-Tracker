@@ -1,13 +1,24 @@
+import type { SwitchProps } from '@/types';
+import React, { useState } from 'react';
 
+const Switch: React.FC<SwitchProps> = ({ onToggle }) => {
+  const [isDark, setIsDark] = useState(false);
 
-import React from 'react';
-
-const Switch: React.FC = () => {
+    const handleChange = () => {
+      const newValue = !isDark;
+      setIsDark(newValue);
+      document.documentElement.classList.toggle('dark', newValue);
+    if (onToggle) onToggle(newValue);
+  };
   return (
     <div>
 
       <label className="switch">
-        <input defaultChecked={true} id="checkbox" type="checkbox" />
+        <input
+        type="checkbox"
+        checked={isDark}
+        onChange={handleChange}
+      />
         <span className="slider">
           <div className="star star_1" />
           <div className="star star_2" />
