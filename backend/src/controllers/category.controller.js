@@ -57,3 +57,38 @@ export const updateCategory = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la mise à jour de la catégorie", error });
   }
 };
+
+//supprimer une catégorie
+export const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Vérifie si l'id est bien un nombre
+    const categoryId = parseInt(id, 10);
+    if (isNaN(categoryId)) {
+      return res.status(400).json({ message: "ID invalide" });
+    }
+
+    // Vérifie si la catégorie existe
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+
+    if (!category) {
+      return res.status(404).json({ message: "Catégorie non trouvée" });
+    }
+
+    // Supprime la catégorie
+    await prisma.category.delete({
+      where: { id: categoryId },
+    });
+
+    res.json({ message: "Catégorie supprimée avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la suppression :", error);
+    res.status(500).json({
+      message: "Erreur lors de la suppression de la catégorie",
+      error: error.message,
+    });
+  }
+};
