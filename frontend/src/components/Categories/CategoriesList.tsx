@@ -34,3 +34,11 @@ const CategoryPage: React.FC = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+   const filteredCategories = useMemo(
+    () =>
+      categories.filter((c) =>
+        c.name.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      ),
+    [categories, searchTerm]
+  );
