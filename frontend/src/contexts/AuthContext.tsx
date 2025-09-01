@@ -1,13 +1,8 @@
-import React, { useState, useEffect, type ReactNode } from 'react';
-import type { User } from '../types';
+import React, { useState, useEffect} from 'react';
+import type { AuthProviderProps, User } from '../types';
 import { login as apiLogin, signup as apiSignup, getMe  } from '../api/auth';
 import { AuthContext } from '@/hooks/useAuth';
 
-
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -76,5 +71,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value = { user, token, login, signup, logout, isLoading };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

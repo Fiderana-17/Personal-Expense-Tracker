@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export interface User {
   id: string;
   email: string;
@@ -51,4 +53,21 @@ export interface Alert {
   message: string;
   severity: 'low' | 'medium' | 'high';
   createdAt: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => void;
+  isLoading: boolean;
+}
+
+export interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export interface SwitchProps {
+  onToggle?: (checked: boolean) => void;
 }
