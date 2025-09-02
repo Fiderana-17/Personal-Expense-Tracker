@@ -5,6 +5,10 @@ export interface User {
   email: string;
   name: string;
   createdAt: string;
+  expenses: Expense[];
+  incomes: Income[];
+  categories: Category[];
+
 }
 
 export interface Category {
@@ -20,7 +24,7 @@ export interface Expense {
   categoryId: string;
   category?: Category;
   description?: string;
- type: 'ONE_TIME' | 'RECURRING';
+  type: 'ONE_TIME' | 'RECURRING';
   startDate?: string;
   endDate?: string;
   receiptId?: string;

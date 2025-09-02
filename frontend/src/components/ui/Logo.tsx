@@ -14,7 +14,7 @@ const Logo: React.FC<{ isDark: boolean }> = ({ isDark }) => {
       <img
         src={assets.logo_dark}
         alt="logo sombre"
-        className={`absolute top-0 left-0 ${
+        className={`duration-500 absolute top-0 left-0 ${
           isDark ? "opacity-100" : "opacity-0"
         }`}
       />

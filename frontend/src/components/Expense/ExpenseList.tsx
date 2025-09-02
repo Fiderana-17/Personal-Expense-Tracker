@@ -63,8 +63,13 @@ const ExpensesList: React.FC = () => {
     try {
       await deleteExpense(id);
       setExpenses(prev => prev.filter(e => e.id !== id));
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Erreur lors de la suppression de la dépense:", err.message);
+      } else {
+        throw Error ("Erreur inconnue lors de la suppression de la dépense");
+      }
+
     }
   };
 
