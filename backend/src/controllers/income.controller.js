@@ -1,6 +1,5 @@
 import prisma from "../prismaClient.js";
 
-// Récupère tous les revenus (sans notion de userId, comme pour categories)
 export const getAllIncomes = async (req, res) => {
   try {
     const incomes = await prisma.income.findMany({
@@ -14,7 +13,6 @@ export const getAllIncomes = async (req, res) => {
   }
 };
 
-// Récupère un revenu par ID
 export const getIncomeById = async (req, res) => {
   try {
     const { id } = req.params;
