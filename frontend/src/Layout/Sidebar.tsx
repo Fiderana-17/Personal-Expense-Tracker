@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 bg-background shadow-xs border-r border-gray-200 h-[calc(100vh-60px)] flex flex-col justify-between">
+    <aside className="w-64 bg-background duration-500 shadow-xs border-gray-200 h-[calc(100vh-60px)] flex flex-col justify-between">
       <nav className="mt-8">
         <div className="px-4">
           {menuItems.map((item) => {
@@ -37,10 +37,10 @@ const Sidebar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `w-full flex items-center px-4 py-3 rounded-lg mb-1 transition-all duration-200 ${
+                  `w-full flex items-center px-4 py-3 rounded-lg mb-1 transition-all duration-500 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                      : 'text-title hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-background-hover text-blue-700 border-r-2 border-blue-700'
+                      : 'text-title hover:bg-background-hover hover:text-title bg-backgroundy'
                   }`
                 }
               >
@@ -60,9 +60,9 @@ const Sidebar: React.FC = () => {
       <div className="px-4 pb-6">
         <button
           onClick={logout}
-          className="w-full flex items-center px-4 py-3 text-left rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200"
+          className="w-full flex items-center px-4 py-3 text-left  rounded-lg hover:bg-logout transition-all duration-200 hover:text-red-600 text-title-logout"
         >
-          <LogOut className="h-5 w-5 mr-3 text-red-600" />
+          <LogOut className="h-5 w-5 mr-3" />
           <span className="font-medium">Logout</span>
         </button>
       </div>

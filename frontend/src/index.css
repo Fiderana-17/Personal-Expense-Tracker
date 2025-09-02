@@ -1,15 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
-* {
-    transition: color 0.6s linear, background-color 0.6s linear, opacity 0.6s linear;
-}
 
 @theme {
     --color-background: var(--background);
     --color-border: var(--border);
     --color-title: var(--text);
     --color-button: var(--button);
+    --color-background-hover: var(--background-hover);
+    --color-logout: var(--logout);
+    --color-title-logout: var(--title-logout);
+    --color-aside: var(--aside);
 }
 
 :root {
@@ -17,6 +18,10 @@
     --border: #000;
     --text: var(--color-gray-900);
     --button: #fff;
+    --background-hover: var(--color-blue-50);
+    --logout: var(--color-red-100);
+    --title-logout: var(--color-red-600);
+    --aside: var(--color-gray-50);
 }
 
 .dark {
@@ -24,4 +29,8 @@
     --border: #fff;
     --text: #fff;
     --button: var(--color-blue-700);
+    --background-hover: #1f2937;
+    --logout: transparent;
+    --title-logout: var(--color-white);
+    --aside: #111827;
 }

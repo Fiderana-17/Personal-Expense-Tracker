@@ -22,12 +22,12 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="bg-background shadow-xs border-b border-white/10">
+    <header className="bg-background shadow-xs border-b border-white/10 duration-500">
       <div className="px-4 sm:px-6 lg:px-10">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-7">
             <Logo isDark={isDark} />
-            <h1 className="text-3xl font-bold text-title font-[Raleway]">
+            <h1 className="text-3xl font-bold text-title font-[Raleway] duration-500">
               Expense<span className="text-blue-500">Tracker</span>
             </h1>
           </div>
@@ -44,7 +44,7 @@ const Header: React.FC = () => {
             <div className="flex items-center space-x-3" ref={menuRef}>
               <div className="flex items-center space-x-3 relative">
                 <div className="flex flex-col items-end">
-                  <span className="text-sm font-semibold text-title">
+                  <span className="text-sm font-semibold text-title duration-500">
                     {user?.name}
                   </span>
                 </div>
