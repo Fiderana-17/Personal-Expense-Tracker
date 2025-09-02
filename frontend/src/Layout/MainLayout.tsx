@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import Dashboard from "@/components/Dashboard/Dashboard";
 import { useAuth } from "@/hooks/useAuth";
 import ExpensesList from "@/components/Expense/ExpenseList";
+import Reports from "@/components/Report/report";
 
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -33,7 +34,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       case 'categories':
         return <p className="text-green-600 text-3xl text-center mt-40">contenu à changer dans <br /> components/Layout/MainLayout.tsx</p>;
       case 'reports':
-        return <p className="text-fuchsia-600 text-3xl text-center mt-40">contenu à changer dans <br /> components/Layout/MainLayout.tsx</p>;
+        return <Reports />;
       case 'receipts':
         return <p className="text-lime-500 text-3xl text-center mt-40">contenu à changer dans <br /> components/Layout/MainLayout.tsx</p>;
       case 'profile':

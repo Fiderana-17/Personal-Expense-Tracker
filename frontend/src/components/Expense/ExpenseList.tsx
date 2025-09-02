@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Search, Filter, Receipt, Edit, Trash2, Calendar } from 'lucide-react';
-import { type Expense, deleteExpense, createExpense, updateExpense, getExpenses} from '../../api/expense.ts';
+import { type Expense, deleteExpense, createExpense, updateExpense, getExpenses } from '../../api/expense.ts';
+import { useAuth } from '@/hooks/useAuth.ts'; // adapte le chemin si nécessaire
 
 const ExpensesList: React.FC = () => {
+  const { user } = useAuth(); // 🔥 utilisateur connecté
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,15 +20,16 @@ const ExpensesList: React.FC = () => {
     description: '',
     amount: 0,
     categoryId: 1,
-    userId: 1,
+    userId: user?.id || '', // 🔥 initialisé avec l’utilisateur connecté
     type: 'ONE_TIME',
     date: new Date().toISOString().split('T')[0],
   });
 
-  // Charger les dépenses depuis l’API
+  // Charger les dépenses de l’utilisateur connecté
   const fetchExpenses = async () => {
+    if (!user) return; // utilisateur non connecté
     try {
-      const data = await getExpenses(formData.userId);
+      const data = await getExpenses(Number(user.id));
       const normalized = data.map(exp => ({
         ...exp,
         type: (exp.type as any)?.toUpperCase?.() || exp.type,
@@ -42,7 +45,7 @@ const ExpensesList: React.FC = () => {
 
   useEffect(() => {
     fetchExpenses();
-  }, []);
+  }, [user?.id]);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Voulez-vous vraiment supprimer cette dépense ?')) return;
@@ -54,37 +57,43 @@ const ExpensesList: React.FC = () => {
     }
   };
 
-  // ✅ Créer ou mettre à jour une dépense
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+
     try {
       if (editingExpense) {
         // Update
-        const updated = await updateExpense(editingExpense.id, formData);
+        const updated = await updateExpense(editingExpense.id, { ...formData, userId: Number(formData.userId) });
+        const expense = (typeof updated === 'object' && 'data' in updated) ? updated.data : updated;
+
         setExpenses(prev =>
-          prev.map(e => (e.id === editingExpense.id ? { ...e, ...updated } : e))
+          prev.map(e => (e.id === editingExpense.id && typeof expense === 'object' && expense !== null ? { ...e, ...expense } : e))
         );
+
+        alert((typeof updated === 'object' && 'message' in updated ? updated.message : "Dépense mise à jour avec succès"));
       } else {
         // Create
-        const res = await createExpense(formData); // { message, data }
+        const res = await createExpense({ ...formData, userId: Number(user.id) });
         const expense = {
           ...res.data,
           type: (res.data.type as any)?.toUpperCase?.() || res.data.type,
-          amount: typeof res.data.amount === 'string' ? parseFloat(res.data.amount as any) : res.data.amount,
+          amount: typeof res.data.amount === "string" ? parseFloat(res.data.amount as any) : res.data.amount,
         };
         setExpenses(prev => [expense, ...prev]);
+        alert(res.message || "Dépense créée avec succès");
       }
 
       // reset
       setShowForm(false);
       setEditingExpense(null);
       setFormData({
-        description: '',
+        description: "",
         amount: 0,
         categoryId: 1,
-        userId: 1,
-        type: 'ONE_TIME',
-        date: new Date().toISOString().split('T')[0],
+        userId: user.id,
+        type: "ONE_TIME",
+        date: new Date().toISOString().split("T")[0],
       });
     } catch (err: any) {
       alert(err.message);
@@ -97,7 +106,7 @@ const ExpensesList: React.FC = () => {
       description: expense.description ?? '',
       amount: Number(expense.amount),
       categoryId: expense.categoryId,
-      userId: expense.userId,
+      userId: expense.userId.toString(),
       type: expense.type,
       date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : '',
     });
@@ -110,7 +119,7 @@ const ExpensesList: React.FC = () => {
       description: '',
       amount: 0,
       categoryId: 1,
-      userId: 1,
+      userId: user?.id || '',
       type: 'ONE_TIME',
       date: new Date().toISOString().split('T')[0],
     });
@@ -149,9 +158,7 @@ const ExpensesList: React.FC = () => {
       {/* Formulaire */}
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-          <h3 className="text-lg font-semibold">
-            {editingExpense ? 'Edit Expense' : 'Add Expense'}
-          </h3>
+          <h3 className="text-lg font-semibold">{editingExpense ? 'Edit Expense' : 'Add Expense'}</h3>
           <div>
             <label className="block text-sm font-medium">Description</label>
             <input
@@ -240,7 +247,7 @@ const ExpensesList: React.FC = () => {
         </div>
       </div>
 
-      {/* Liste */}
+      {/* Liste des dépenses */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">{filteredExpenses.length} Expenses Found</h3>
@@ -256,11 +263,7 @@ const ExpensesList: React.FC = () => {
                   }`}>
                     {expense.type}
                   </span>
-                  {expense.receipt && (
-                    <div title="Has receipt">
-                      <Receipt className="h-4 w-4 text-green-600" />
-                    </div>
-                  )}
+                  {expense.receipt && <Receipt className="h-4 w-4 text-green-600" />}
                 </div>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <div className="flex items-center space-x-1">
@@ -299,3 +302,4 @@ const ExpensesList: React.FC = () => {
 };
 
 export default ExpensesList;
+``

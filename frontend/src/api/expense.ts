@@ -15,6 +15,10 @@ export interface Expense {
   createdAt?: string;
   updatedAt?: string;
 }
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 // GET all expenses
 export async function getExpenses(userId: number): Promise<Expense[]> {
@@ -34,24 +38,34 @@ export async function getExpenseById(id: number): Promise<Expense> {
 // CREATE new expense
 export async function createExpense(data: Partial<Expense>): Promise<{ message: string; data: Expense }> {
   const res = await fetch(`${API_BASE}/expenses`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    } as HeadersInit,
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('Erreur lors de la création de la dépense');
+
+  if (!res.ok) throw new Error("Erreur lors de la création de la dépense");
   return res.json();
 }
 
+
 // UPDATE expense
-export async function updateExpense(
-  id: number,
-  data: Partial<Expense>
-): Promise<{ message: string; data: Expense }> {
+export async function updateExpense(id: number, data: Partial<Expense>): Promise<Expense> {
+  const token = localStorage.getItem("token"); // ou depuis ton AuthContext
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+  });
+  if (token) {
+    headers.append('Authorization', `Bearer ${token}`);
+  }
   const res = await fetch(`${API_BASE}/expenses/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(data),
   });
+
   if (!res.ok) throw new Error('Erreur lors de la mise à jour de la dépense');
   return res.json();
 }
