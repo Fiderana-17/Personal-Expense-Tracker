@@ -18,7 +18,7 @@ export interface Expense {
   categoryId: string;
   category?: Category;
   description?: string;
-  type: 'one-time' | 'recurring';
+ type: 'ONE_TIME' | 'RECURRING';
   startDate?: string;
   endDate?: string;
   receiptId?: string;
