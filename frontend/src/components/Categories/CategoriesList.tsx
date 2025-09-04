@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Edit, Trash2, FolderOpen, Tag } from "lucide-react";
+import { Plus, Search, Edit, Trash2, FolderOpen, Tag, X, CheckCircle } from "lucide-react";
 import {
   getAllCategories,
   createCategory,
@@ -12,13 +12,16 @@ import CategoryForm from "./CategoryForm";
 const CategoryPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // gestion du formulaire
   const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Pick<Category, "id" | "name" | "userId"> | null>(null);
-
   const [searchTerm, setSearchTerm] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
+  const [notification, setNotification] = useState<{ message: string; show: boolean }>({
+    message: "",
+    show: false,
+  });
 
   const fetchCategories = async () => {
     try {
@@ -35,7 +38,7 @@ const CategoryPage: React.FC = () => {
     fetchCategories();
   }, []);
 
-   const filteredCategories = useMemo(
+  const filteredCategories = useMemo(
     () =>
       categories.filter((c) =>
         c.name.toLowerCase().includes(searchTerm.toLowerCase().trim())
@@ -43,50 +46,62 @@ const CategoryPage: React.FC = () => {
     [categories, searchTerm]
   );
 
-    // Ouvrir formulaire d'ajout
   const openCreateForm = () => {
     setMode("create");
     setEditing(null);
-    setShowForm((prev) => !prev); // toggle Add ⇄ Close
+    setShowForm((prev) => !prev);
   };
 
-  // Ouvrir formulaire d'édition
   const openEditForm = (category: Category) => {
     setMode("edit");
     setEditing({ id: category.id, name: category.name, userId: category.userId });
     setShowForm(true);
-    // on peut faire défiler vers le formulaire si besoin
-    // document.getElementById("category-form")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Soumission du formulaire (create ou edit)
   const handleSubmit = async (values: { id?: number; name: string; userId: number }) => {
-    if (mode === "create") {
-      await createCategory({ name: values.name, userId: values.userId });
-    } else if (mode === "edit" && values.id != null) {
-      // backend demande aussi userId dans update
-      await updateCategory(values.id, { name: values.name, userId: values.userId });
+    try {
+      if (mode === "create") {
+        await createCategory({ name: values.name, userId: values.userId });
+        setNotification({ message: "Category created successfully", show: true });
+        setTimeout(() => setNotification({ message: "", show: false }), 3000);
+      } else if (mode === "edit" && values.id != null) {
+        await updateCategory(values.id, { name: values.name, userId: values.userId });
+      }
+      await fetchCategories();
+      setShowForm(false);
+      setEditing(null);
+    } catch (err) {
+      console.error(err);
     }
-    await fetchCategories();
-    setShowForm(false);
-    setEditing(null);
   };
 
-  // Supprimer
-  const handleDeleteCategory = async (id: number) => {
-    if (confirm("Supprimer cette catégorie ?")) {
+  const openDeleteModal = (id: number) => {
+    setCategoryToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteCategory = async () => {
+    if (categoryToDelete != null) {
       try {
-        await deleteCategory(id);
-        setCategories((prev) => prev.filter((cat) => cat.id !== id));
+        await deleteCategory(categoryToDelete);
+        setCategories((prev) => prev.filter((cat) => cat.id !== categoryToDelete));
+        setShowDeleteModal(false);
+        setCategoryToDelete(null);
+        setNotification({ message: "Category deleted successfully", show: true });
+        setTimeout(() => setNotification({ message: "", show: false }), 3000);
       } catch (err) {
         console.error(err);
       }
     }
   };
 
-  if (loading) return <p>Chargement des catégories...</p>;
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setCategoryToDelete(null);
+  };
 
-  
+  if (loading) return <p>Loading categories...</p>;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -115,7 +130,7 @@ const CategoryPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Formulaire inline (pas centré plein écran) */}
+      {/* Formulaire inline */}
       {showForm && (
         <div id="category-form">
           <CategoryForm
@@ -127,6 +142,62 @@ const CategoryPage: React.FC = () => {
             }}
             onSubmit={handleSubmit}
           />
+        </div>
+      )}
+
+      {/* Modal de confirmation de suppression */}
+      {showDeleteModal && (
+        <div className="flex items-center justify-center bg-gradient-to-br from-gray-900/60 to-blue-900/60 overflow-auto absolute w-full inset-0 bg-black/20 backdrop-blur-[2px] z-40">
+          <div className="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 p-6 max-w-sm w-full mx-4 transform transition-all duration-300">
+            <button
+              type="button"
+              onClick={closeDeleteModal}
+              className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-red-100 transition-all duration-200"
+              aria-label="Close modal"
+            >
+              <X size={20} className="text-gray-600 hover:text-red-600" />
+            </button>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Confirm Deletion
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this category? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCategory}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification */}
+      {notification.show && (
+        <div className="fixed bottom-4 right-4 z-50 animate-slide-in">
+          <div className="bg-green-600 text-white rounded-lg shadow-lg p-4 flex items-center gap-3 max-w-sm">
+            <CheckCircle size={20} className="text-white" />
+            <span>{notification.message}</span>
+            <button
+              type="button"
+              onClick={() => setNotification({ message: "", show: false })}
+              className="ml-auto p-1 rounded-full hover:bg-green-700 transition-colors duration-200"
+              aria-label="Close notification"
+            >
+              <X size={16} className="text-white" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -156,7 +227,7 @@ const CategoryPage: React.FC = () => {
                   <Edit className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => handleDeleteCategory(category.id)}
+                  onClick={() => openDeleteModal(category.id)}
                   className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                   title="Delete"
                 >
