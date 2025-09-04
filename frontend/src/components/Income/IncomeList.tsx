@@ -5,7 +5,7 @@ import {
   createIncome,
   updateIncome,
   deleteIncome,
-} from "../../api/income";
+} from "../../api/income.ts";
 import { type Income } from "../../types";
 import IncomeForm from "./IncomeForm.tsx";
 
@@ -13,12 +13,12 @@ const IncomeList: React.FC = () => {
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Modal form
   const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Partial<Income> | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
-
 
   // Fetch incomes
   const fetchIncomes = async () => {
@@ -37,7 +37,6 @@ const IncomeList: React.FC = () => {
     fetchIncomes();
   }, []);
 
-  // Filtrer les incomes
   const filteredIncomes = useMemo(
     () =>
       incomes.filter(
@@ -48,7 +47,6 @@ const IncomeList: React.FC = () => {
     [incomes, searchTerm]
   );
 
-  // Total income
   const totalIncome = filteredIncomes.reduce((sum, inc) => sum + inc.amount, 0);
 
   // Form handlers
@@ -67,9 +65,9 @@ const IncomeList: React.FC = () => {
   const handleSubmit = async (values: Partial<Income>) => {
     try {
       if (mode === "create") {
-        await createIncome(values as Required<Pick<Income, "amount" | "date" | "userId"> & { source?: string; description?: string }>);
+        await createIncome(values as Required<Pick<Income, "amount" | "date"> & { source?: string; description?: string }>);
       } else if (mode === "edit" && editing?.id) {
-        await updateIncome(editing.id, values as Required<Pick<Income, "amount" | "date" | "userId"> & { source?: string; description?: string }>);
+        await updateIncome(editing.id, values as Required<Pick<Income, "amount" | "date"> & { source?: string; description?: string }>);
       }
       await fetchIncomes();
       setShowForm(false);
@@ -93,7 +91,7 @@ const IncomeList: React.FC = () => {
   if (loading) return <p>Loading incomes...</p>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Income</h1>
@@ -136,19 +134,6 @@ const IncomeList: React.FC = () => {
         </div>
       </div>
 
-      {/* Formulaire inline */}
-      {showForm && (
-        <IncomeForm
-          mode={mode}
-          initial={editing}
-          onCancel={() => {
-            setShowForm(false);
-            setEditing(null);
-          }}
-          onSubmit={handleSubmit}
-        />
-      )}
-
       {/* Liste incomes */}
       {filteredIncomes.length === 0 ? (
         <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-12 text-center">
@@ -166,9 +151,7 @@ const IncomeList: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-900">
                     {income.source ?? "Untitled Income"}
                   </h3>
-                  {income.description && (
-                    <p className="text-sm text-gray-500">{income.description}</p>
-                  )}
+                  {income.description && <p className="text-sm text-gray-500">{income.description}</p>}
                   <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                     <Calendar className="w-4 h-4" /> {income.date}
                   </div>
@@ -187,6 +170,27 @@ const IncomeList: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal Form with blur */}
+      {showForm && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none transition-opacity duration-[1000ms]">
+          {/* Background flou sur contenu principal seulement */}
+          <div className="absolute inset-0 backdrop-blur-sm bg-white/30 pointer-events-auto" />
+
+          {/* Formulaire centré */}
+          <div className="relative bg-gray-50 rounded-xl shadow-lg border border-gray-100 px-8 py-10 w-[500px] max-w-[90%] pointer-events-auto z-10 transform transition-all duration-[1000ms] opacity-100 scale-100">
+            <IncomeForm
+              mode={mode}
+              initial={editing}
+              onCancel={() => {
+                setShowForm(false);
+                setEditing(null);
+              }}
+              onSubmit={handleSubmit}
+            />
+          </div>
         </div>
       )}
     </div>
