@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Receipt, Edit, Trash2, Calendar } from 'lucide-react';
+import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { type Expense, deleteExpense, createExpense, updateExpense, getExpenses } from '../../api/expense.ts';
 import { getAllCategories, type Category } from '../../api/category.ts';
 import { useAuth } from '@/hooks/useAuth.ts';
@@ -10,20 +11,22 @@ const ExpensesList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
-
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState<number | null>(null);
+  const [notification, setNotification] = useState('');
+  const [notificationType, setNotificationType] = useState<'success' | 'error'>('success');
 
   const [formData, setFormData] = useState({
     description: '',
-    amount: 0,
+    amount: 0 as number | undefined,
     categoryId: 1,
     userId: user?.id || '',
-    type: 'ONE_TIME',
+    type: 'ONE_TIME' as 'ONE_TIME' | 'RECURRING',
     date: new Date().toISOString().split('T')[0],
   });
 
@@ -33,12 +36,16 @@ const ExpensesList: React.FC = () => {
       const data = await getExpenses(Number(user.id));
       const normalized = data.map(exp => ({
         ...exp,
-        type: (exp.type as any)?.toUpperCase?.() || exp.type,
-        amount: typeof exp.amount === 'string' ? parseFloat(exp.amount as any) : exp.amount,
+        type: exp.type.toUpperCase(),
+        amount: typeof exp.amount === 'string' ? parseFloat(exp.amount) : exp.amount,
       }));
       setExpenses(normalized);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -49,7 +56,7 @@ const ExpensesList: React.FC = () => {
       const data = await getAllCategories();
       setCategories(data);
     } catch (err) {
-      console.error("Erreur lors du chargement des catégories", err);
+      console.error("Error loading categories:", err);
     }
   };
 
@@ -59,17 +66,29 @@ const ExpensesList: React.FC = () => {
   }, [user?.id]);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Voulez-vous vraiment supprimer cette dépense ?')) return;
-    try {
-      await deleteExpense(id);
-      setExpenses(prev => prev.filter(e => e.id !== id));
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error("Erreur lors de la suppression de la dépense:", err.message);
-      } else {
-        throw Error ("Erreur inconnue lors de la suppression de la dépense");
-      }
+    setExpenseToDelete(id);
+    setShowDeleteModal(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!expenseToDelete) return;
+    try {
+      await deleteExpense(expenseToDelete);
+      setExpenses(prev => prev.filter(e => e.id !== expenseToDelete));
+      setNotification('Expense deleted successfully');
+      setNotificationType('success');
+    } catch (err) {
+      if (err instanceof Error) {
+        setNotification(err.message);
+        setNotificationType('error');
+      } else {
+        setNotification('An unknown error occurred');
+        setNotificationType('error');
+      }
+    } finally {
+      setShowDeleteModal(false);
+      setExpenseToDelete(null);
+      setTimeout(() => setNotification(''), 5000);
     }
   };
 
@@ -80,36 +99,43 @@ const ExpensesList: React.FC = () => {
     try {
       if (editingExpense) {
         const updated = await updateExpense(editingExpense.id, { ...formData, userId: Number(user.id) });
-        const expense = (typeof updated === 'object' && 'data' in updated) ? updated.data : updated;
+        const expense = 'data' in updated ? updated.data : updated;
 
         setExpenses(prev =>
           prev.map(e => (e.id === editingExpense.id && typeof expense === 'object' ? { ...e, ...expense } : e))
         );
-
-        alert((typeof updated === 'object' && 'message' in updated ? updated.message : "Dépense mise à jour avec succès"));
+        setNotification('Expense updated successfully');
       } else {
         const res = await createExpense({ ...formData, userId: Number(user.id) });
         const expense = {
           ...res.data,
-          type: (res.data.type as any)?.toUpperCase?.() || res.data.type,
-          amount: typeof res.data.amount === "string" ? parseFloat(res.data.amount as any) : res.data.amount,
+          type: res.data.type.toUpperCase(),
+          amount: typeof res.data.amount === 'string' ? parseFloat(res.data.amount) : res.data.amount,
         };
         setExpenses(prev => [expense, ...prev]);
-        alert(res.message || "Dépense créée avec succès");
+        setNotification('Expense created successfully');
       }
-
+      setNotificationType('success');
       setShowForm(false);
       setEditingExpense(null);
       setFormData({
-        description: "",
+        description: '',
         amount: 0,
         categoryId: categories.length > 0 ? categories[0].id : 1,
         userId: user.id,
-        type: "ONE_TIME",
-        date: new Date().toISOString().split("T")[0],
+        type: 'ONE_TIME',
+        date: new Date().toISOString().split('T')[0],
       });
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        setNotification(err.message);
+        setNotificationType('error');
+      } else {
+        setNotification('An unknown error occurred');
+        setNotificationType('error');
+      }
+    } finally {
+      setTimeout(() => setNotification(''), 5000);
     }
   };
 
@@ -120,7 +146,7 @@ const ExpensesList: React.FC = () => {
       amount: Number(expense.amount),
       categoryId: expense.categoryId,
       userId: expense.userId.toString(),
-      type: expense.type,
+      type: typeof expense.type === 'string' ? (expense.type.toUpperCase() as 'ONE_TIME' | 'RECURRING') : 'ONE_TIME',
       date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : '',
     });
     setShowForm(true);
@@ -151,87 +177,179 @@ const ExpensesList: React.FC = () => {
     return matchesSearch && matchesCategory && matchesType;
   });
 
-  if (loading) return <p>Chargement...</p>;
-  if (error) return <p>Erreur: {error}</p>;
+  if (loading) return <p className="text-gray-700">Loading...</p>;
+  if (error) return <p className="text-red-600">Error: {error}</p>;
 
   return (
-    <div className="space-y-6">
-      {/* Header + Add */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-title">Expenses</h1>
         <button
           onClick={handleAddClick}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
+          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           <span>Add Expense</span>
         </button>
       </div>
 
-      {/* Formulaire */}
-      {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-          <h3 className="text-lg font-semibold">{editingExpense ? 'Edit Expense' : 'Add Expense'}</h3>
-          <div>
-            <label className="block text-sm font-medium">Description</label>
-            <input
-              type="text"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
-              required
+      <AnimatePresence>
+        {showForm && (
+          <>
+            <motion.div
+              className="absolute w-full inset-0 bg-black/20 backdrop-blur-sm z-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowForm(false)}
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Amount ($)</label>
-            <input
-              type="number"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
-              className="w-full px-3 py-2 border rounded-lg"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Category</label>
-            <select
-              value={formData.categoryId}
-              onChange={(e) => setFormData({ ...formData, categoryId: Number(e.target.value) })}
-              className="w-full px-3 py-2 border rounded-lg"
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: -30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: -30 }}
+              transition={{ duration: 0.3 }}
+              className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
             >
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Date</label>
-            <input
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Type</label>
-            <select
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value as 'ONE_TIME' | 'RECURRING' })}
-              className="w-full px-3 py-2 border rounded-lg"
-            >
-              <option value="ONE_TIME">ONE_TIME</option>
-              <option value="RECURRING">RECURRING</option>
-            </select>
-          </div>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            {editingExpense ? 'Update Expense' : 'Save Expense'}
-          </button>
-        </form>
-      )}
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-lg font-semibold text-gray-800">{editingExpense ? 'Edit Expense' : 'Add Expense'}</h2>
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <input
+                    type="text"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+                  <input
+                    type="text"
+                    value={formData.amount ?? ''}
+                    onChange={(e) => {
+                      const chiffres = e.target.value.replace(/\D/g, '');
+                      setFormData({ ...formData, amount: chiffres === '' ? undefined : Number(chiffres) });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    required
+                  />
 
-      {/* Filtres */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <select
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData({ ...formData, categoryId: Number(e.target.value) })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  >
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as 'ONE_TIME' | 'RECURRING' })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  >
+                    <option value="ONE_TIME">ONE_TIME</option>
+                    <option value="RECURRING">RECURRING</option>
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                >
+                  <span>{editingExpense ? 'Update Expense' : 'Save Expense'}</span>
+                </button>
+              </form>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showDeleteModal && (
+          <>
+            <motion.div
+              className="absolute w-full inset-0 bg-black/20 backdrop-blur-sm z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDeleteModal(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: -30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: -30 }}
+              transition={{ duration: 0.3 }}
+              className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-lg font-semibold text-gray-800">Confirm Deletion</h2>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="text-gray-600">Are you sure you want to delete this expense?</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  No
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+                >
+                  Yes
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -50, opacity: 0 }}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${notificationType === 'success' ? 'bg-green-500 text-white' : 'border-red-300 text-red-800 bg-red-100'
+              }`}
+          >
+            <AlertCircle className="h-5 w-5" />
+            <span>{notification}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="bg-page rounded-xl shadow-md border border-border p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -240,13 +358,13 @@ const ExpensesList: React.FC = () => {
               placeholder="Search expenses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
             {filterCategories.map(category => (
               <option key={category} value={category}>
@@ -257,7 +375,7 @@ const ExpensesList: React.FC = () => {
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
             {types.map(type => (
               <option key={type} value={type}>
@@ -268,20 +386,18 @@ const ExpensesList: React.FC = () => {
         </div>
       </div>
 
-      {/* Liste des dépenses */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-page rounded-xl shadow-md border border-border">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">{filteredExpenses.length} Expenses Found</h3>
+          <h3 className="text-lg font-semibold text-title">{filteredExpenses.length} Expenses Found</h3>
         </div>
         <div className="divide-y divide-gray-200">
           {filteredExpenses.map(expense => (
             <div key={expense.id} className="p-6 hover:bg-gray-50 transition-colors duration-150 flex justify-between items-center">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
-                  <h4 className="text-lg font-semibold text-gray-900">{expense.description || 'Untitled Expense'}</h4>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    expense.type === 'RECURRING' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  <h4 className="text-lg font-semibold text-title">{expense.description || 'Untitled Expense'}</h4>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${expense.type === 'RECURRING' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
                     {expense.type}
                   </span>
                   {expense.receipt && <Receipt className="h-4 w-4 text-green-600" />}
@@ -293,7 +409,7 @@ const ExpensesList: React.FC = () => {
                   </div>
                   <span>•</span>
                   <span className="font-medium text-gray-700">
-                    {categories.find(c => c.id === expense.categoryId)?.name || 'Sans catégorie'}
+                    {categories.find(c => c.id === expense.categoryId)?.name || 'No category'}
                   </span>
                 </div>
               </div>
@@ -304,13 +420,13 @@ const ExpensesList: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleEdit(expense)}
-                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200"
                   >
                     <Edit className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(expense.id)}
-                    className="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
