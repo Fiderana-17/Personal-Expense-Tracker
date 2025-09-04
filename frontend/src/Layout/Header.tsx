@@ -57,7 +57,7 @@ const Header: React.FC = () => {
                 </button>
 
                 <div
-                  className={`absolute z-1 right-0 top-12.5 w-48 rounded-md bg-white shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${
+                  className={`absolute z-100 right-0 top-12.5 w-48 rounded-md bg-white shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${
                     menuOpen
                       ? 'opacity-100 scale-100 translate-y-0'
                       : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
