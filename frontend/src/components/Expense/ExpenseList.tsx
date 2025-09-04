@@ -183,7 +183,7 @@ const ExpensesList: React.FC = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-title">Expenses</h1>
+        <h1 className="text-3xl font-bold text-title duration-500">Expenses</h1>
         <button
           onClick={handleAddClick}
           className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center gap-2"
@@ -349,7 +349,7 @@ const ExpensesList: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="bg-page rounded-xl shadow-md border border-border p-6 mb-6">
+      <div className="bg-page duration-500 rounded-xl shadow-md border border-border p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -358,16 +358,16 @@ const ExpensesList: React.FC = () => {
               placeholder="Search expenses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-title duration-500"
             />
           </div>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-title duration-500"
           >
             {filterCategories.map(category => (
-              <option key={category} value={category}>
+              <option key={category} value={category} className='bg-page duration-500'>
                 {category === 'all' ? 'All Categories' : category}
               </option>
             ))}
@@ -375,10 +375,10 @@ const ExpensesList: React.FC = () => {
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-title duration-500"
           >
             {types.map(type => (
-              <option key={type} value={type}>
+              <option key={type} value={type} className='bg-page duration-500'>
                 {type === 'all' ? 'All Types' : type}
               </option>
             ))}
@@ -386,16 +386,16 @@ const ExpensesList: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-page rounded-xl shadow-md border border-border">
+      <div className="bg-page duration-500 rounded-xl shadow-md border border-border">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-title">{filteredExpenses.length} Expenses Found</h3>
+          <h3 className="text-lg font-semibold text-title duration-500">{filteredExpenses.length} Expenses Found</h3>
         </div>
         <div className="divide-y divide-gray-200">
           {filteredExpenses.map(expense => (
-            <div key={expense.id} className="p-6 hover:bg-gray-50 transition-colors duration-150 flex justify-between items-center">
+            <div key={expense.id} className="p-6 hover:bg-background duration-150 transition-colors flex justify-between items-center">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
-                  <h4 className="text-lg font-semibold text-title">{expense.description || 'Untitled Expense'}</h4>
+                  <h4 className="text-lg font-semibold text-title duration-500">{expense.description || 'Untitled Expense'}</h4>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${expense.type === 'RECURRING' ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-100 text-gray-800'
                     }`}>
                     {expense.type}
