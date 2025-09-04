@@ -11,10 +11,11 @@ export interface Expense {
   userId: number;
   categoryId: number;
   category?: { id: number; name: string };
-  receipt?: any;
+  receipt?: string;
   createdAt?: string;
   updatedAt?: string;
 }
+
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -53,7 +54,7 @@ export async function createExpense(data: Partial<Expense>): Promise<{ message: 
 
 // UPDATE expense
 export async function updateExpense(id: number, data: Partial<Expense>): Promise<Expense> {
-  const token = localStorage.getItem("token"); // ou depuis ton AuthContext
+  const token = localStorage.getItem("token"); 
   const headers = new Headers({
     'Content-Type': 'application/json',
   });
