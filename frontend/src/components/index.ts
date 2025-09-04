@@ -5,7 +5,7 @@ export { default as Dashboard } from "./Dashboard/Dashboard";
 export { default as ExpensesList } from "./Expense/ExpenseList";
 export { default as Switch } from "./ui/Switch";
 export { default as Profile } from "./Profile/Profile";
-// export { default as Income } from "./Income/Income";
+export { default as IncomeList } from "./Income/IncomeList";
 export { default as CategoriesList } from "./Categories/CategoriesList";
 // export { default as Reports } from "./Reports/Reports";
 // export { default as Receipts } from "./Receipts/Receipts";

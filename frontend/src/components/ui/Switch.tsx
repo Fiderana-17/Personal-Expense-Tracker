@@ -1,13 +1,24 @@
+import type { SwitchProps } from '@/types';
+import React, { useState } from 'react';
 
+const Switch: React.FC<SwitchProps> = ({ onToggle }) => {
+  const [isDark, setIsDark] = useState(false);
 
-import React from 'react';
-
-const Switch: React.FC = () => {
+    const handleChange = () => {
+      const newValue = !isDark;
+      setIsDark(newValue);
+      document.documentElement.classList.toggle('dark', newValue);
+    if (onToggle) onToggle(newValue);
+  };
   return (
     <div>
 
       <label className="switch">
-        <input defaultChecked={true} id="checkbox" type="checkbox" />
+        <input
+        type="checkbox"
+        checked={!isDark}
+        onChange={handleChange}
+      />
         <span className="slider">
           <div className="star star_1" />
           <div className="star star_2" />
@@ -47,7 +58,7 @@ const Switch: React.FC = () => {
           right: 0;
           bottom: 0;
           background-color: #2a2a2a;
-          transition: 0.6s;
+          transition: 0.5s;
           border-radius: 30px;
           overflow: hidden;
         }
@@ -60,7 +71,7 @@ const Switch: React.FC = () => {
           border-radius: 20px;
           left: 0.5em;
           bottom: 0.5em;
-          transition: 0.6s;
+          transition: 0.5s;
           transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
           box-shadow: inset 8px -4px 0px 0px #fff;
         }
@@ -79,7 +90,7 @@ const Switch: React.FC = () => {
           border-radius: 50%;
           position: absolute;
           width: 5px;
-          transition: all 0.6s;
+          transition: all 0.5s;
           height: 5px;
         }
 
@@ -108,7 +119,7 @@ const Switch: React.FC = () => {
           bottom: -1.4em;
           left: -1.1em;
           opacity: 0;
-          transition: all 0.6s;
+          transition: all 0.5s;
         }
 
         .switch input:checked ~ .slider .cloud {

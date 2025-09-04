@@ -1,2 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
+
+
+@theme {
+    --color-background: var(--background);
+    --color-border: var(--border);
+    --color-title: var(--text);
+    --color-button: var(--button);
+    --color-background-hover: var(--background-hover);
+    --color-logout: var(--logout);
+    --color-title-logout: var(--title-logout);
+    --color-aside: var(--aside);
+}
+
+:root {
+    --background: #fff;
+    --border: #000;
+    --text: var(--color-gray-900);
+    --button: #fff;
+    --background-hover: var(--color-blue-50);
+    --logout: var(--color-red-100);
+    --title-logout: var(--color-red-600);
+    --aside: var(--color-gray-50);
+}
+
+.dark {
+    --background: #030712;
+    --border: #fff;
+    --text: #fff;
+    --button: var(--color-blue-700);
+    --background-hover: #1f2937;
+    --logout: transparent;
+    --title-logout: var(--color-white);
+    --aside: #111827;
+}

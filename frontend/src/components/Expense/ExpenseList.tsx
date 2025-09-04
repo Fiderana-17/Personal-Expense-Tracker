@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Filter, Receipt, Edit, Trash2, Calendar } from 'lucide-react';
+import { Plus, Search, Receipt, Edit, Trash2, Calendar } from 'lucide-react';
 import { type Expense, deleteExpense, createExpense, updateExpense, getExpenses } from '../../api/expense.ts';
-import { useAuth } from '@/hooks/useAuth.ts'; // adapte le chemin si nécessaire
+import { getAllCategories, type Category } from '../../api/category.ts';
+import { useAuth } from '@/hooks/useAuth.ts';
 
 const ExpensesList: React.FC = () => {
-  const { user } = useAuth(); // 🔥 utilisateur connecté
+  const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,14 +22,13 @@ const ExpensesList: React.FC = () => {
     description: '',
     amount: 0,
     categoryId: 1,
-    userId: user?.id || '', // 🔥 initialisé avec l’utilisateur connecté
+    userId: user?.id || '',
     type: 'ONE_TIME',
     date: new Date().toISOString().split('T')[0],
   });
 
-  // Charger les dépenses de l’utilisateur connecté
   const fetchExpenses = async () => {
-    if (!user) return; // utilisateur non connecté
+    if (!user) return;
     try {
       const data = await getExpenses(Number(user.id));
       const normalized = data.map(exp => ({
@@ -43,8 +44,18 @@ const ExpensesList: React.FC = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const data = await getAllCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error("Erreur lors du chargement des catégories", err);
+    }
+  };
+
   useEffect(() => {
     fetchExpenses();
+    fetchCategories();
   }, [user?.id]);
 
   const handleDelete = async (id: number) => {
@@ -52,8 +63,13 @@ const ExpensesList: React.FC = () => {
     try {
       await deleteExpense(id);
       setExpenses(prev => prev.filter(e => e.id !== id));
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Erreur lors de la suppression de la dépense:", err.message);
+      } else {
+        throw Error ("Erreur inconnue lors de la suppression de la dépense");
+      }
+
     }
   };
 
@@ -63,17 +79,15 @@ const ExpensesList: React.FC = () => {
 
     try {
       if (editingExpense) {
-        // Update
-        const updated = await updateExpense(editingExpense.id, { ...formData, userId: Number(formData.userId) });
+        const updated = await updateExpense(editingExpense.id, { ...formData, userId: Number(user.id) });
         const expense = (typeof updated === 'object' && 'data' in updated) ? updated.data : updated;
 
         setExpenses(prev =>
-          prev.map(e => (e.id === editingExpense.id && typeof expense === 'object' && expense !== null ? { ...e, ...expense } : e))
+          prev.map(e => (e.id === editingExpense.id && typeof expense === 'object' ? { ...e, ...expense } : e))
         );
 
         alert((typeof updated === 'object' && 'message' in updated ? updated.message : "Dépense mise à jour avec succès"));
       } else {
-        // Create
         const res = await createExpense({ ...formData, userId: Number(user.id) });
         const expense = {
           ...res.data,
@@ -84,13 +98,12 @@ const ExpensesList: React.FC = () => {
         alert(res.message || "Dépense créée avec succès");
       }
 
-      // reset
       setShowForm(false);
       setEditingExpense(null);
       setFormData({
         description: "",
         amount: 0,
-        categoryId: 1,
+        categoryId: categories.length > 0 ? categories[0].id : 1,
         userId: user.id,
         type: "ONE_TIME",
         date: new Date().toISOString().split("T")[0],
@@ -118,7 +131,7 @@ const ExpensesList: React.FC = () => {
     setFormData({
       description: '',
       amount: 0,
-      categoryId: 1,
+      categoryId: categories.length > 0 ? categories[0].id : 1,
       userId: user?.id || '',
       type: 'ONE_TIME',
       date: new Date().toISOString().split('T')[0],
@@ -126,14 +139,14 @@ const ExpensesList: React.FC = () => {
     setShowForm(true);
   };
 
-  const categories = ['all', ...Array.from(new Set(expenses.map(e => e.category?.name || '')))];
+  const filterCategories = ['all', ...categories.map(c => c.name)];
   const types = ['all', 'ONE_TIME', 'RECURRING'];
 
   const filteredExpenses = expenses.filter(expense => {
     const matchesSearch =
       expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      expense.category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || expense.category?.name === selectedCategory;
+      categories.find(c => c.id === expense.categoryId)?.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || categories.find(c => c.id === expense.categoryId)?.name === selectedCategory;
     const matchesType = selectedType === 'all' || expense.type === selectedType;
     return matchesSearch && matchesCategory && matchesType;
   });
@@ -143,7 +156,7 @@ const ExpensesList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header + bouton Ajouter */}
+      {/* Header + Add */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
         <button
@@ -170,7 +183,7 @@ const ExpensesList: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Amount (€)</label>
+            <label className="block text-sm font-medium">Amount ($)</label>
             <input
               type="number"
               value={formData.amount}
@@ -178,6 +191,18 @@ const ExpensesList: React.FC = () => {
               className="w-full px-3 py-2 border rounded-lg"
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Category</label>
+            <select
+              value={formData.categoryId}
+              onChange={(e) => setFormData({ ...formData, categoryId: Number(e.target.value) })}
+              className="w-full px-3 py-2 border rounded-lg"
+            >
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium">Date</label>
@@ -199,7 +224,7 @@ const ExpensesList: React.FC = () => {
               <option value="RECURRING">RECURRING</option>
             </select>
           </div>
-          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             {editingExpense ? 'Update Expense' : 'Save Expense'}
           </button>
         </form>
@@ -207,7 +232,7 @@ const ExpensesList: React.FC = () => {
 
       {/* Filtres */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
@@ -223,7 +248,7 @@ const ExpensesList: React.FC = () => {
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            {categories.map(category => (
+            {filterCategories.map(category => (
               <option key={category} value={category}>
                 {category === 'all' ? 'All Categories' : category}
               </option>
@@ -240,10 +265,6 @@ const ExpensesList: React.FC = () => {
               </option>
             ))}
           </select>
-          <button className="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-            <Filter className="h-4 w-4" />
-            <span>More Filters</span>
-          </button>
         </div>
       </div>
 
@@ -271,12 +292,14 @@ const ExpensesList: React.FC = () => {
                     <span>{expense.date ? new Date(expense.date).toLocaleDateString() : '—'}</span>
                   </div>
                   <span>•</span>
-                  <span className="font-medium text-gray-700">{expense.category?.name || 'Sans catégorie'}</span>
+                  <span className="font-medium text-gray-700">
+                    {categories.find(c => c.id === expense.categoryId)?.name || 'Sans catégorie'}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-red-600">-{Number(expense.amount).toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-red-600">-${Number(expense.amount).toFixed(2)}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -287,7 +310,7 @@ const ExpensesList: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleDelete(expense.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    className="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors duration-200"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -302,4 +325,3 @@ const ExpensesList: React.FC = () => {
 };
 
 export default ExpensesList;
-``

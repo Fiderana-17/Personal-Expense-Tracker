@@ -1,8 +1,14 @@
+import type { ReactNode } from "react";
+
 export interface User {
   id: string;
   email: string;
   name: string;
   createdAt: string;
+  expenses: Expense[];
+  incomes: Income[];
+  categories: Category[];
+
 }
 
 export interface Category {
@@ -18,7 +24,7 @@ export interface Expense {
   categoryId: string;
   category?: Category;
   description?: string;
- type: 'ONE_TIME' | 'RECURRING';
+  type: 'ONE_TIME' | 'RECURRING';
   startDate?: string;
   endDate?: string;
   receiptId?: string;
@@ -51,4 +57,21 @@ export interface Alert {
   message: string;
   severity: 'low' | 'medium' | 'high';
   createdAt: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => void;
+  isLoading: boolean;
+}
+
+export interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export interface SwitchProps {
+  onToggle?: (checked: boolean) => void;
 }
