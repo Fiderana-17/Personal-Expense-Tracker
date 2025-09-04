@@ -1,8 +1,8 @@
 import express from "express"
-const router = express.Router();
-
 import { getAllIncomes, getIncomeById, createIncome, updateIncome, deleteIncome } from "../controllers/income.controller.js";
 import { authenticateToken } from "../middleware/auth.js";
+
+const router = express.Router();
 
 router.use(authenticateToken);
 
