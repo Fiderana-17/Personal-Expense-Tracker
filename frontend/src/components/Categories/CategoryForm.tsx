@@ -114,4 +114,5 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
   );
 };
 
+
 export default CategoryForm;
