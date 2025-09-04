@@ -1,62 +1,81 @@
+// frontend/services/category.ts
 const API_BASE = import.meta.env.VITE_API_URL;
 
 export interface Category {
   id: number;
   name: string;
   userId: number;
-  createdAt?: string;
 }
 
-// petit helper pour normaliser la réponse {data: ...} ou l'objet direct
-async function normalize<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Erreur API");
-  }
-  const body = await res.json();
-  return (body && typeof body === "object" && "data" in body) ? (body.data as T) : (body as T);
+// 🔑 Auth headers
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 // GET all categories
 export async function getAllCategories(): Promise<Category[]> {
-  const res = await fetch(`${API_BASE}/categories`);
-  return normalize<Category[]>(res);
+  const res = await fetch(`${API_BASE}/categories`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+  if (!res.ok) throw new Error("Erreur lors de la récupération des catégories");
+  return res.json();
 }
 
-// GET category by ID
-export async function getCategoryById(id: number): Promise<Category> {
-  const res = await fetch(`${API_BASE}/categories/${id}`);
-  return normalize<Category>(res);
+// GET categories by user
+export async function getCategoriesByUser(userId: number): Promise<Category[]> {
+  const res = await fetch(`${API_BASE}/categories/user/${userId}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+  });
+  if (!res.ok) throw new Error("Erreur lors de la récupération des catégories de l'utilisateur");
+  return res.json();
 }
 
-// CREATE new category
-export async function createCategory(data: Pick<Category, "name" | "userId">): Promise<Category> {
+//CREATE category
+export async function createCategory(data: Partial<Category>): Promise<{ message: string; data: Category }> {
   const res = await fetch(`${API_BASE}/categories`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    } as HeadersInit,
     body: JSON.stringify(data),
   });
-  return normalize<Category>(res);
+
+  if (!res.ok) throw new Error("Erreur lors de la création de la catégorie");
+  return res.json();
 }
 
 // UPDATE category
-export async function updateCategory(
-  id: number,
-  data: Pick<Category, "name" | "userId">
-): Promise<Category> {
+export async function updateCategory(id: number, data: Partial<Category>): Promise<Category> {
   const res = await fetch(`${API_BASE}/categories/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
     body: JSON.stringify(data),
   });
-  return normalize<Category>(res);
+
+  if (!res.ok) throw new Error("Erreur lors de la mise à jour de la catégorie");
+  return res.json();
 }
 
 // DELETE category
-export async function deleteCategory(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/categories/${id}`, { method: "DELETE" });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Erreur lors de la suppression de la catégorie");
-  }
+export async function deleteCategory(id: number): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/categories/${id}`, {
+    method: "DELETE",
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  if (!res.ok) throw new Error("Erreur lors de la suppression de la catégorie");
+  return res.json();
 }

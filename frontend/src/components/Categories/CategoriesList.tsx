@@ -64,7 +64,7 @@ const CategoryPage: React.FC = () => {
     if (mode === "create") {
       await createCategory({ name: values.name, userId: values.userId });
     } else if (mode === "edit" && values.id != null) {
-      // ⚠️ backend demande aussi userId dans update
+      // backend demande aussi userId dans update
       await updateCategory(values.id, { name: values.name, userId: values.userId });
     }
     await fetchCategories();
