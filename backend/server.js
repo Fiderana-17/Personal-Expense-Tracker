@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
-import { authRoutes, categoryRoutes, expenseRoutes, incomeRoutes } from "./src/routes";
+import { authRoutes, categoryRoutes, expenseRoutes, incomeRoutes } from "./src/routes/index.js";
+
 dotenv.config();
 
 const app = express();
