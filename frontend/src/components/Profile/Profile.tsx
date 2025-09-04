@@ -53,54 +53,54 @@ const Profile: React.FC = () => {
 
   return (
     <div >
-      <h1 className="text-3xl font-bold text-title mb-8">Profile</h1>
+      <h1 className="text-3xl font-bold text-title mb-8 duration-500">Profile</h1>
 
       <div className="bg-page duration-500 rounded-xl shadow-md border border-border p-6 grid grid-cols-1 md:grid-cols-[30%_70%] gap-8 py-17">
         <div className="flex flex-col items-center justify-center text-center md:text-left ">
           <div className="h-24 w-24 bg-blue-100 rounded-full flex items-center justify-center shadow-md">
             <UserIcon className="h-12 w-12 text-blue-600" />
           </div>
-          <h2 className="mt-3 text-2xl font-bold text-title">{user?.name}</h2>
+          <h2 className="mt-3 text-2xl font-bold text-title duration-500">{user?.name}</h2>
 
           <div className="w-[calc(100%-6rem)] border-t border-gray-300 my-4"></div>
 
           <div className="flex flex-col gap-4 text-sm text-gray-700">
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-blue-600" />
-              <span className='text-title'>Total Expense: {totalExpenses}</span>
+              <span className='text-title duration-500'>Total Expense: {totalExpenses}</span>
             </div>
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-green-600" />
-              <span className='text-title'>Total Income: {totalIncomes}</span>
+              <span className='text-title duration-500'>Total Income: {totalIncomes}</span>
             </div>
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-purple-600" />
-              <span className='text-title'>Total Categories: {totalCategories} </span>
+              <span className='text-title duration-500'>Total Categories: {totalCategories} </span>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold text-title mb-2">Personal Information</h2>
+          <h2 className="text-2xl font-semibold text-title mb-2 duration-500">Personal Information</h2>
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
-                <p className="text-xs text-title uppercase">Name</p>
-                <p className="text-lg font-semibold text-title">{user?.name}</p>
+                <p className="text-xs text-title uppercase duration-500">Name</p>
+                <p className="text-lg font-semibold text-title duration-500">{user?.name}</p>
               </div>
               <div className="flex flex-col gap-2">
-                <p className="text-xs text-title uppercase">Email</p>
-                <div className="flex items-center gap-2 text-title">
-                  <Mail className="h-4 w-4 text-title" />
+                <p className="text-xs text-title uppercase duration-500">Email</p>
+                <div className="flex items-center gap-2 text-title duration-500">
+                  <Mail className="h-4 w-4" />
                   <span>{user?.email}</span>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col gap-1">
-              <p className="text-xs text-title uppercase mb-1">Member since</p>
-              <div className="flex items-center gap-2 text-title">
-                <Calendar className="h-4 w-4 text-title" />
+              <p className="text-xs text-title uppercase mb-1 duration-500">Member since</p>
+              <div className="flex items-center gap-2 text-title duration-500">
+                <Calendar className="h-4 w-4" />
                 <span>{user?.createdAt?.split('T')[0].replaceAll('-', '/')}</span>
               </div>
             </div>
