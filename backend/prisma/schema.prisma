@@ -87,8 +87,6 @@ model Income {
   user   User    @relation(fields: [userId], references: [id])
 }
 
-// ENUMS
-
 // Type de dépense
 enum ExpenseType {
   ONE_TIME
