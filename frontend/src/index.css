@@ -11,26 +11,33 @@
     --color-logout: var(--logout);
     --color-title-logout: var(--title-logout);
     --color-aside: var(--aside);
+    --color-page: var(--page);
+    --color-border: var(--border)
+
 }
 
 :root {
-    --background: #fff;
+    --background: #FFF;
     --border: #000;
     --text: var(--color-gray-900);
-    --button: #fff;
+    --button: #FFF;
     --background-hover: var(--color-blue-50);
     --logout: var(--color-red-100);
     --title-logout: var(--color-red-600);
     --aside: var(--color-gray-50);
+    --page: #F9FAFB;
+    --border: var(--color-gray-200)
 }
 
 .dark {
     --background: #030712;
-    --border: #fff;
-    --text: #fff;
+    --border: #FFF;
+    --text: #FFF;
     --button: var(--color-blue-700);
-    --background-hover: #1f2937;
+    --background-hover: #1F2937;
     --logout: transparent;
     --title-logout: var(--color-white);
-    --aside: #111827;
+    --aside: #0a101d;
+    --page: #111827;
+    --border: #0e0723;
 }
