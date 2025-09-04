@@ -9,6 +9,7 @@ import {
 } from "../../api/income.ts";
 import { type Income } from "../../types";
 import IncomeForm from "./IncomeForm.tsx";
+import Loader from "../ui/Loader.tsx";
 
 const IncomeList: React.FC = () => {
   const [incomes, setIncomes] = useState<Income[]>([]);
@@ -124,7 +125,11 @@ const IncomeList: React.FC = () => {
     }
   };
 
-  if (loading) return <p className="text-gray-700">Loading incomes...</p>;
+  if (loading) {
+    return <div className="grid place-items-center min-h-screen">
+      <Loader />
+    </div>;
+  };
 
   return (
     <div className="flex flex-col gap-6">
