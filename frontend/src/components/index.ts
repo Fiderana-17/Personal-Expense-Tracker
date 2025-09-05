@@ -7,5 +7,5 @@ export { default as Switch } from "./ui/Switch";
 export { default as Profile } from "./Profile/Profile";
 export { default as IncomeList } from "./Income/IncomeList";
 export { default as CategoriesList } from "./Categories/CategoriesList";
-// export { default as ReceiptList } from "./Receipt/ReceiptList";
+export { default as ReceiptList } from "./Receipt/ReceiptList";
 // export { default as Reports } from "./Reports/Reports";

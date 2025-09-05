@@ -88,3 +88,10 @@ export interface ReportData {
   netBalance: number;
   expenseBreakdown: ExpenseBreakdown[];
 }
+
+export interface Receipt {
+  id: number;
+  filePath: string;       
+  uploadedAt: string;     
+  expenseId: number;      
+}
