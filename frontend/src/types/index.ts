@@ -13,9 +13,11 @@ export interface User {
 }
 
 export interface Category {
-  id: string;
+  id: number;
   name: string;
-  userId: string;
+  description?: string;
+  userId: number;
+  createdAt: string;
 }
 
 export interface Expense {
@@ -87,4 +89,24 @@ export interface ReportData {
   totalIncome: number;
   netBalance: number;
   expenseBreakdown: ExpenseBreakdown[];
+}
+
+export interface ApiError {
+  status?: number;
+  error?: string;
+  message?: string;
+  data?: {
+    message?: string;
+    error?: string;
+  };
+}
+
+
+type Mode = "create" | "edit";
+
+export interface CategoryFormProps {
+  mode: Mode;
+  initial?: Pick<Category, "id" | "name" | "description"> | null;
+  onCancel: () => void;
+  onSubmit: (values: { id?: number; name: string; description?: string }) => Promise<void> | void;
 }
