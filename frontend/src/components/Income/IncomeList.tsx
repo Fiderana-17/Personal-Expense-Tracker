@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Plus, Search, Edit, Trash2, Calendar, TrendingUp } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Calendar, TrendingUp, CheckCircle, XCircle } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   getAllIncomes,
   createIncome,
@@ -18,7 +19,19 @@ const IncomeList: React.FC = () => {
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Partial<Income> | null>(null);
 
+  // Search
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Notifications
+  const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const showNotification = (message: string, type: "success" | "error" = "success") => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  // Confirmation delete
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   // Fetch incomes
   const fetchIncomes = async () => {
@@ -66,26 +79,41 @@ const IncomeList: React.FC = () => {
     try {
       if (mode === "create") {
         await createIncome(values as Required<Pick<Income, "amount" | "date"> & { source?: string; description?: string }>);
+        showNotification("Income created successfully!", "success");
       } else if (mode === "edit" && editing?.id) {
         await updateIncome(editing.id, values as Required<Pick<Income, "amount" | "date"> & { source?: string; description?: string }>);
+        showNotification("Income updated successfully!", "success");
       }
       await fetchIncomes();
       setShowForm(false);
       setEditing(null);
     } catch (err) {
       console.error("Erreur submit income:", err);
+      showNotification("An error occurred while saving income.", "error");
+    }
+  };
+  
+  // Delete handlers
+  const handleDelete = (id: string) => {
+    setConfirmDelete(id);
+  };
+
+  const confirmDeleteYes = async () => {
+    if (!confirmDelete) return;
+    try {
+      await deleteIncome(confirmDelete);
+      setIncomes(prev => prev.filter(inc => inc.id !== confirmDelete));
+      showNotification("Income deleted successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      showNotification("An error occurred while deleting income.", "error");
+    } finally {
+      setConfirmDelete(null);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Supprimer ce revenu ?")) {
-      try {
-        await deleteIncome(id);
-        setIncomes((prev) => prev.filter((inc) => inc.id !== id));
-      } catch (err) {
-        console.error("Erreur delete income:", err);
-      }
-    }
+  const confirmDeleteNo = () => {
+    setConfirmDelete(null);
   };
 
   if (loading) return <p>Loading incomes...</p>;
@@ -151,16 +179,26 @@ const IncomeList: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-900">
                     {income.source ?? "Untitled Income"}
                   </h3>
-                  {income.description && <p className="text-sm text-gray-500">{income.description}</p>}
+                  {income.description && (
+                    <p className="text-sm text-gray-500">
+                      {income.description}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                     <Calendar className="w-4 h-4" /> {income.date}
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => openEditForm(income)} className="text-blue-500 hover:text-blue-700">
+                  <button
+                    onClick={() => openEditForm(income)}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
                     <Edit className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(income.id)} className="text-red-500 hover:text-red-700">
+                  <button
+                    onClick={() => handleDelete(income.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -174,25 +212,102 @@ const IncomeList: React.FC = () => {
       )}
 
       {/* Modal Form with blur */}
-      {showForm && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none transition-opacity duration-[1000ms]">
-          {/* Background flou sur contenu principal seulement */}
-          <div className="absolute inset-0 backdrop-blur-sm bg-white/30 pointer-events-auto" />
-
-          {/* Formulaire centré */}
-          <div className="relative bg-gray-50 rounded-xl shadow-lg border border-gray-100 px-8 py-10 w-[500px] max-w-[90%] pointer-events-auto z-10 transform transition-all duration-[1000ms] opacity-100 scale-100">
-            <IncomeForm
-              mode={mode}
-              initial={editing}
-              onCancel={() => {
-                setShowForm(false);
-                setEditing(null);
-              }}
-              onSubmit={handleSubmit}
+      <AnimatePresence>
+        {showForm && (
+          <>
+            {/* Backdrop qui couvre 100% de main */}
+            <motion.div
+              className="fixed inset-0 w-full h-full bg-black/20 backdrop-blur-sm z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowForm(false)}
             />
-          </div>
-        </div>
-      )}
+
+            {/* Form centré */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: -30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: -30 }}
+              transition={{ duration: 0.3 }}
+              className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-8 w-full max-w-md"
+            >
+              <IncomeForm
+                mode={mode}
+                initial={editing}
+                onCancel={() => {
+                  setShowForm(false);
+                  setEditing(null);
+                }}
+                onSubmit={handleSubmit}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Delete */}
+      <AnimatePresence>
+        {confirmDelete && (
+          <>
+            <motion.div
+              className="fixed inset-0 w-full h-full bg-black/20 backdrop-blur-sm z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={confirmDeleteNo}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: -30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: -30 }}
+              transition={{ duration: 0.3 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                         bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-sm z-50"
+            >
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Confirm deletion
+              </h3>
+              <p className="text-gray-600 mb-6">Are you sure you want to delete this income?</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={confirmDeleteNo}
+                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+                >
+                  No
+                </button>
+                <button
+                  onClick={confirmDeleteYes}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                >
+                  Yes
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -50, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`fixed bottom-4 right-4 z-[100] flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-white 
+              ${notification.type === "success" ? "bg-green-600" : "bg-red-600"}`}
+          >
+            {notification.type === "success" ? (
+              <CheckCircle className="w-5 h-5" />
+            ) : (
+              <XCircle className="w-5 h-5" />
+            )}
+            <span>{notification.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
