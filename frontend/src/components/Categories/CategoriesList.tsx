@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Edit, Trash2, FolderOpen, Tag, X, CheckCircle } from "lucide-react";
+import { Plus, Search, Edit, Trash2, FolderOpen, Tag, X, CheckCircle, AlertCircle } from "lucide-react";
 import {
   getAllCategories,
   createCategory,
@@ -18,9 +18,10 @@ const CategoryPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
-  const [notification, setNotification] = useState<{ message: string; show: boolean }>({
+  const [notification, setNotification] = useState<{ message: string; show: boolean; type: "success" | "error" }>({
     message: "",
     show: false,
+    type: "success",
   });
 
   const fetchCategories = async () => {
@@ -62,16 +63,20 @@ const CategoryPage: React.FC = () => {
     try {
       if (mode === "create") {
         await createCategory({ name: values.name, userId: values.userId });
-        setNotification({ message: "Category created successfully", show: true });
-        setTimeout(() => setNotification({ message: "", show: false }), 3000);
+        setNotification({ message: "Category created successfully", show: true, type: "success" });
+        setTimeout(() => setNotification({ message: "", show: false, type: "success" }), 3000);
       } else if (mode === "edit" && values.id != null) {
         await updateCategory(values.id, { name: values.name, userId: values.userId });
+        setNotification({ message: "Category updated successfully", show: true, type: "success" });
+        setTimeout(() => setNotification({ message: "", show: false, type: "success" }), 3000);
       }
       await fetchCategories();
       setShowForm(false);
       setEditing(null);
     } catch (err) {
       console.error(err);
+      setNotification({ message: "Failed to save category", show: true, type: "error" });
+      setTimeout(() => setNotification({ message: "", show: false, type: "error" }), 3000);
     }
   };
 
@@ -87,10 +92,17 @@ const CategoryPage: React.FC = () => {
         setCategories((prev) => prev.filter((cat) => cat.id !== categoryToDelete));
         setShowDeleteModal(false);
         setCategoryToDelete(null);
-        setNotification({ message: "Category deleted successfully", show: true });
-        setTimeout(() => setNotification({ message: "", show: false }), 3000);
-      } catch (err) {
+        setNotification({ message: "Category deleted successfully", show: true, type: "success" });
+        setTimeout(() => setNotification({ message: "", show: false, type: "success" }), 3000);
+      } catch (err: any) {
         console.error(err);
+        const errorMessage = err.response?.data?.error === "category_in_use"
+          ? "Cannot delete category because it is used by one or more expenses"
+          : "Cannot delete category because it is used by one or more expenses";
+        setNotification({ message: errorMessage, show: true, type: "error" });
+        setShowDeleteModal(false);
+        setCategoryToDelete(null);
+        setTimeout(() => setNotification({ message: "", show: false, type: "error" }), 3000);
       }
     }
   };
@@ -147,7 +159,7 @@ const CategoryPage: React.FC = () => {
 
       {/* Modal de confirmation de suppression */}
       {showDeleteModal && (
-        <div className="flex items-center justify-center bg-gradient-to-br from-gray-900/60 to-blue-900/60 overflow-auto absolute w-full inset-0 bg-black/20 backdrop-blur-[2px] z-40">
+        <div className="flex items-center justify-center bg-gradient-to-br from-gray-900/60 to-blue-900/60 overflow-auto absolute w-full inset-0 bg-black/20 backdrop-blur-[2px] z-50">
           <div className="relative bg-white/90 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 p-6 max-w-sm w-full mx-4 transform transition-all duration-300">
             <button
               type="button"
@@ -186,13 +198,21 @@ const CategoryPage: React.FC = () => {
       {/* Notification */}
       {notification.show && (
         <div className="fixed bottom-4 right-4 z-50 animate-slide-in">
-          <div className="bg-green-600 text-white rounded-lg shadow-lg p-4 flex items-center gap-3 max-w-sm">
-            <CheckCircle size={20} className="text-white" />
+          <div
+            className={`${
+              notification.type === "success" ? "bg-green-600" : "bg-red-600"
+            } text-white rounded-lg shadow-lg p-4 flex items-center gap-3 max-w-sm`}
+          >
+            {notification.type === "success" ? (
+              <CheckCircle size={20} className="text-white" />
+            ) : (
+              <AlertCircle size={20} className="text-white" />
+            )}
             <span>{notification.message}</span>
             <button
               type="button"
-              onClick={() => setNotification({ message: "", show: false })}
-              className="ml-auto p-1 rounded-full hover:bg-green-700 transition-colors duration-200"
+              onClick={() => setNotification({ message: "", show: false, type: "success" })}
+              className="ml-auto p-1 rounded-full hover:bg-opacity-80 transition-colors duration-200"
               aria-label="Close notification"
             >
               <X size={16} className="text-white" />
