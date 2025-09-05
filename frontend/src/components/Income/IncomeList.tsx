@@ -9,11 +9,12 @@ import {
 } from "../../api/income.ts";
 import { type Income } from "../../types";
 import IncomeForm from "./IncomeForm.tsx";
-import Loader from "../ui/Loader.tsx";
 
 const IncomeList: React.FC = () => {
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal form
   const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Partial<Income> | null>(null);
@@ -39,16 +40,9 @@ const IncomeList: React.FC = () => {
       const data = await getAllIncomes();
       setIncomes(data);
     } catch (err) {
-      if (err instanceof Error) {
-        setNotification(err.message);
-        setNotificationType('error');
-      } else {
-        setNotification('An unknown error occurred');
-        setNotificationType('error');
-      }
+      console.error("Erreur fetching incomes:", err);
     } finally {
       setLoading(false);
-      setTimeout(() => setNotification(''), 5000);
     }
   };
 
@@ -90,7 +84,6 @@ const IncomeList: React.FC = () => {
         await updateIncome(editing.id, values as Required<Pick<Income, "amount" | "date"> & { source?: string; description?: string }>);
         showNotification("Income updated successfully!", "success");
       }
-      setNotificationType('success');
       await fetchIncomes();
       setShowForm(false);
       setEditing(null);
@@ -126,22 +119,22 @@ const IncomeList: React.FC = () => {
   if (loading) return <p>Loading incomes...</p>;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="space-y-6 relative">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-title">Income</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Income</h1>
         <button
           onClick={openCreateForm}
-          className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          <span>{showForm && mode === "create" ? "Close Form" : "Add Income"}</span>
+          {showForm && mode === "create" ? "Close Form" : "Add Income"}
         </button>
       </div>
 
       {/* Total Summary */}
       {filteredIncomes.length > 0 && (
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-md p-6 text-white">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-xs p-6 text-white">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-medium opacity-90">Total Income</h3>
@@ -149,14 +142,14 @@ const IncomeList: React.FC = () => {
               <p className="text-sm opacity-80 mt-1">This period</p>
             </div>
             <div className="p-3 bg-white bg-opacity-20 rounded-full">
-              <TrendingUp className="w-8 h-8 text-green-700" />
+              <TrendingUp className="w-8 h-8" />
             </div>
           </div>
         </div>
       )}
 
       {/* Search */}
-      <div className="bg-page rounded-xl shadow-md border duration-500 border-border p-6">
+      <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
@@ -164,43 +157,26 @@ const IncomeList: React.FC = () => {
             placeholder="Search income sources..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 text-title pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           />
         </div>
       </div>
 
-      {/* Notification */}
-      <AnimatePresence>
-        {notification && (
-          <motion.div
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -50, opacity: 0 }}
-            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${
-              notificationType === 'success' ? 'bg-green-500 text-white' : 'border-red-300 text-red-800 bg-red-100'
-            }`}
-          >
-            <AlertCircle className="h-5 w-5" />
-            <span>{notification}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Income List */}
+      {/* Liste incomes */}
       {filteredIncomes.length === 0 ? (
-        <div className="bg-page rounded-xl shadow-md border border-border p-12 text-center duration-500">
-          <p className="text-title text-lg">No income yet</p>
+        <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-12 text-center">
+          <p className="text-gray-500 text-lg">No income yet</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredIncomes.map((income) => (
             <div
               key={income.id}
-              className="bg-page rounded-xl shadow-md border border-border p-6 hover:shadow-lg duration-500"
+              className="bg-white rounded-xl shadow-xs border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200"
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-title duration-500">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     {income.source ?? "Untitled Income"}
                   </h3>
                   {income.description && (
@@ -209,8 +185,7 @@ const IncomeList: React.FC = () => {
                     </p>
                   )}
                   <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{income.date}</span>
+                    <Calendar className="w-4 h-4" /> {income.date}
                   </div>
                 </div>
                 <div className="flex gap-2">
