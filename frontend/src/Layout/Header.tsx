@@ -35,7 +35,7 @@ const Header: React.FC = () => {
 
           <div className="flex items-center space-x-4 relative">
             <Switch onToggle={setIsDark} />
-            <button className="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
+            <button className="relative p-2 cursor-pointer text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
               <Bell className="h-6 w-6" />
               <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                 2
@@ -52,7 +52,7 @@ const Header: React.FC = () => {
 
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center shadow-sm focus:outline-hidden"
+                  className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center shadow-sm cursor-pointer"
                 >
                   {profilePic ? (
                     <img
@@ -80,7 +80,7 @@ const Header: React.FC = () => {
                   </Link>
                   <button
                     onClick={logout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign out
