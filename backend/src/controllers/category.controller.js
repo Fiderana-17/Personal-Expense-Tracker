@@ -20,6 +20,21 @@ export const createCategory = async (req, res) => {
       return res.status(400).json({ message: "Le champ 'name' est requis" });
     }
 
+    // Vérifier si une catégorie avec le même nom existe déjà pour cet utilisateur
+    const existingCategory = await prisma.category.findFirst({
+      where: {
+        name: { equals: name, mode: 'insensitive' }, // Insensible à la casse
+        userId: req.user.id,
+      },
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({
+        error: "category_name_exists",
+        message: "A category with this name already exists",
+      });
+    }
+
     const category = await prisma.category.create({
       data: {
         name,
@@ -47,6 +62,24 @@ export const updateCategory = async (req, res) => {
       return res.status(403).json({ message: "Non autorisé à modifier cette catégorie" });
     }
 
+    // Vérifier si une autre catégorie avec le même nom existe déjà pour cet utilisateur
+    if (name) {
+      const existingCategory = await prisma.category.findFirst({
+        where: {
+          name: { equals: name, mode: 'insensitive' },
+          userId: req.user.id,
+          id: { not: parseInt(id) }, // Exclure la catégorie en cours de mise à jour
+        },
+      });
+
+      if (existingCategory) {
+        return res.status(400).json({
+          error: "category_name_exists",
+          message: "A category with this name already exists",
+        });
+      }
+    }
+
     const updated = await prisma.category.update({
       where: { id: parseInt(id) },
       data: { name },
@@ -69,6 +102,17 @@ export const deleteCategory = async (req, res) => {
 
     if (category.userId !== req.user.id) {
       return res.status(403).json({ message: "Non autorisé à supprimer cette catégorie" });
+    }
+
+    // Vérifier si la catégorie est utilisée par des dépenses
+    const expenseCount = await prisma.expense.count({
+      where: { categoryId: parseInt(id) },
+    });
+    if (expenseCount > 0) {
+      return res.status(400).json({
+        error: "category_in_use",
+        message: "Cannot delete category because it is used by one or more expenses",
+      });
     }
 
     await prisma.category.delete({ where: { id: parseInt(id) } });
