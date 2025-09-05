@@ -1,30 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { AlertCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Category } from "../../api/category";
-
-type Mode = "create" | "edit";
-
-interface CategoryFormProps {
-  mode: Mode;
-  initial?: Pick<Category, "id" | "name" | "userId"> | null;
-  onCancel: () => void;
-  onSubmit: (values: { id?: number; name: string; userId: number }) => Promise<void> | void;
-}
+import type { CategoryFormProps } from "@/types";
 
 const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, onSubmit }) => {
   const [name, setName] = useState("");
-  const [userId, setUserId] = useState<number>(1);
+  const [description, setDescription] = useState("");
   const [notification, setNotification] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (mode === "edit" && initial) {
       setName(initial.name);
-      setUserId(initial.userId);
+      setDescription(initial.description || "");
     } else {
       setName("");
-      setUserId(1);
+      setDescription("");
     }
   }, [mode, initial]);
 
@@ -37,7 +28,11 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
     }
     setSaving(true);
     try {
-      await onSubmit({ id: initial?.id, name: name.trim(), userId });
+      await onSubmit({
+        id: initial?.id,
+        name: name.trim(),
+        description: description.trim() || undefined
+      });
     } finally {
       setSaving(false);
     }
@@ -98,15 +93,13 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">User ID</label>
-              <input
-                type="number"
-                min={1}
-                value={userId}
-                onChange={(e) => setUserId(parseInt(e.target.value || "1", 10))}
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
-                placeholder="Enter user ID"
-                required
+                placeholder="Enter category description"
+                rows={3}
               />
             </div>
 

@@ -1,14 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Edit, Trash2, FolderOpen, Tag, X, AlertCircle } from "lucide-react";
+import { Plus, Search, Edit, Trash2, FolderOpen, X, AlertCircle, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  getAllCategories,
-  createCategory,
-  deleteCategory,
-  updateCategory,
-  type Category,
-} from "../../api/category";
+import { getAllCategories, createCategory, deleteCategory, updateCategory } from "@/api/category";
 import CategoryForm from "./CategoryForm";
+import { formatDate } from "../ui/FormatDate";
+import type { ApiError, Category } from "@/types";
 
 
 const CategoryPage: React.FC = () => {
@@ -16,7 +12,7 @@ const CategoryPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
-  const [editing, setEditing] = useState<Pick<Category, "id" | "name" | "userId"> | null>(null);
+  const [editing, setEditing] = useState<Pick<Category, "id" | "name" | "description"> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
@@ -28,9 +24,10 @@ const CategoryPage: React.FC = () => {
     try {
       const data = await getAllCategories();
       setCategories(data);
-    } catch (err: ApiError) {
-      console.error(err);
-      setNotification(err.response?.data?.message || "Failed to fetch categories");
+    } catch (err) {
+      const error = err as ApiError;
+      console.error(error);
+      setNotification(error.message || "Failed to fetch categories");
       setNotificationType("error");
     } finally {
       setLoading(false);
@@ -58,32 +55,33 @@ const CategoryPage: React.FC = () => {
 
   const openEditForm = (category: Category) => {
     setMode("edit");
-    setEditing({ id: category.id, name: category.name, userId: category.userId });
+    setEditing({ id: category.id, name: category.name, description: category.description });
     setShowForm(true);
   };
 
-  const handleSubmit = async (values: { id?: number; name: string; userId: number }) => {
+  const handleSubmit = async (values: { id?: number; name: string; description?: string }) => {
     try {
       if (mode === "create") {
-        await createCategory({ name: values.name, userId: values.userId });
+        await createCategory({ name: values.name, description: values.description });
         setNotification("Category created successfully");
         setNotificationType("success");
       } else if (mode === "edit" && values.id != null) {
-        await updateCategory(values.id, { name: values.name, userId: values.userId });
+        await updateCategory(values.id, { name: values.name, description: values.description });
         setNotification("Category updated successfully");
         setNotificationType("success");
       }
       await fetchCategories();
       setShowForm(false);
       setEditing(null);
-    } catch (err: ApiError) {
-      console.error(err);
-      const errorMessage =
-        err.response?.data?.error === "category_name_exists"
-          ? "A category with this name already exists"
-          : err.response?.data?.error === "category_in_use"
-          ? "Cannot delete category because it is used by one or more expenses"
-          : err.response?.data?.message || "Failed to save category";
+    } catch (err) {
+      const error = err as ApiError;
+      console.error(error);
+      let errorMessage = "Failed to save category";
+      if (error.error === "category_name_exists") {
+        errorMessage = "A category with this name already exists";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
       setNotification(errorMessage);
       setNotificationType("error");
     } finally {
@@ -105,12 +103,15 @@ const CategoryPage: React.FC = () => {
         setNotificationType("success");
         setShowDeleteModal(false);
         setCategoryToDelete(null);
-      } catch (err: ApiError) {
-        console.error(err);
-        const errorMessage =
-          err.response?.data?.error === "category_in_use"
-            ? "Cannot delete category because it is used by one or more expenses"
-            : err.response?.data?.message || "Failed to delete category";
+      } catch (err) {
+        const error = err as ApiError;
+        console.error(error);
+        let errorMessage = "Failed to delete category";
+        if (error.error === "category_in_use") {
+          errorMessage = "Cannot delete category because it is used by one or more expenses";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
         setNotification(errorMessage);
         setNotificationType("error");
         setShowDeleteModal(false);
@@ -132,7 +133,7 @@ const CategoryPage: React.FC = () => {
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
+        <h1 className="text-3xl font-bold text-title">Categories</h1>
         <button
           onClick={openCreateForm}
           className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
@@ -149,9 +150,8 @@ const CategoryPage: React.FC = () => {
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -50, opacity: 0 }}
-            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${
-              notificationType === "success" ? "bg-green-500 text-white" : "border-red-300 text-red-800 bg-red-100"
-            }`}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${notificationType === "success" ? "bg-green-500 text-white" : "border-red-300 text-red-800 bg-red-100"
+              }`}
           >
             <AlertCircle className="h-5 w-5" />
             <span>{notification}</span>
@@ -160,7 +160,7 @@ const CategoryPage: React.FC = () => {
       </AnimatePresence>
 
       {/* Search */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+      <div className="bg-page rounded-xl shadow-md border duration-500 border-border p-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
@@ -168,7 +168,7 @@ const CategoryPage: React.FC = () => {
             placeholder="Search categories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full pl-10 text-title pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           />
         </div>
       </div>
@@ -245,68 +245,49 @@ const CategoryPage: React.FC = () => {
           </p>
           <button
             onClick={openCreateForm}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 mx-auto"
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2 mx-auto"
           >
             <Plus className="h-4 w-4" />
             <span>Add Category</span>
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <AnimatePresence>
-            {filteredCategories.map((category) => (
-              <motion.div
-                key={category.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-xl shadow-xs border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <FolderOpen className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-1">
-                    <button
-                      onClick={() => openEditForm(category)}
-                      className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                      title="Edit"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(category.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCategories.map((category) => (
+            <div
+              key={category.id}
+              className="bg-page rounded-xl shadow-md border border-border p-6 hover:shadow-lg duration-500"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-title duration-500">
+                    {category.name}
+                  </h3>
+                  {category.description && (
+                    <p className="text-sm text-gray-500">{category.description}</p>
+                  )}
+                  <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>{formatDate(category.createdAt)}</span>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Category ID</span>
-                    <span className="font-medium text-gray-900">{category.id}</span>
-                  </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openEditForm(category)}
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => openDeleteModal(category.id)}
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
-
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <div className="flex items-center space-x-1 text-xs text-gray-400">
-                    <Tag className="h-3 w-3" />
-                    <span>User ID: {category.userId}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
