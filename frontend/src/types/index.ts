@@ -76,3 +76,15 @@ export interface AuthProviderProps {
 export interface SwitchProps {
   onToggle?: (checked: boolean) => void;
 }
+export interface ExpenseBreakdown {
+  category: string;
+  amount: number;
+  percentage: number;
+}
+
+export interface ReportData {
+  totalExpenses: number;
+  totalIncome: number;
+  netBalance: number;
+  expenseBreakdown: ExpenseBreakdown[];
+}

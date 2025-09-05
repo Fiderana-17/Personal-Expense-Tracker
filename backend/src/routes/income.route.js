@@ -12,4 +12,5 @@ router.post("/", createIncome);
 router.put("/:id", updateIncome);
 router.delete("/:id", deleteIncome);
 
+
 export default router;
