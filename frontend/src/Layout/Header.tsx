@@ -10,6 +10,7 @@ const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [isDark, setIsDark] = useState(false);
+  const profilePic = user?.profilePic || '';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -53,15 +54,22 @@ const Header: React.FC = () => {
                   onClick={() => setMenuOpen(!menuOpen)}
                   className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center shadow-sm focus:outline-hidden"
                 >
-                  <User className="h-5 w-5 text-blue-600" />
+                  {profilePic ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}${profilePic}`}
+                      alt="Profile"
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-4 w- text-blue-600" />
+                  )}
                 </button>
 
                 <div
-                  className={`absolute z-100 right-0 top-12.5 w-48 rounded-md overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${
-                    menuOpen
+                  className={`absolute z-100 right-0 top-12.5 w-48 rounded-md overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${menuOpen
                       ? 'opacity-100 scale-100 translate-y-0'
                       : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
-                  }`}
+                    }`}
                 >
                   <Link
                     to="/profile"
@@ -78,7 +86,7 @@ const Header: React.FC = () => {
                     Sign out
                   </button>
                 </div>
-              </div>              
+              </div>
             </div>
           </div>
         </div>
