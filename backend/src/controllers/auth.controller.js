@@ -97,6 +97,10 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ message: 'New password must be at least 6 characters' });
     }
 
+    if (isMatch && oldPassword === newPassword) {
+      return res.status(400).json({ message: 'New password must be different from the old password' });
+    }
+
     
     const hashed = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
