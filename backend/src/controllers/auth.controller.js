@@ -121,7 +121,7 @@ export const getMe = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, name: true, email: true, createdAt: true, incomes: true, expenses: true, categories: true }
+      select: { id: true, name: true, email: true, profilePic: true, createdAt: true, incomes: true, expenses: true, categories: true }
     });
 
     if (!user) {
@@ -132,5 +132,23 @@ export const getMe = async (req, res) => {
   } catch (error) {
     console.error("Error in getMe:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const uploadProfilePic = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const userId = req.user.id;
+    const filePath = `/uploads/profile-pictures/${req.file.filename}`;
+    await prisma.user.update({
+      where: { id: userId },
+      data: { profilePic: filePath },
+    });
+    return res.json({ message: 'Profile picture updated', profilePic: filePath });
+  } catch (err) {
+    console.error('Error in uploadProfilePic:', err);
+    return res.status(500).json({ message: 'Server error' });
   }
 };

@@ -15,7 +15,7 @@ app.use('/api/auth', authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/incomes', incomeRoutes);
-
+app.use('/api/uploads', express.static('uploads'));
 
 
 app.listen(PORT, () => {

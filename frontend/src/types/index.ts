@@ -7,6 +7,7 @@ export interface User {
   createdAt: string;
   expenses: Expense[];
   incomes: Income[];
+  profilePic: string;
   categories: Category[];
 
 }
