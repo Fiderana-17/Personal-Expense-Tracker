@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Plus, Search, Edit, Trash2, Calendar, TrendingUp, CheckCircle, XCircle } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { Plus, Search, Edit, Trash2, Calendar, TrendingUp, AlertCircle, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   getAllIncomes,
   createIncome,
@@ -9,29 +9,19 @@ import {
 } from "../../api/income.ts";
 import { type Income } from "../../types";
 import IncomeForm from "./IncomeForm.tsx";
+import Loader from "../ui/Loader.tsx";
 
 const IncomeList: React.FC = () => {
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Modal form
   const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Partial<Income> | null>(null);
-
-  // Search
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [incomeToDelete, setIncomeToDelete] = useState<string | null>(null);
+  const [notification, setNotification] = useState('');
+  const [notificationType, setNotificationType] = useState<'success' | 'error'>('success');
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Notifications
-  const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
-
-  const showNotification = (message: string, type: "success" | "error" = "success") => {
-    setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
-  // Confirmation delete
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   // Fetch incomes
   const fetchIncomes = async () => {
@@ -40,9 +30,16 @@ const IncomeList: React.FC = () => {
       const data = await getAllIncomes();
       setIncomes(data);
     } catch (err) {
-      console.error("Erreur fetching incomes:", err);
+      if (err instanceof Error) {
+        setNotification(err.message);
+        setNotificationType('error');
+      } else {
+        setNotification('An unknown error occurred');
+        setNotificationType('error');
+      }
     } finally {
       setLoading(false);
+      setTimeout(() => setNotification(''), 5000);
     }
   };
 
@@ -79,62 +76,78 @@ const IncomeList: React.FC = () => {
     try {
       if (mode === "create") {
         await createIncome(values as Required<Pick<Income, "amount" | "date"> & { source?: string; description?: string }>);
-        showNotification("Income created successfully!", "success");
+        setNotification('Income created successfully');
       } else if (mode === "edit" && editing?.id) {
         await updateIncome(editing.id, values as Required<Pick<Income, "amount" | "date"> & { source?: string; description?: string }>);
-        showNotification("Income updated successfully!", "success");
+        setNotification('Income updated successfully');
       }
+      setNotificationType('success');
       await fetchIncomes();
       setShowForm(false);
       setEditing(null);
     } catch (err) {
-      console.error("Erreur submit income:", err);
-      showNotification("An error occurred while saving income.", "error");
-    }
-  };
-  
-  // Delete handlers
-  const handleDelete = (id: string) => {
-    setConfirmDelete(id);
-  };
-
-  const confirmDeleteYes = async () => {
-    if (!confirmDelete) return;
-    try {
-      await deleteIncome(confirmDelete);
-      setIncomes(prev => prev.filter(inc => inc.id !== confirmDelete));
-      showNotification("Income deleted successfully!", "success");
-    } catch (err) {
-      console.error(err);
-      showNotification("An error occurred while deleting income.", "error");
+      if (err instanceof Error) {
+        setNotification(err.message);
+        setNotificationType('error');
+      } else {
+        setNotification('An unknown error occurred');
+        setNotificationType('error');
+      }
     } finally {
-      setConfirmDelete(null);
+      setTimeout(() => setNotification(''), 5000);
     }
   };
 
-  const confirmDeleteNo = () => {
-    setConfirmDelete(null);
+  const handleDelete = async (id: string) => {
+    setIncomeToDelete(id);
+    setShowDeleteModal(true);
   };
 
-  if (loading) return <p>Loading incomes...</p>;
+  const confirmDelete = async () => {
+    if (!incomeToDelete) return;
+    try {
+      await deleteIncome(incomeToDelete);
+      setIncomes((prev) => prev.filter((inc) => inc.id !== incomeToDelete));
+      setNotification('Income deleted successfully');
+      setNotificationType('success');
+    } catch (err) {
+      if (err instanceof Error) {
+        setNotification(err.message);
+        setNotificationType('error');
+      } else {
+        setNotification('An unknown error occurred');
+        setNotificationType('error');
+      }
+    } finally {
+      setShowDeleteModal(false);
+      setIncomeToDelete(null);
+      setTimeout(() => setNotification(''), 5000);
+    }
+  };
+
+  if (loading) {
+    return <div className="grid place-items-center min-h-screen">
+      <Loader />
+    </div>;
+  };
 
   return (
-    <div className="space-y-6 relative">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Income</h1>
+        <h1 className="text-3xl font-bold text-title">Income</h1>
         <button
           onClick={openCreateForm}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+          className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          {showForm && mode === "create" ? "Close Form" : "Add Income"}
+          <span>{showForm && mode === "create" ? "Close Form" : "Add Income"}</span>
         </button>
       </div>
 
       {/* Total Summary */}
       {filteredIncomes.length > 0 && (
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-xs p-6 text-white">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-md p-6 text-white">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-medium opacity-90">Total Income</h3>
@@ -142,14 +155,14 @@ const IncomeList: React.FC = () => {
               <p className="text-sm opacity-80 mt-1">This period</p>
             </div>
             <div className="p-3 bg-white bg-opacity-20 rounded-full">
-              <TrendingUp className="w-8 h-8" />
+              <TrendingUp className="w-8 h-8 text-green-700" />
             </div>
           </div>
         </div>
       )}
 
       {/* Search */}
-      <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-6">
+      <div className="bg-page rounded-xl shadow-md border duration-500 border-border p-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
@@ -157,47 +170,61 @@ const IncomeList: React.FC = () => {
             placeholder="Search income sources..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full pl-10 text-title pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           />
         </div>
       </div>
 
-      {/* Liste incomes */}
+      {/* Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -50, opacity: 0 }}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${
+              notificationType === 'success' ? 'bg-green-500 text-white' : 'border-red-300 text-red-800 bg-red-100'
+            }`}
+          >
+            <AlertCircle className="h-5 w-5" />
+            <span>{notification}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Income List */}
       {filteredIncomes.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-12 text-center">
-          <p className="text-gray-500 text-lg">No income yet</p>
+        <div className="bg-page rounded-xl shadow-md border border-border p-12 text-center duration-500">
+          <p className="text-title text-lg">No income yet</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredIncomes.map((income) => (
             <div
               key={income.id}
-              className="bg-white rounded-xl shadow-xs border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200"
+              className="bg-page rounded-xl shadow-md border border-border p-6 hover:shadow-lg duration-500"
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-title duration-500">
                     {income.source ?? "Untitled Income"}
                   </h3>
-                  {income.description && (
-                    <p className="text-sm text-gray-500">
-                      {income.description}
-                    </p>
-                  )}
+                  {income.description && <p className="text-sm text-gray-500">{income.description}</p>}
                   <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
-                    <Calendar className="w-4 h-4" /> {income.date}
+                    <Calendar className="w-4 h-4" />
+                    <span>{income.date}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEditForm(income)}
-                    className="text-blue-500 hover:text-blue-700"
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(income.id)}
-                    className="text-red-500 hover:text-red-700"
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -211,27 +238,36 @@ const IncomeList: React.FC = () => {
         </div>
       )}
 
-      {/* Modal Form with blur */}
+      {/* Form Modal */}
       <AnimatePresence>
         {showForm && (
           <>
-            {/* Backdrop qui couvre 100% de main */}
             <motion.div
-              className="fixed inset-0 w-full h-full bg-black/20 backdrop-blur-sm z-40"
+              className="absolute w-full inset-0 bg-black/20 backdrop-blur-sm z-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowForm(false)}
             />
-
-            {/* Form centré */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: -30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: -30 }}
               transition={{ duration: 0.3 }}
-              className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-8 w-full max-w-md"
+              className="absolute z-5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-8 w-full max-w-md pointer-events-auto"
             >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-800">{mode === "create" ? "Add Income" : "Edit Income"}</h2>
+                <button
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditing(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
               <IncomeForm
                 mode={mode}
                 initial={editing}
@@ -246,66 +282,50 @@ const IncomeList: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Confirmation Delete */}
+      {/* Delete Confirmation Modal */}
       <AnimatePresence>
-        {confirmDelete && (
+        {showDeleteModal && (
           <>
             <motion.div
-              className="fixed inset-0 w-full h-full bg-black/20 backdrop-blur-sm z-40"
+              className="absolute w-full inset-0 bg-black/20 backdrop-blur-sm z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={confirmDeleteNo}
+              onClick={() => setShowDeleteModal(false)}
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: -30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: -30 }}
               transition={{ duration: 0.3 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                         bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-sm z-50"
+              className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
             >
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Confirm deletion
-              </h3>
-              <p className="text-gray-600 mb-6">Are you sure you want to delete this income?</p>
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-lg font-semibold text-gray-800">Confirm Deletion</h2>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="text-gray-600">Are you sure you want to delete this income?</p>
               <div className="flex justify-end gap-4">
                 <button
-                  onClick={confirmDeleteNo}
-                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
                   No
                 </button>
                 <button
-                  onClick={confirmDeleteYes}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
                 >
                   Yes
                 </button>
               </div>
             </motion.div>
           </>
-        )}
-      </AnimatePresence>
-
-      {/* Toast Notification */}
-      <AnimatePresence>
-        {notification && (
-          <motion.div
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -50, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`fixed bottom-4 right-4 z-[100] flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg text-white 
-              ${notification.type === "success" ? "bg-green-600" : "bg-red-600"}`}
-          >
-            {notification.type === "success" ? (
-              <CheckCircle className="w-5 h-5" />
-            ) : (
-              <XCircle className="w-5 h-5" />
-            )}
-            <span>{notification.message}</span>
-          </motion.div>
         )}
       </AnimatePresence>
     </div>

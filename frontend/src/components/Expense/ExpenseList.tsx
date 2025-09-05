@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X, Loader } from 'lucide-react';
+import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type Expense, deleteExpense, createExpense, updateExpense, getExpenses } from '../../api/expense.ts';
 import { getAllCategories, type Category } from '../../api/category.ts';
 import { useAuth } from '@/hooks/useAuth.ts';
+import Loader from '../ui/Loader.tsx';
 
 const ExpensesList: React.FC = () => {
   const { user } = useAuth();
