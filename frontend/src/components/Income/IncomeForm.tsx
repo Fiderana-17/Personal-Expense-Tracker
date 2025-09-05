@@ -1,22 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { type Income } from "@/types";
+import { type IncomeFormProps } from "@/types";
 
-type Mode = "create" | "edit";
-
-interface IncomeFormProps {
-  mode: Mode;
-  initial: Partial<Income> | null;
-  onCancel: () => void;
-  onSubmit: (values: {
-    id?: string;
-    amount: number;
-    source?: string;
-    description?: string;
-    date: string;
-  }) => void | Promise<void>;
-}
 
 const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubmit }) => {
   const [amount, setAmount] = useState("");

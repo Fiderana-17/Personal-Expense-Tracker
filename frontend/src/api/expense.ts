@@ -1,20 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_URL;
 
-export interface Expense {
-  id: number;
-  amount: number;
-  description?: string;
-  type: string;
-  date?: string;
-  startDate?: string;
-  endDate?: string;
-  userId: number;
-  categoryId: number;
-  category?: { id: number; name: string };
-  receipt?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type { Expense } from "@/types";
+
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem("token");
@@ -28,7 +15,6 @@ export async function getExpenses(userId: number): Promise<Expense[]> {
   const data: Expense[] = await res.json(); // ✅ explicit type
   return data;
 }
-
 
 
 // GET expense by ID
@@ -80,6 +66,3 @@ export async function deleteExpense(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/expenses/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Erreur lors de la suppression de la dépense');
 }
-
-
-

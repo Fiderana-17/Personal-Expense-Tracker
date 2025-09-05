@@ -1,12 +1,8 @@
-import React, { useState, useEffect, useMemo } from "react";
 import { Plus, Search, Edit, Trash2, Calendar, TrendingUp, AlertCircle, X, FolderOpen } from "lucide-react";
+import { getAllIncomes, createIncome, updateIncome, deleteIncome } from "../../api/income.ts";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  getAllIncomes,
-  createIncome,
-  updateIncome,
-  deleteIncome,
-} from "../../api/income.ts";
+import { formatDate } from "../ui/FormatDate.ts";
 import { type Income } from "../../types";
 import IncomeForm from "./IncomeForm.tsx";
 import Loader from "../ui/Loader.tsx";
@@ -223,7 +219,7 @@ const IncomeList: React.FC = () => {
                   {income.description && <p className="text-sm text-gray-500">{income.description}</p>}
                   <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                     <Calendar className="w-4 h-4" />
-                    <span>{income.date}</span>
+                    <span>{formatDate(income.date)}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
