@@ -6,6 +6,10 @@ import CategoryForm from "./CategoryForm";
 import { formatDate } from "../ui/FormatDate";
 import type { ApiError, Category } from "@/types";
 
+interface ApiError {
+  message: string;
+  error?: string;
+}
 
 const CategoryPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -18,6 +22,9 @@ const CategoryPage: React.FC = () => {
   const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
   const [notification, setNotification] = useState<string>("");
   const [notificationType, setNotificationType] = useState<"success" | "error">("success");
+
+  // Supposons un userId fictif pour les catégories par défaut (géré par le backend via le token)
+  const defaultUserId = 1; // TODO: Remplacer par l'extraction réelle du userId depuis le token JWT
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -99,7 +106,7 @@ const CategoryPage: React.FC = () => {
       try {
         await deleteCategory(categoryToDelete);
         setCategories((prev) => prev.filter((cat) => cat.id !== categoryToDelete));
-        setNotification("Category deleted successfully");
+        setNotification("Category successfully deleted");
         setNotificationType("success");
         setShowDeleteModal(false);
         setCategoryToDelete(null);
@@ -127,10 +134,16 @@ const CategoryPage: React.FC = () => {
     setCategoryToDelete(null);
   };
 
-  if (loading) return <p className="text-center text-gray-600">Loading categories...</p>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-center text-gray-600">Loading categories...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-title">Categories</h1>
@@ -139,7 +152,7 @@ const CategoryPage: React.FC = () => {
           className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          <span>{showForm && mode === "create" ? "Close Form" : "Add Category"}</span>
+          <span>{showForm && mode === "create" ? "Close the form" : "Add a category"}</span>
         </button>
       </div>
 
@@ -193,10 +206,11 @@ const CategoryPage: React.FC = () => {
         {showDeleteModal && (
           <>
             <motion.div
-              className="absolute w-full inset-0 bg-black/20 backdrop-blur-sm z-40"
+              className="fixed w-full inset-0 bg-black/20 backdrop-blur-sm z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
               onClick={closeDeleteModal}
             />
             <motion.div
@@ -204,10 +218,10 @@ const CategoryPage: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: -30 }}
               transition={{ duration: 0.3 }}
-              className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
+              className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
             >
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-lg font-semibold text-gray-800">Confirm Deletion</h2>
+                <h2 className="text-lg font-semibold text-gray-800">Confirm deletion</h2>
                 <button
                   onClick={closeDeleteModal}
                   className="text-gray-500 hover:text-gray-700"
@@ -239,16 +253,16 @@ const CategoryPage: React.FC = () => {
       {filteredCategories.length === 0 ? (
         <div className="bg-white rounded-xl shadow-md border border-gray-100 p-12 text-center">
           <FolderOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No categories found</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No category found</h3>
           <p className="text-gray-500 mb-6">
-            Create your first category to get started organizing your expenses.
+            Create your first category to start organizing your expenses.
           </p>
           <button
             onClick={openCreateForm}
             className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2 mx-auto"
           >
             <Plus className="h-4 w-4" />
-            <span>Add Category</span>
+            <span>Add a category</span>
           </button>
         </div>
       ) : (
