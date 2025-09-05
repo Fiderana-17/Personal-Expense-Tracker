@@ -414,7 +414,7 @@ const ExpensesList: React.FC = () => {
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <div className="flex items-center space-x-1">
                     <Calendar className="h-4 w-4" />
-                    <span>{expense.date && formatDate(expense.date)}</span>
+                    <span>{formatDate(expense.date)}</span>
                   </div>
                   <span>•</span>
                   <span className="font-medium text-gray-700">

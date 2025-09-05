@@ -3,6 +3,7 @@ import { uploadProfilePic, getMe, changePassword } from '@/api/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { formatDate } from '../ui/FormatDate';
 
 const Profile: React.FC = () => {
   const { user, token } = useAuth();
@@ -149,7 +150,7 @@ const Profile: React.FC = () => {
               <p className="text-xs text-title uppercase mb-1 duration-500">Member since</p>
               <div className="flex items-center gap-2 text-title duration-500">
                 <Calendar className="h-4 w-4" />
-                <span>{user?.createdAt?.split('T')[0].replaceAll('-', '/')}</span>
+                <span>{formatDate(user?.createdAt)}</span>
               </div>
             </div>
           </div>
