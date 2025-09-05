@@ -7,14 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 //  Utilisateur
 model User {
-  id         Int        @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
-  email      String     @unique
+  email      String   @unique
   password   String
-  createdAt  DateTime   @default(now())
+  profilePic String?
+  createdAt  DateTime @default(now())
 
   // Relations
   expenses   Expense[]
@@ -24,7 +24,7 @@ model User {
 
 // Dépense
 model Expense {
-  id          Int        @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   amount      Float
   description String?
   type        ExpenseType @default(ONE_TIME)
@@ -34,33 +34,33 @@ model Expense {
   createdAt   DateTime    @default(now())
 
   // Relations
-  userId     Int
-  user       User        @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
   categoryId Int
-  category   Category    @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
 
-  receipt    Receipt?
+  receipt Receipt?
 }
 
 // Catégorie
 model Category {
-  id      Int       @id @default(autoincrement())
-  name    String
-  userId  Int
-  user    User      @relation(fields: [userId], references: [id])
+  id       Int       @id @default(autoincrement())
+  name     String
+  userId   Int
+  user     User      @relation(fields: [userId], references: [id])
   expenses Expense[]
 }
 
 // Reçu (upload fichier)
 model Receipt {
-  id        Int     @id @default(autoincrement())
-  filePath  String
+  id         Int      @id @default(autoincrement())
+  filePath   String
   uploadedAt DateTime @default(now())
 
   // Relation
-  expenseId Int      @unique
-  expense   Expense  @relation(fields: [expenseId], references: [id])
+  expenseId Int     @unique
+  expense   Expense @relation(fields: [expenseId], references: [id])
 }
 
 // Revenus
@@ -74,7 +74,7 @@ model Income {
 
   // Relation
   userId Int
-  user   User    @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
 }
 
 // Type de dépense
