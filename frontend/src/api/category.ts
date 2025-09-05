@@ -64,7 +64,7 @@ export async function createCategory(data: Partial<Category>): Promise<{ message
       ...responseData
     };
   }
-  return res.json();
+  return responseData;;
 }
 
 // UPDATE category
