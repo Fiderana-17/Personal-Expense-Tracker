@@ -10,6 +10,7 @@ const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [isDark, setIsDark] = useState(false);
+  const profilePic = user?.profilePic || '';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,7 +35,7 @@ const Header: React.FC = () => {
 
           <div className="flex items-center space-x-4 relative">
             <Switch onToggle={setIsDark} />
-            <button className="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
+            <button className="relative p-2 cursor-pointer text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
               <Bell className="h-6 w-6" />
               <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                 2
@@ -51,17 +52,24 @@ const Header: React.FC = () => {
 
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center shadow-sm focus:outline-hidden"
+                  className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center shadow-sm cursor-pointer"
                 >
-                  <User className="h-5 w-5 text-blue-600" />
+                  {profilePic ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}${profilePic}`}
+                      alt="Profile"
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-4 w- text-blue-600" />
+                  )}
                 </button>
 
                 <div
-                  className={`absolute z-100 right-0 top-12.5 w-48 rounded-md overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${
-                    menuOpen
+                  className={`absolute z-100 right-0 top-12.5 w-48 rounded-md overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${menuOpen
                       ? 'opacity-100 scale-100 translate-y-0'
                       : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
-                  }`}
+                    }`}
                 >
                   <Link
                     to="/profile"
@@ -72,13 +80,13 @@ const Header: React.FC = () => {
                   </Link>
                   <button
                     onClick={logout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign out
                   </button>
                 </div>
-              </div>              
+              </div>
             </div>
           </div>
         </div>

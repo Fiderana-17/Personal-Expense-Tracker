@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { User as UserIcon, Mail, Calendar, Save, AlertCircle, EyeOff, Eye, Database, Lock, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { UserIcon, Lock, Database, Calendar, AlertCircle, Pencil, Eye, EyeOff, Save, Mail, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { changePassword } from '@/api/auth';
+import { uploadProfilePic, getMe, changePassword } from '@/api/auth';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile: React.FC = () => {
   const { user, token } = useAuth();
+  const [profilePic, setProfilePic] = useState<string>(user?.profilePic || '');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,19 +20,52 @@ const Profile: React.FC = () => {
   const totalExpenses = user?.expenses.length;
   const totalIncomes = user?.incomes.length;
   const totalCategories = user?.categories.length;
+  
+  const fetchUser = async () => {
+    if (!token) return;
+    try {
+      const data = await getMe(token);
+      setProfilePic(data.profilePic || '');
+    } catch (err: unknown) {
+      setNotification(err instanceof Error ? err.message : 'An unknown error occurred');
+      setNotificationType('error');
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, [token]);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(''), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!token || !e.target.files || !e.target.files[0]) return;
+    try {
+      await uploadProfilePic(e.target.files[0], token);
+      setNotification('Profile picture updated');
+      setNotificationType('success');
+      fetchUser();
+    } catch (err) {
+      setNotification(err instanceof Error ? err.message : 'Upload failed');
+      setNotificationType('error');
+    }
+  };
 
   const handleSave = async () => {
     if (!token) {
       setNotificationType('error');
       setNotification('Missing token');
-      setTimeout(() => setNotification(''), 5000);
       return;
     }
 
     if (newPassword !== confirmPassword) {
       setNotification('Passwords do not match');
       setNotificationType('error');
-      setTimeout(() => setNotification(''), 5000);
       return;
     }
 
@@ -39,7 +73,6 @@ const Profile: React.FC = () => {
       await changePassword(oldPassword, newPassword, token);
       setNotification('Password changed successfully');
       setNotificationType('success');
-      setTimeout(() => setNotification(''), 5000);
       setShowForm(false);
       setOldPassword('');
       setNewPassword('');
@@ -47,18 +80,33 @@ const Profile: React.FC = () => {
     } catch (err) {
       setNotification(err instanceof Error ? err.message : 'Your current password is incorrect');
       setNotificationType('error');
-      setTimeout(() => setNotification(''), 5000);
     }
   };
 
   return (
-    <div >
+    <div>
       <h1 className="text-3xl font-bold text-title mb-8 duration-500">Profile</h1>
-
       <div className="bg-page duration-500 rounded-xl shadow-md border border-border p-6 grid grid-cols-1 md:grid-cols-[30%_70%] gap-8 py-17">
         <div className="flex flex-col items-center justify-center text-center md:text-left ">
-          <div className="h-24 w-24 bg-blue-100 rounded-full flex items-center justify-center shadow-md">
-            <UserIcon className="h-12 w-12 text-blue-600" />
+          <div className="h-40 w-40 bg-blue-100 rounded-full flex items-center justify-center shadow-md relative">
+            {profilePic ? (
+              <img
+                src={`${import.meta.env.VITE_API_URL}${profilePic}`}
+                alt="Profile"
+                className="h-40 w-40 rounded-full object-cover"
+              />
+            ) : (
+              <UserIcon className="h-12 w-12 text-blue-600" />
+            )}
+            <label className="absolute bottom-1 right-1 bg-indigo-600 text-white rounded-full p-2 cursor-pointer hover:bg-indigo-700 flex items-center">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <Pencil className="h-4 w-4" />
+            </label>
           </div>
           <h2 className="mt-3 text-2xl font-bold text-title duration-500">{user?.name}</h2>
 
@@ -75,7 +123,7 @@ const Profile: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-purple-600" />
-              <span className='text-title duration-500'>Total Categories: {totalCategories} </span>
+              <span className='text-title duration-500'>Total Categories: {totalCategories}</span>
             </div>
           </div>
         </div>
@@ -108,7 +156,7 @@ const Profile: React.FC = () => {
 
           <button
             onClick={() => setShowForm(true)}
-            className="mt-10 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center gap-2 self-start"
+            className="mt-10 cursor-pointer bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center gap-2 self-start"
           >
             <Lock className="h-4 w-4" />
             <span>Change Password</span>
@@ -138,7 +186,7 @@ const Profile: React.FC = () => {
                 <h2 className="text-lg font-semibold text-gray-800">Change Password</h2>
                 <button
                   onClick={() => setShowForm(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -155,7 +203,7 @@ const Profile: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowOldPassword(!showOldPassword)}
-                  className="absolute right-3 top-9 text-gray-400"
+                  className="absolute right-3 top-9 text-gray-400 cursor-pointer"
                 >
                   {showOldPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -172,7 +220,7 @@ const Profile: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-9 text-gray-400"
+                  className="absolute right-3 top-9 text-gray-400 cursor-pointer"
                 >
                   {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -189,15 +237,14 @@ const Profile: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-9 text-gray-400"
+                  className="absolute right-3 top-9 text-gray-400 cursor-pointer"
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
-
               <button
                 onClick={handleSave}
-                className="w-full bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                className="w-full cursor-pointer bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 <Save className="h-4 w-4" />
                 <span>Save</span>
@@ -206,7 +253,6 @@ const Profile: React.FC = () => {
           </>
         )}
       </AnimatePresence>
-
       <AnimatePresence>
         {notification && (
           <motion.div

@@ -16,6 +16,7 @@ app.use("/api/categories", categoryRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/incomes', incomeRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/uploads', express.static('uploads'));
 
 
 
