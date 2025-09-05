@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
 import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X } from 'lucide-react';
+import { deleteExpense, createExpense, updateExpense, getExpenses } from '@/api/expense.ts';
+import type { Category, Expense } from '@/types/index.ts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { type Expense, deleteExpense, createExpense, updateExpense, getExpenses } from '../../api/expense.ts';
-import { getAllCategories, type Category } from '../../api/category.ts';
+import { getAllCategories } from '@/api/category.ts';
+import React, { useEffect, useState } from 'react';
+import { formatDate } from '../ui/FormatDate.ts';
 import { useAuth } from '@/hooks/useAuth.ts';
 import Loader from '../ui/Loader.tsx';
 
@@ -412,7 +414,7 @@ const ExpensesList: React.FC = () => {
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <div className="flex items-center space-x-1">
                     <Calendar className="h-4 w-4" />
-                    <span>{expense.date ? new Date(expense.date).toLocaleDateString() : '—'}</span>
+                    <span>{expense.date && formatDate(expense.date)}</span>
                   </div>
                   <span>•</span>
                   <span className="font-medium text-gray-700">

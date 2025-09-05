@@ -21,17 +21,18 @@ export interface Category {
 }
 
 export interface Expense {
-  id: string;
+  id: number;
   amount: number;
-  date: string;
-  categoryId: string;
-  category?: Category;
   description?: string;
-  type: 'ONE_TIME' | 'RECURRING';
+  type: string;
+  date?: string;
   startDate?: string;
   endDate?: string;
-  receiptId?: string;
-  userId: string;
+  userId: number;
+  categoryId: number;
+  category?: { id: number; name: string };
+  receipt?: string;
+  createdAt?: string;
 }
 
 export interface Income {
@@ -109,4 +110,17 @@ export interface CategoryFormProps {
   initial?: Pick<Category, "id" | "name" | "description"> | null;
   onCancel: () => void;
   onSubmit: (values: { id?: number; name: string; description?: string }) => Promise<void> | void;
+}
+
+export interface IncomeFormProps {
+  mode: Mode;
+  initial: Partial<Income> | null;
+  onCancel: () => void;
+  onSubmit: (values: {
+    id?: string;
+    amount: number;
+    source?: string;
+    description?: string;
+    date: string;
+  }) => void | Promise<void>;
 }

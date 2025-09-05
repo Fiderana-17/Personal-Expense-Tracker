@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
 import { UserIcon, Lock, Database, Calendar, AlertCircle, Pencil, Eye, EyeOff, Save, Mail, X } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
 import { uploadProfilePic, getMe, changePassword } from '@/api/auth';
 import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 const Profile: React.FC = () => {
   const { user, token } = useAuth();
