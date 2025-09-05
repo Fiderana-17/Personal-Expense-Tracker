@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { type Income } from "../../types";
+import { AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { type Income } from "@/types";
 
 type Mode = "create" | "edit";
 
@@ -20,6 +22,7 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
   const [amount, setAmount] = useState("");
   const [source, setSource] = useState("");
   const [description, setDescription] = useState("");
+  const [notification, setNotification] = useState("");
 
   useEffect(() => {
     if (initial) {
@@ -37,7 +40,8 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
     e.preventDefault();
     const parsedAmount = Number(amount);
     if (Number.isNaN(parsedAmount)) {
-      alert("Amount doit être un nombre.");
+      setNotification("Amount must be a valid number.");
+      setTimeout(() => setNotification(""), 5000);
       return;
     }
 
@@ -52,69 +56,74 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
   };
 
   return (
-    // Overlay flou léger
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div className="absolute inset-0 backdrop-blur-sm bg-white/30 pointer-events-auto rounded-xl" />
+    <div className="relative">
+      {/* Notification */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -50, opacity: 0 }}
+            className="absolute -top-16 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 border-red-300 text-red-800 bg-red-100"
+          >
+            <AlertCircle className="h-5 w-5" />
+            <span>{notification}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Formulaire centré */}
-      <div className="relative bg-gray-50 rounded-xl shadow-lg border border-gray-100 px-8 py-10 w-[500px] max-w-[90%] pointer-events-auto z-10">
-        <h3 className="text-2xl font-semibold mb-6 text-center">
-          {mode === "create" ? "Add Income" : "Edit Income"}
-        </h3>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+          <input
+            type="number"
+            step="0.01"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
+            placeholder="0.00"
+            required
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-            <input
-              type="number"
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="0.00"
-              required
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+          <input
+            type="text"
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
+            className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
+            placeholder="Salary, Freelance, ..."
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
-            <input
-              type="text"
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Salary, Freelance, ..."
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
+            rows={3}
+            placeholder="Optional details..."
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              rows={3}
-              placeholder="Optional details..."
-            />
-          </div>
-
-          <div className="flex justify-center gap-6 mt-4">
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-8 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
-            >
-              {mode === "create" ? "Submit" : "Update"}
-            </button>
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-8 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="flex justify-end gap-4 mt-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+          >
+            {mode === "create" ? "Save Income" : "Update Income"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

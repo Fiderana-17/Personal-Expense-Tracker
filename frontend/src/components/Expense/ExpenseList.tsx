@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X } from 'lucide-react';
+import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type Expense, deleteExpense, createExpense, updateExpense, getExpenses } from '../../api/expense.ts';
 import { getAllCategories, type Category } from '../../api/category.ts';
@@ -177,7 +177,13 @@ const ExpensesList: React.FC = () => {
     return matchesSearch && matchesCategory && matchesType;
   });
 
-  if (loading) return <p className="text-gray-700">Loading...</p>;
+ 
+  if (loading) {
+    return <div className="grid place-items-center min-h-screen">
+      <Loader />
+    </div>;
+  };
+  
   if (error) return <p className="text-red-600">Error: {error}</p>;
 
   return (
