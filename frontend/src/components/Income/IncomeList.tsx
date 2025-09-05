@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Plus, Search, Edit, Trash2, Calendar, TrendingUp, AlertCircle, X } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Calendar, TrendingUp, AlertCircle, X, FolderOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   getAllIncomes,
@@ -194,8 +194,19 @@ const IncomeList: React.FC = () => {
 
       {/* Income List */}
       {filteredIncomes.length === 0 ? (
-        <div className="bg-page rounded-xl shadow-md border border-border p-12 text-center duration-500">
-          <p className="text-title text-lg">No income yet</p>
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-12 text-center">
+          <FolderOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No incomes found</h3>
+          <p className="text-gray-500 mb-6">
+            Create your first income entry to start organizing your finances.
+          </p>
+          <button
+            onClick={openCreateForm}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2 mx-auto"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Income</span>
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
