@@ -1,11 +1,6 @@
-// frontend/services/category.ts
 const API_BASE = import.meta.env.VITE_API_URL;
 
-export interface Category {
-  id: number;
-  name: string;
-  userId: number;
-}
+import type { Category } from "@/types";
 
 // 🔑 Auth headers
 function getAuthHeaders(): Record<string, string> {
@@ -21,8 +16,15 @@ export async function getAllCategories(): Promise<Category[]> {
       ...getAuthHeaders(),
     },
   });
-  if (!res.ok) throw new Error("Erreur lors de la récupération des catégories");
-  return res.json();
+  const responseData = await res.json();
+  if (!res.ok) {
+    throw {
+      status: res.status,
+      ...responseData,
+      message: responseData.message || "Failed to fetch categories. Please try again."
+    };
+  }
+  return responseData;
 }
 
 // GET categories by user
@@ -33,8 +35,15 @@ export async function getCategoriesByUser(userId: number): Promise<Category[]> {
       ...getAuthHeaders(),
     },
   });
-  if (!res.ok) throw new Error("Erreur lors de la récupération des catégories de l'utilisateur");
-  return res.json();
+  const responseData = await res.json();
+  if (!res.ok) {
+    throw {
+      status: res.status,
+      ...responseData,
+      message: responseData.message || "Failed to fetch user categories. Please try again."
+    };
+  }
+  return responseData;
 }
 
 //CREATE category
@@ -48,7 +57,13 @@ export async function createCategory(data: Partial<Category>): Promise<{ message
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) throw new Error("Erreur lors de la création de la catégorie");
+  const responseData = await res.json();
+  if (!res.ok) {
+    throw {
+      status: res.status,
+      ...responseData
+    };
+  }
   return res.json();
 }
 
@@ -63,8 +78,22 @@ export async function updateCategory(id: number, data: Partial<Category>): Promi
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) throw new Error("Erreur lors de la mise à jour de la catégorie");
-  return res.json();
+  const responseData = await res.json();
+  if (!res.ok) {
+    if (responseData.error === "category_name_exists") {
+      throw {
+        status: res.status,
+        error: "category_name_exists",
+        message: "A category with this name already exists. Please choose a different name."
+      };
+    }
+    throw {
+      status: res.status,
+      ...responseData,
+      message: responseData.message || "Failed to update the category. Please try again."
+    };
+  }
+  return responseData;
 }
 
 // DELETE category
@@ -76,6 +105,20 @@ export async function deleteCategory(id: number): Promise<{ message: string }> {
     },
   });
 
-  if (!res.ok) throw new Error("Erreur lors de la suppression de la catégorie");
-  return res.json();
+  const responseData = await res.json();
+  if (!res.ok) {
+    if (responseData.error === "category_in_use") {
+      throw {
+        status: res.status,
+        error: "category_in_use",
+        message: "This category cannot be deleted because it is currently used by one or more expenses. Please remove or reassign these expenses first."
+      };
+    }
+    throw {
+      status: res.status,
+      ...responseData,
+      message: responseData.message || "Failed to delete the category. Please try again."
+    };
+  }
+  return responseData;
 }
