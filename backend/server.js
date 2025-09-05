@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
-import { authRoutes, categoryRoutes, expenseRoutes, incomeRoutes } from "./src/routes/index.js";
+import { authRoutes, categoryRoutes, expenseRoutes, incomeRoutes, summaryRoutes } from "./src/routes/index.js";
 
 dotenv.config();
 
@@ -15,6 +15,7 @@ app.use('/api/auth', authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/incomes', incomeRoutes);
+app.use('/api/summary', summaryRoutes);
 
 
 
