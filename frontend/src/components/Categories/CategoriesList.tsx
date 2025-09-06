@@ -6,7 +6,6 @@ import CategoryForm from "./CategoryForm";
 import { formatDate } from "../ui/FormatDate";
 import type { ApiError, Category } from "@/types";
 
-
 const CategoryPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +23,23 @@ const CategoryPage: React.FC = () => {
     try {
       const data = await getAllCategories();
       setCategories(data);
+      // Create default categories if none exist
+      if (data.length === 0) {
+        try {
+          await createCategory({ name: "Food", description: "For daily expenses" });
+          await createCategory({ name: "Transport", description: "For savings and investments" });
+          // Refresh categories after creation
+          const updatedData = await getAllCategories();
+          setCategories(updatedData);
+          setNotification("Default categories created successfully");
+          setNotificationType("success");
+        } catch (err) {
+          const error = err as ApiError;
+          console.error(error);
+          setNotification(error.message || "Failed to create default categories");
+          setNotificationType("error");
+        }
+      }
     } catch (err) {
       const error = err as ApiError;
       console.error(error);
@@ -41,8 +57,10 @@ const CategoryPage: React.FC = () => {
 
   const filteredCategories = useMemo(
     () =>
-      categories.filter((c) =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      categories.filter(
+        (c) =>
+          c.name.toLowerCase().includes(searchTerm.toLowerCase().trim()) ||
+          (c.description && c.description.toLowerCase().includes(searchTerm.toLowerCase().trim()))
       ),
     [categories, searchTerm]
   );
@@ -150,8 +168,10 @@ const CategoryPage: React.FC = () => {
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -50, opacity: 0 }}
-            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${notificationType === "success" ? "bg-green-500 text-white" : "border-red-300 text-red-800 bg-red-100"
-              }`}
+            transition={{ duration: 0.3 }}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${
+              notificationType === "success" ? "bg-green-500 text-white" : "border-red-300 text-red-800 bg-red-100"
+            }`}
           >
             <AlertCircle className="h-5 w-5" />
             <span>{notification}</span>
@@ -197,6 +217,7 @@ const CategoryPage: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
               onClick={closeDeleteModal}
             />
             <motion.div
