@@ -17,6 +17,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const data = await getMe(token);
         if (data.id) {
           setUser(data);
+          localStorage.setItem('userId', data.id.toString());
         } else {
           setUser(null);
           localStorage.removeItem("token");
@@ -41,6 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const res = await apiLogin(email, password);
       if (res.token) {
         localStorage.setItem('token', res.token);
+        localStorage.setItem('userId', res.user.id.toString());
         setToken(res.token);
         setUser(res.user);
       } else {
@@ -65,6 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     setToken(null);
     setUser(null);
   };
