@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, Download, TrendingUp, PieChart } from "lucide-react";
-import { getExpenses } from "../../api/expense";
-import { getAllIncomes } from "../../api/income";
-import { getAllCategories, type Category } from "../../api/category";
-import { type Expense, type Income, type ReportData, type ExpenseBreakdown } from "../../types";
+import { getExpenses } from "@/api/expense";
+import { getAllIncomes } from "@/api/income";
+import { getAllCategories } from "@/api/category";
+import type { Expense, Income, ReportData, ExpenseBreakdown, Category } from "@/types";
+import Loader from "../ui/Loader";
 
 const Reports: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("monthly");
@@ -43,9 +44,11 @@ const Reports: React.FC = () => {
         );
 
         setReport({ totalExpenses, totalIncome, netBalance, expenseBreakdown });
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
-        setError(err.message || "Erreur lors du chargement des données");
+        if (err instanceof Error) {
+          setError(err.message || "Erreur lors du chargement des données");
+        }
       } finally {
         setLoading(false);
       }
@@ -54,7 +57,7 @@ const Reports: React.FC = () => {
     fetchReport();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="grid place-items-center min-h-screen"><Loader /></div>;
   if (error) return <div className="text-red-500">{error}</div>;
   if (!report) return <div>Erreur lors du chargement du report.</div>;
 

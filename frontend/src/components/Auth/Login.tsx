@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, EyeOff, AlertCircle, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Login: React.FC = () => {
@@ -112,9 +112,9 @@ const Login: React.FC = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+            <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
               Don’t have an account? Sign up
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -3,32 +3,43 @@ import jwt from 'jsonwebtoken';
 import prisma from '../prismaClient.js';
 
 const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
-const SALT_ROUNDS = 10;
+const saltRounds = process.env.SALT_ROUNDS || 10;
 
-// Inscription
+
 export const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password){
+    if (!name || !email || !password) {
       return res.status(400).json({ message: 'Missing fields' });
-    }  
-    
+    }
+
     const existing = await prisma.user.findUnique({ where: { email } });
-      if (existing){
-          return res.status(409).json({ message: 'Email already used' });
-      } 
-    
+    if (existing) {
+      return res.status(409).json({ message: 'Email already used' });
+    }
+
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
-    const hashed = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashed = await bcrypt.hash(password, saltRounds);
     const user = await prisma.user.create({
-      data: { name, email, password: hashed }
+      data: {
+        name,
+        email,
+        password: hashed,
+        categories: {
+          create: [
+            { name: "Food", description: "For daily expenses" },
+            { name: "Transport", description: "For transport costs" },
+          ],
+        },
+      },
+      include: { categories: true },
     });
 
-    return res.status(201).json({ message: 'success', userId: user.id });
+    return res.status(201).json({ message: 'success', userId: user.id, categories: user.categories });
 
   } catch (err) {
     console.error(err);
@@ -36,24 +47,24 @@ export const signup = async (req, res) => {
   }
 };
 
-// Connexion
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password){
+    if (!email || !password) {
       return res.status(400).json({ message: 'Missing fields' });
-    } 
+    }
 
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user){
+    if (!user) {
       return res.status(401).json({ message: "This email doesn't exist" });
-    } 
+    }
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid){
+    if (!valid) {
       return res.status(401).json({ message: 'Wrong password. Try again' });
-    } 
+    }
 
     const token = jwt.sign(
       { id: user.id, email: user.email },
@@ -72,7 +83,7 @@ export const login = async (req, res) => {
   }
 };
 
-// Changer le mot de passe
+
 export const changePassword = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -81,7 +92,7 @@ export const changePassword = async (req, res) => {
     if (!oldPassword || !newPassword) {
       return res.status(400).json({ message: 'Missing fields' });
     }
-    
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -101,7 +112,6 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ message: 'New password must be different from the old password' });
     }
 
-    
     const hashed = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
     await prisma.user.update({
@@ -134,6 +144,7 @@ export const getMe = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const uploadProfilePic = async (req, res) => {
   try {
