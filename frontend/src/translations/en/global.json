@@ -42,7 +42,7 @@
     "profile": "Profile",
     "logout": "Logout"
   },
-   "expenses": {
+  "expenses": {
     "title": "Expenses",
     "addExpense": "Add Expense",
     "editExpense": "Edit Expense",
@@ -64,5 +64,40 @@
     "allTypes": "All Types",
     "found": "{{count}} Expenses Found",
     "error": "Error"
-   }
+  },
+  "income": {
+    "amount": "Amount ($)",
+    "amountPlaceholder": "0.00",
+    "source": "Source",
+    "sourcePlaceholder": "Salary, Freelance, ...",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional details...",
+    "save": "Save Income",
+    "update": "Update Income",
+    "errors": {
+      "invalidAmount": "Amount must be a valid number."
+    },
+    "title": "Income",
+    "add": "Add Income",
+    "closeForm": "Close Form",
+    "edit": "Edit Income",
+    "created": "Income created successfully",
+    "updated": "Income updated successfully",
+    "deleted": "Income deleted successfully",
+    "total": "Total Income",
+    "thisPeriod": "This period",
+    "searchPlaceholder": "Search income sources...",
+    "noFound": "No incomes found",
+    "noFoundDesc": "Create your first income entry to start organizing your finances.",
+    "untitled": "Untitled Income",
+    "confirmDeleteTitle": "Confirm Deletion",
+    "confirmDeleteMessage": "Are you sure you want to delete this income?",
+    "buttons": {
+      "yes": "Yes",
+      "no": "No"
+    }
+  },
+  "common": {
+    "cancel": "Cancel"
+  }
 }

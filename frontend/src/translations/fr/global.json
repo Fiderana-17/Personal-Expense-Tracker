@@ -28,10 +28,6 @@
     "passwordMismatch": "Les mots de passe ne correspondent pas",
     "wrongPassword": "Votre mot de passe actuel est incorrect"
   },
-  "app": {
-    "name": "Gestion",
-    "suffix": "Dépenses"
-  },
   "header": {
     "profile": "Votre profil",
     "signOut": "Se déconnecter"
@@ -68,5 +64,40 @@
     "allTypes": "Tous les types",
     "found": "{{count}} dépenses trouvées",
     "error": "Erreur"
+  },
+  "income": {
+    "amount": "Amount ($)",
+    "amountPlaceholder": "0.00",
+    "source": "Source",
+    "sourcePlaceholder": "Salary, Freelance, ...",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional details...",
+    "save": "Save Income",
+    "update": "Update Income",
+    "errors": {
+      "invalidAmount": "Amount must be a valid number."
+    },
+    "title": "Revenus",
+    "add": "Ajouter un revenu",
+    "closeForm": "Fermer le formulaire",
+    "edit": "Modifier le revenu",
+    "created": "Revenu créé avec succès",
+    "updated": "Revenu mis à jour avec succès",
+    "deleted": "Revenu supprimé avec succès",
+    "total": "Total des revenus",
+    "thisPeriod": "Cette période",
+    "searchPlaceholder": "Rechercher par source de revenu...",
+    "noFound": "Aucun revenu trouvé",
+    "noFoundDesc": "Créez votre premier revenu pour commencer à organiser vos finances.",
+    "untitled": "Revenu sans titre",
+    "confirmDeleteTitle": "Confirmer la suppression",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer ce revenu ?",
+    "buttons": {
+      "yes": "Oui",
+      "no": "Non"
+    }
+  },
+  "common": {
+    "cancel": "Cancel"
   }
 }
