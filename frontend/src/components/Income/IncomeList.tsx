@@ -122,7 +122,7 @@ const IncomeList: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="grid place-items-center min-h-screen">
+    return <div className="grid place-items-center min-h-[calc(100vh-130px)]">
       <Loader />
     </div>;
   };

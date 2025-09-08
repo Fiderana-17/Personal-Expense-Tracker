@@ -5,6 +5,7 @@ import { getAllCategories, createCategory, deleteCategory, updateCategory } from
 import CategoryForm from "./CategoryForm";
 import { formatDate } from "../ui/FormatDate";
 import type { ApiError, Category } from "@/types";
+import Loader from "../ui/Loader";
 
 
 const CategoryPage: React.FC = () => {
@@ -127,7 +128,11 @@ const CategoryPage: React.FC = () => {
     setCategoryToDelete(null);
   };
 
-  if (loading) return <p className="text-center text-gray-600">Loading categories...</p>;
+  if (loading) {
+    return <div className="grid place-items-center min-h-[calc(100vh-130px)]">
+      <Loader />
+    </div>;
+  };
 
   return (
     <div className="flex flex-col gap-6 p-6">
