@@ -75,6 +75,9 @@ importers:
 
 packages:
 
+  22@0.0.0:
+    resolution: {integrity: sha512-MdBPNDaCFY4fZVpp14n3Mt4isZ2yS1DrIiOig/iMLljr4zDa0g/583xf/lFXNPwhxCfGKYvyWJSrYyS8jNk2mQ==}
+
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
