@@ -1,20 +1,19 @@
 import express from "express";
-import { authenticateToken } from "../middleware/auth.js";
 import {
   getMonthlySummary,
   getSummaryBetweenDates,
   getAlerts,
+  getRecentTransactions,
+  getMonthlyExpensesSummary,
 } from "../controllers/summary.controller.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Résumé du mois courant ou spécifique
 router.get("/monthly", authenticateToken, getMonthlySummary);
-
-// Résumé entre deux dates
 router.get("/", authenticateToken, getSummaryBetweenDates);
-
-// Alertes budget
 router.get("/alerts", authenticateToken, getAlerts);
+router.get("/recent", authenticateToken, getRecentTransactions);
+router.get("/chart", authenticateToken, getMonthlyExpensesSummary);
 
 export default router;

@@ -7,26 +7,24 @@ export const getMonthlySummary = async (req, res) => {
     const { month } = req.query;
     const userId = req.user.id;
 
-    // Si pas de "month" fourni → mois courant
     const start = month
       ? dayjs(month + "-01").startOf("month")
       : dayjs().startOf("month");
     const end = start.endOf("month");
 
-    const income = await prisma.expense.aggregate({
-      where: { userId, type: "income", date: { gte: start.toDate(), lte: end.toDate() } },
+    const income = await prisma.income.aggregate({
+      where: { userId, date: { gte: start.toDate(), lte: end.toDate() } },
       _sum: { amount: true },
     });
 
     const spending = await prisma.expense.aggregate({
-      where: { userId, type: "expense", date: { gte: start.toDate(), lte: end.toDate() } },
+      where: { userId, date: { gte: start.toDate(), lte: end.toDate() } },
       _sum: { amount: true },
     });
 
     res.json({
-      month: start.format("YYYY-MM"),
-      totalIncome: income._sum.amount || 0,
-      totalSpending: spending._sum.amount || 0,
+      income: income._sum.amount || 0,
+      expense: spending._sum.amount || 0,
       balance: (income._sum.amount || 0) - (spending._sum.amount || 0),
     });
   } catch (error) {
@@ -45,21 +43,21 @@ export const getSummaryBetweenDates = async (req, res) => {
       return res.status(400).json({ message: "start and end dates are required" });
     }
 
-    const income = await prisma.expense.aggregate({
-      where: { userId, type: "income", date: { gte: new Date(start), lte: new Date(end) } },
+    const income = await prisma.income.aggregate({
+      where: { userId, date: { gte: new Date(start), lte: new Date(end) } },
       _sum: { amount: true },
     });
 
     const spending = await prisma.expense.aggregate({
-      where: { userId, type: "expense", date: { gte: new Date(start), lte: new Date(end) } },
+      where: { userId, date: { gte: new Date(start), lte: new Date(end) } },
       _sum: { amount: true },
     });
 
     res.json({
       start,
       end,
-      totalIncome: income._sum.amount || 0,
-      totalSpending: spending._sum.amount || 0,
+      income: income._sum.amount || 0,
+      expense: spending._sum.amount || 0,
       balance: (income._sum.amount || 0) - (spending._sum.amount || 0),
     });
   } catch (error) {
@@ -75,13 +73,13 @@ export const getAlerts = async (req, res) => {
     const start = dayjs().startOf("month");
     const end = dayjs().endOf("month");
 
-    const income = await prisma.expense.aggregate({
-      where: { userId, type: "income", date: { gte: start.toDate(), lte: end.toDate() } },
+    const income = await prisma.income.aggregate({
+      where: { userId, date: { gte: start.toDate(), lte: end.toDate() } },
       _sum: { amount: true },
     });
 
     const spending = await prisma.expense.aggregate({
-      where: { userId, type: "expense", date: { gte: start.toDate(), lte: end.toDate() } },
+      where: { userId, date: { gte: start.toDate(), lte: end.toDate() } },
       _sum: { amount: true },
     });
 
@@ -99,5 +97,89 @@ export const getAlerts = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching alerts", error });
+  }
+};
+
+// 📊 GET /api/summary/recent
+export const getRecentTransactions = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Récupérer les 5 dernières dépenses
+    const expenses = await prisma.expense.findMany({
+      where: { userId },
+      include: { category: true },
+      orderBy: { date: "desc" },
+      take: 5,
+    });
+
+    // Récupérer les 5 derniers revenus
+    const incomes = await prisma.income.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+      take: 5,
+    });
+
+    // Combiner et formater les transactions
+    const transactions = [
+      ...expenses.map((exp) => ({
+        id: exp.id,
+        amount: exp.amount,
+        description: exp.description,
+        date: exp.date.toISOString(),
+        type: "expense",
+        category: exp.category ? { name: exp.category.name } : undefined,
+      })),
+      ...incomes.map((inc) => ({
+        id: inc.id,
+        amount: inc.amount,
+        description: inc.description || inc.source,
+        date: inc.date.toISOString(),
+        type: "income",
+        category: undefined,
+      })),
+    ]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5);
+
+    res.json(transactions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching recent transactions", error });
+  }
+};
+
+// 📊 GET /api/summary/chart
+export const getMonthlyExpensesSummary = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const monthsBack = 6; // Par exemple, les 6 derniers mois
+    const summaries = [];
+
+    for (let i = 0; i < monthsBack; i++) {
+      const start = dayjs().subtract(i, "month").startOf("month");
+      const end = start.endOf("month");
+
+      const income = await prisma.income.aggregate({
+        where: { userId, date: { gte: start.toDate(), lte: end.toDate() } },
+        _sum: { amount: true },
+      });
+
+      const spending = await prisma.expense.aggregate({
+        where: { userId, date: { gte: start.toDate(), lte: end.toDate() } },
+        _sum: { amount: true },
+      });
+
+      summaries.push({
+        month: start.format("YYYY-MM"),
+        income: income._sum.amount || 0,
+        expenses: spending._sum.amount || 0,
+      });
+    }
+
+    res.json(summaries.reverse()); // Inverser pour avoir les mois dans l'ordre chronologique
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching chart data", error });
   }
 };
