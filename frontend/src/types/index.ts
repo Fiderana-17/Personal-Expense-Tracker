@@ -83,6 +83,7 @@ export interface ExpenseBreakdown {
   category: string;
   amount: number;
   percentage: number;
+  color: string;
 }
 
 export interface ReportData {

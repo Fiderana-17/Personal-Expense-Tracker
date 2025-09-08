@@ -166,7 +166,7 @@ const IncomeList: React.FC = () => {
             placeholder="Search income sources..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 text-title pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full pl-10 text-title pr-4 py-2 border border-gray-300 rounded-lg"
           />
         </div>
       </div>
@@ -190,10 +190,10 @@ const IncomeList: React.FC = () => {
 
       {/* Income List */}
       {filteredIncomes.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-12 text-center">
+        <div className="bg-page duration-500 rounded-xl shadow-md border border-border p-12 text-center">
           <FolderOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No incomes found</h3>
-          <p className="text-gray-500 mb-6">
+          <h3 className="text-lg font-medium text-title duration-500 mb-2">No incomes found</h3>
+          <p className="text-title duration-500 mb-6">
             Create your first income entry to start organizing your finances.
           </p>
           <button
