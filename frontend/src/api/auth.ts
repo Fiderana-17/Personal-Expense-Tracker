@@ -45,3 +45,23 @@ export async function changePassword(oldPassword: string, newPassword: string, t
 
   return res.json();
 }
+
+export async function uploadProfilePic(file: File, token: string) {
+  const formData = new FormData();
+  formData.append('profilePic', file);
+
+  const res = await fetch(`${API_BASE}/auth/uploadProfilePic`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || 'Failed to upload profile picture');
+  }
+
+  return res.json();
+}

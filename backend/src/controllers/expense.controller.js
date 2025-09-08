@@ -23,10 +23,6 @@ export const getAllExpenses = async (req, res) => {
 };
 
 
-
-
-
-
 //  Get a single expense by ID
 export const getExpenseById = async (req, res) => {
   try {
@@ -51,24 +47,11 @@ export const createExpense = async (req, res) => {
   try {
     const { amount, description, type, date, startDate, endDate, userId, categoryId } = req.body;
 
-    // Validation des champs obligatoires
     if (!amount || !userId || !categoryId) {
       return res.status(400).json({ message: 'Les champs amount, userId et categoryId sont requis' });
     }
 
-    // Vérifie si une dépense identique existe déjà
-    const existingExpense = await prisma.expense.findFirst({
-      where: {
-        userId: parseInt(userId),
-        categoryId: parseInt(categoryId),
-        amount: parseFloat(amount),
-        date: date ? new Date(date) : null,
-      },
-    });
 
-    if (existingExpense) {
-      return res.status(400).json({ message: 'Cette dépense existe déjà' });
-    }
     // Crée la nouvelle dépense
     const expense = await prisma.expense.create({
       data: {
@@ -84,9 +67,9 @@ export const createExpense = async (req, res) => {
     });
 
     res.status(201).json({
-  message: "Expense créée avec succès",
-  data: expense
-});
+      message: "Expense créée avec succès",
+      data: expense
+    });
 
   } catch (error) {
     console.error(error);
@@ -133,3 +116,7 @@ export const deleteExpense = async (req, res) => {
     res.status(500).json({ message: 'Error deleting expense', error });
   }
 };
+
+
+
+

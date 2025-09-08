@@ -9,7 +9,7 @@ const MainLayout: React.FC = () => {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 overflow-auto p-8 relative">
+        <main className="flex-1 overflow-auto p-8 relative scrollbar-custom">
           <Outlet />
         </main>
       </div>

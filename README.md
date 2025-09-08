@@ -79,8 +79,7 @@ Personal-Expense-Tracker/
 │   │   ├── routes/  
 │   │   ├── controllers/
 │   │   ├── services/
-│   │   ├── middlewares/ 
-│   │   └── utils/
+│   │   └── middlewares/ 
 │   │  
 │   ├── prisma/  
 │   │   └── schema.prisma  

@@ -1,20 +1,8 @@
 const API_BASE = import.meta.env.VITE_API_URL;
 
-export interface Expense {
-  id: number;
-  amount: number;
-  description?: string;
-  type: string;
-  date?: string;
-  startDate?: string;
-  endDate?: string;
-  userId: number;
-  categoryId: number;
-  category?: { id: number; name: string };
-  receipt?: any;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type { Expense } from "@/types";
+
+
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -24,7 +12,8 @@ function getAuthHeaders(): Record<string, string> {
 export async function getExpenses(userId: number): Promise<Expense[]> {
   const res = await fetch(`${API_BASE}/expenses?userId=${userId}`);
   if (!res.ok) throw new Error("Erreur lors de la récupération des dépenses");
-  return res.json();
+  const data: Expense[] = await res.json(); // ✅ explicit type
+  return data;
 }
 
 
@@ -53,7 +42,7 @@ export async function createExpense(data: Partial<Expense>): Promise<{ message: 
 
 // UPDATE expense
 export async function updateExpense(id: number, data: Partial<Expense>): Promise<Expense> {
-  const token = localStorage.getItem("token"); // ou depuis ton AuthContext
+  const token = localStorage.getItem("token"); 
   const headers = new Headers({
     'Content-Type': 'application/json',
   });
@@ -77,6 +66,3 @@ export async function deleteExpense(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/expenses/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Erreur lors de la suppression de la dépense');
 }
-
-
-

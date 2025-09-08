@@ -1,10 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,17 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-// MODELS
-
-
-// 👤 Utilisateur
+//  Utilisateur
 model User {
-  id         Int        @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
-  email      String     @unique
+  email      String   @unique
   password   String
-  createdAt  DateTime   @default(now())
+  profilePic String?
+  createdAt  DateTime @default(now())
 
   // Relations
   expenses   Expense[]
@@ -32,9 +22,9 @@ model User {
   categories Category[]
 }
 
-// 💸 Dépense
+// Dépense
 model Expense {
-  id          Int        @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   amount      Float
   description String?
   type        ExpenseType @default(ONE_TIME)
@@ -44,36 +34,38 @@ model Expense {
   createdAt   DateTime    @default(now())
 
   // Relations
-  userId     Int
-  user       User        @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
   categoryId Int
-  category   Category    @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
 
-  receipt    Receipt?
+  receipt Receipt?
 }
 
-// 📂 Catégorie
+// Catégorie
 model Category {
-  id      Int       @id @default(autoincrement())
-  name    String
-  userId  Int
-  user    User      @relation(fields: [userId], references: [id])
-  expenses Expense[]
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  expenses    Expense[]
 }
 
-// 📎 Reçu (upload fichier)
+// Reçu (upload fichier)
 model Receipt {
-  id        Int     @id @default(autoincrement())
-  filePath  String
+  id         Int      @id @default(autoincrement())
+  filePath   String
   uploadedAt DateTime @default(now())
 
   // Relation
-  expenseId Int      @unique
-  expense   Expense  @relation(fields: [expenseId], references: [id])
+  expenseId Int     @unique
+  expense   Expense @relation(fields: [expenseId], references: [id])
 }
 
-// 💰 Revenus
+// Revenus
 model Income {
   id          Int      @id @default(autoincrement())
   amount      Float
@@ -84,7 +76,7 @@ model Income {
 
   // Relation
   userId Int
-  user   User    @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
 }
 
 // Type de dépense
