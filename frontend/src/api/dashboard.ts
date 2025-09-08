@@ -1,4 +1,3 @@
-// src/api/dashboard.ts
 const API_BASE = import.meta.env.VITE_API_URL;
 
 function getAuthHeaders(): Record<string, string> {
@@ -6,7 +5,7 @@ function getAuthHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// ✅ Types exportés
+// Types
 export interface Summary {
   income: number;
   expense: number;
@@ -18,29 +17,39 @@ export interface Alert {
   message: string;
 }
 
-// 🔹 GET current month summary
-export async function getMonthlySummary(month?: string): Promise<Summary> {
-  const url = month
-    ? `${API_BASE}/summary/monthly?month=${month}`
-    : `${API_BASE}/summary/monthly`;
-
-  const res = await fetch(url, { headers: getAuthHeaders() });
-  if (!res.ok) throw new Error("Erreur lors de la récupération du résumé mensuel");
-  return res.json();
+export interface Transaction {
+  id: number;
+  amount: number;
+  description: string | null;
+  date: string;
+  type: "income" | "expense";
+  category?: { name: string };
 }
 
-// 🔹 GET summary between two dates
-export async function getSummaryBetween(start: string, end: string): Promise<Summary> {
-  const res = await fetch(`${API_BASE}/summary?start=${start}&end=${end}`, {
-    headers: getAuthHeaders(),
-  });
-  if (!res.ok) throw new Error("Erreur lors de la récupération du résumé entre deux dates");
+// 🔹 GET monthly summary
+export async function getMonthlySummary(): Promise<Summary> {
+  const res = await fetch(`${API_BASE}/summary/monthly`, { headers: getAuthHeaders() });
+  if (!res.ok) throw new Error("Erreur récupération résumé mensuel");
   return res.json();
 }
 
 // 🔹 GET alerts
 export async function getAlerts(): Promise<Alert> {
   const res = await fetch(`${API_BASE}/summary/alerts`, { headers: getAuthHeaders() });
-  if (!res.ok) throw new Error("Erreur lors de la récupération des alertes");
+  if (!res.ok) throw new Error("Erreur récupération alertes");
+  return res.json();
+}
+
+// 🔹 GET recent transactions (last 5)
+export async function getRecentTransactions(): Promise<Transaction[]> {
+  const res = await fetch(`${API_BASE}/summary/recent`, { headers: getAuthHeaders() });
+  if (!res.ok) throw new Error("Erreur récupération transactions");
+  return res.json();
+}
+
+// 🔹 GET chart data (expenses + income)
+export async function getMonthlyExpensesSummary(): Promise<{ month: string; income: number; expenses: number }[]> {
+  const res = await fetch(`${API_BASE}/summary/chart`, { headers: getAuthHeaders() });
+  if (!res.ok) throw new Error("Erreur récupération chart");
   return res.json();
 }
