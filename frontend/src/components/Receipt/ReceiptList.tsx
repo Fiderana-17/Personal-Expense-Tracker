@@ -100,7 +100,7 @@ const ReceiptList: React.FC = () => {
               className="flex items-center justify-between p-3 border-b-2 hover:bg-gray-50"
             >
               <div>
-                <p className="font-medium">Receipt {receipt.id}</p>
+                <p className="font-medium">{receipt.filePath.split("/").pop()}</p>
                 <p className="text-sm text-gray-500">
                   {new Date(receipt.uploadedAt).toLocaleDateString()}
                 </p>
@@ -116,7 +116,9 @@ const ReceiptList: React.FC = () => {
                   <Eye size={18} />
                 </button>
                 <button
-                  onClick={() => handleDownload(receipt.id, receipt.filePath)}
+                  onClick={() =>
+                    handleDownload(receipt.id, receipt.filePath.split("/").pop())
+                  }
                   className="p-2 bg-green-500 text-white rounded-xl hover:bg-green-600"
                 >
                   <Download size={18} />

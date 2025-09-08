@@ -1,78 +1,50 @@
-const API_BASE = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
-import { type Receipt } from "../types";
-
-// Auth headers
-function getAuthHeaders(): Record<string, string> {
-  const token = localStorage.getItem("token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-// GET all receipts
-export async function getAllReceipts(): Promise<Receipt[]> {
-  const res = await fetch(`${API_BASE}/receipts`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(),
-    },
-  });
-  if (!res.ok) throw new Error("Erreur lors de la récupération des reçus");
-  return res.json();
-}
-
-// GET receipt by ID
-export async function getReceiptById(id: string): Promise<Receipt> {
-  const res = await fetch(`${API_BASE}/receipts/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders(),
-    },
-  });
-  if (!res.ok) throw new Error("Erreur lors de la récupération du reçu");
-  return res.json();
-}
-
-// UPLOAD receipt (lié à une dépense)
-export async function uploadReceipt(
-  expenseId: string,
-  file: File
-): Promise<{ message: string; data: Receipt }> {
+export const uploadReceipt = async (file: File, expenseId: number) => {
   const formData = new FormData();
-  formData.append("receipt", file);
-  formData.append("expenseId", expenseId);
+  formData.append("file", file);
+  formData.append("expenseId", String(expenseId));
 
-  const res = await fetch(`${API_BASE}/receipts/upload`, {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/receipts`, {
     method: "POST",
     headers: {
-      ...getAuthHeaders(), // ne pas mettre Content-Type sinon ça casse le formData
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
 
-  if (!res.ok) throw new Error("Erreur lors de l’upload du reçu");
-  return res.json();
-}
+  if (!res.ok) {
+    throw new Error("Upload failed");
+  }
+  return await res.json();
+};
 
-// DOWNLOAD receipt
-export async function downloadReceipt(id: string): Promise<Blob> {
-  const res = await fetch(`${API_BASE}/receipts/${id}/download`, {
-    headers: {
-      ...getAuthHeaders(),
-    },
+export const getAllReceipts = async () => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/receipts`, {
+    headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Erreur lors du téléchargement du reçu");
-  return res.blob();
-}
+  if (!res.ok) throw new Error("Failed to fetch receipts");
+  return res.json();
+};
 
-// DELETE receipt
-export async function deleteReceipt(id: string): Promise<{ message: string }> {
-  const res = await fetch(`${API_BASE}/receipts/${id}`, {
+export const downloadReceipt = async (id: string) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/receipts/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to download receipt");
+  return await res.blob();
+};
+
+export const deleteReceipt = async (id: string) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/receipts/${id}`, {
     method: "DELETE",
-    headers: {
-      ...getAuthHeaders(),
-    },
+    headers: { Authorization: `Bearer ${token}` },
   });
-
-  if (!res.ok) throw new Error("Erreur lors de la suppression du reçu");
+  if (!res.ok) throw new Error("Failed to delete receipt");
   return res.json();
-}
+};
