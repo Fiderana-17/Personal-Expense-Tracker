@@ -4,22 +4,24 @@ import Switch from '@/components/ui/Switch';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/ui/Logo';
+import SwitchLangagues from '@/components/ui/SwitchLangagues';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [isDark, setIsDark] = useState(false);
-  const profilePic = user?.profilePic || '';
+  const profilePic = user?.profilePic || "";
 
+  // Fermer le menu utilisateur si clic en dehors
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -33,7 +35,7 @@ const Header: React.FC = () => {
             </h1>
           </div>
 
-          <div className="flex items-center space-x-4 relative">
+          <div className="flex items-center space-x-4">
             <Switch onToggle={setIsDark} />
             <button className="relative p-2 cursor-pointer text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
               <Bell className="h-6 w-6" />
@@ -41,6 +43,7 @@ const Header: React.FC = () => {
                 2
               </span>
             </button>
+            <SwitchLangagues />
 
             <div className="flex items-center space-x-3" ref={menuRef}>
               <div className="flex items-center space-x-3 relative">
@@ -66,21 +69,21 @@ const Header: React.FC = () => {
                 </button>
 
                 <div
-                  className={`absolute z-100 right-0 top-12.5 w-48 rounded-md overflow-hidden bg-white shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${menuOpen
+                  className={`absolute z-100 right-0 top-12.5 w-38 rounded-md overflow-hidden bg-background shadow-lg ring-1 ring-black/10 transition-all duration-200 ease-out ${menuOpen
                       ? 'opacity-100 scale-100 translate-y-0'
                       : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
                     }`}
                 >
                   <Link
                     to="/profile"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-title hover:bg-page duration-500"
                   >
-                    <User className="h-4 w-4 text-gray-500" />
+                    <User className="h-4 w-4 text-title" />
                     Your profile
                   </Link>
                   <button
                     onClick={logout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-page duration-500 cursor-pointer"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign out
