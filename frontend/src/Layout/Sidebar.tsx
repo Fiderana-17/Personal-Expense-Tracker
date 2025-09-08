@@ -11,18 +11,20 @@ import {
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 const Sidebar: React.FC = () => {
+  const { t } = useTranslation();
   const { logout } = useAuth();
 
   const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/expenses', label: 'Expenses', icon: CreditCard },
-    { path: '/income', label: 'Income', icon: TrendingUp },
-    { path: '/categories', label: 'Categories', icon: FolderOpen },
-    { path: '/reports', label: 'Reports', icon: PieChart },
-    { path: '/receipts', label: 'Receipts', icon: Receipt },
-    { path: '/profile', label: 'Profile', icon: Settings },
+    { path: '/dashboard', label: t("sidebar.dashboard"), icon: LayoutDashboard },
+    { path: '/expenses', label: t("sidebar.expenses"), icon: CreditCard },
+    { path: '/income', label: t("sidebar.income"), icon: TrendingUp },
+    { path: '/categories', label: t("sidebar.categories"), icon: FolderOpen },
+    { path: '/reports', label: t("sidebar.reports"), icon: PieChart },
+    { path: '/receipts', label: t("sidebar.receipts"), icon: Receipt },
+    { path: '/profile', label: t("sidebar.profile"), icon: Settings },
   ];
 
   return (
@@ -60,10 +62,10 @@ const Sidebar: React.FC = () => {
       <div className="px-4 pb-6">
         <button
           onClick={logout}
-          className="w-full flex items-center px-4 py-3 text-left  rounded-lg hover:bg-logout transition-all duration-200 hover:text-red-600 text-title-logout"
+          className="w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-logout transition-all duration-200 hover:text-red-600 text-title-logout"
         >
           <LogOut className="h-5 w-5 mr-3" />
-          <span className="font-medium">Logout</span>
+          <span className="font-medium">{t("sidebar.logout")}</span>
         </button>
       </div>
     </aside>

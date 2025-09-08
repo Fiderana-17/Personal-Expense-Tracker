@@ -6,12 +6,12 @@ interface SwitchLangaguesProps {
   initial?: "FR" | "EN";
 }
 
-const SwitchLangagues: React.FC<SwitchLangaguesProps> = ({ initial = "FR" }) => {
+const SwitchLangagues: React.FC<SwitchLangaguesProps> = ({ initial = "EN" }) => {
   const [lang, setLang] = useState<"FR" | "EN">(initial);
   const { i18n } = useTranslation();
 
   const toggle = () => {
-    const next = lang === "EN" ? "FR" : "EN";
+    const next = lang === "FR" ? "EN" : "FR";
     setLang(next);
     i18n.changeLanguage(next.toLowerCase());
   };

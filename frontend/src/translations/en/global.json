@@ -1,3 +1,68 @@
 {
-    "welcome": "Welcome to my website"
+  "profile": {
+    "title": "Profile",
+    "imageAlt": "Profile picture",
+    "totalExpenses": "Total Expenses",
+    "totalIncomes": "Total Incomes",
+    "totalCategories": "Total Categories",
+    "personalInfo": "Personal Information",
+    "name": "Name",
+    "email": "Email",
+    "memberSince": "Member since",
+    "changePassword": "Change Password",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password"
+  },
+  "actions": {
+    "save": "Save"
+  },
+  "messages": {
+    "profileUpdated": "Profile picture updated",
+    "passwordChanged": "Password changed successfully"
+  },
+  "errors": {
+    "unknown": "An unknown error occurred",
+    "uploadFailed": "Upload failed",
+    "missingToken": "Missing token",
+    "passwordMismatch": "Passwords do not match",
+    "wrongPassword": "Your current password is incorrect"
+  },
+  "header": {
+    "profile": "Your profile",
+    "signOut": "Sign out"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "expenses": "Expenses",
+    "income": "Income",
+    "categories": "Categories",
+    "reports": "Reports",
+    "receipts": "Receipts",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+   "expenses": {
+    "title": "Expenses",
+    "addExpense": "Add Expense",
+    "editExpense": "Edit Expense",
+    "saveExpense": "Save Expense",
+    "updateExpense": "Update Expense",
+    "description": "Description",
+    "amount": "Amount ($)",
+    "category": "Category",
+    "date": "Date",
+    "type": "Type",
+    "oneTime": "One-time",
+    "recurring": "Recurring",
+    "confirmDelete": "Confirm Deletion",
+    "deleteMessage": "Are you sure you want to delete this expense?",
+    "yes": "Yes",
+    "no": "No",
+    "searchPlaceholder": "Search expenses...",
+    "allCategories": "All Categories",
+    "allTypes": "All Types",
+    "found": "{{count}} Expenses Found",
+    "error": "Error"
+   }
 }

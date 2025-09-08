@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '../ui/FormatDate';
+import { useTranslation } from "react-i18next";
 
 const Profile: React.FC = () => {
+  const { t } = useTranslation();
   const { user, token } = useAuth();
   const [profilePic, setProfilePic] = useState<string>(user?.profilePic || '');
   const [oldPassword, setOldPassword] = useState('');
@@ -28,7 +30,7 @@ const Profile: React.FC = () => {
       const data = await getMe(token);
       setProfilePic(data.profilePic || '');
     } catch (err: unknown) {
-      setNotification(err instanceof Error ? err.message : 'An unknown error occurred');
+      setNotification(err instanceof Error ? err.message : t("errors.unknown"));
       setNotificationType('error');
     }
   };
@@ -48,11 +50,11 @@ const Profile: React.FC = () => {
     if (!token || !e.target.files || !e.target.files[0]) return;
     try {
       await uploadProfilePic(e.target.files[0], token);
-      setNotification('Profile picture updated');
+      setNotification(t("messages.profileUpdated"));
       setNotificationType('success');
       fetchUser();
     } catch (err) {
-      setNotification(err instanceof Error ? err.message : 'Upload failed');
+      setNotification(err instanceof Error ? err.message : t("errors.uploadFailed"));
       setNotificationType('error');
     }
   };
@@ -60,40 +62,40 @@ const Profile: React.FC = () => {
   const handleSave = async () => {
     if (!token) {
       setNotificationType('error');
-      setNotification('Missing token');
+      setNotification(t("errors.missingToken"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setNotification('Passwords do not match');
+      setNotification(t("errors.passwordMismatch"));
       setNotificationType('error');
       return;
     }
 
     try {
       await changePassword(oldPassword, newPassword, token);
-      setNotification('Password changed successfully');
+      setNotification(t("messages.passwordChanged"));
       setNotificationType('success');
       setShowForm(false);
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      setNotification(err instanceof Error ? err.message : 'Your current password is incorrect');
+      setNotification(err instanceof Error ? err.message : t("errors.wrongPassword"));
       setNotificationType('error');
     }
   };
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-title mb-8 duration-500">Profile</h1>
+      <h1 className="text-3xl font-bold text-title mb-8 duration-500">{t("profile.title")}</h1>
       <div className="bg-page duration-500 rounded-xl shadow-md border border-border p-6 grid grid-cols-1 md:grid-cols-[30%_70%] gap-8 py-17">
         <div className="flex flex-col items-center justify-center text-center md:text-left ">
           <div className="h-40 w-40 bg-blue-100 rounded-full flex items-center justify-center shadow-md relative">
             {profilePic ? (
               <img
                 src={`${import.meta.env.VITE_API_URL}${profilePic}`}
-                alt="Profile"
+                alt={t("profile.imageAlt")}
                 className="h-40 w-40 rounded-full object-cover"
               />
             ) : (
@@ -116,29 +118,29 @@ const Profile: React.FC = () => {
           <div className="flex flex-col gap-4 text-sm text-gray-700">
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-blue-600" />
-              <span className='text-title duration-500'>Total Expense: {totalExpenses}</span>
+              <span className='text-title duration-500'>{t("profile.totalExpenses")}: {totalExpenses}</span>
             </div>
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-green-600" />
-              <span className='text-title duration-500'>Total Income: {totalIncomes}</span>
+              <span className='text-title duration-500'>{t("profile.totalIncomes")}: {totalIncomes}</span>
             </div>
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-purple-600" />
-              <span className='text-title duration-500'>Total Categories: {totalCategories}</span>
+              <span className='text-title duration-500'>{t("profile.totalCategories")}: {totalCategories}</span>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-4">
-          <h2 className="text-2xl font-semibold text-title mb-2 duration-500">Personal Information</h2>
+          <h2 className="text-2xl font-semibold text-title mb-2 duration-500">{t("profile.personalInfo")}</h2>
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
-                <p className="text-xs text-title uppercase duration-500">Name</p>
+                <p className="text-xs text-title uppercase duration-500">{t("profile.name")}</p>
                 <p className="text-lg font-semibold text-title duration-500">{user?.name}</p>
               </div>
               <div className="flex flex-col gap-2">
-                <p className="text-xs text-title uppercase duration-500">Email</p>
+                <p className="text-xs text-title uppercase duration-500">{t("profile.email")}</p>
                 <div className="flex items-center gap-2 text-title duration-500">
                   <Mail className="h-4 w-4" />
                   <span>{user?.email}</span>
@@ -147,7 +149,7 @@ const Profile: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <p className="text-xs text-title uppercase mb-1 duration-500">Member since</p>
+              <p className="text-xs text-title uppercase mb-1 duration-500">{t("profile.memberSince")}</p>
               <div className="flex items-center gap-2 text-title duration-500">
                 <Calendar className="h-4 w-4" />
                 <span>{formatDate(user?.createdAt)}</span>
@@ -160,11 +162,12 @@ const Profile: React.FC = () => {
             className="mt-10 cursor-pointer bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center gap-2 self-start"
           >
             <Lock className="h-4 w-4" />
-            <span>Change Password</span>
+            <span>{t("profile.changePassword")}</span>
           </button>
         </div>
       </div>
 
+      {/* Modal de changement de mot de passe */}
       <AnimatePresence>
         {showForm && (
           <>
@@ -184,7 +187,7 @@ const Profile: React.FC = () => {
               className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
             >
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-lg font-semibold text-gray-800">Change Password</h2>
+                <h2 className="text-lg font-semibold text-gray-800">{t("profile.changePassword")}</h2>
                 <button
                   onClick={() => setShowForm(false)}
                   className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -194,7 +197,7 @@ const Profile: React.FC = () => {
               </div>
 
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Old Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("profile.oldPassword")}</label>
                 <input
                   type={showOldPassword ? 'text' : 'password'}
                   value={oldPassword}
@@ -211,7 +214,7 @@ const Profile: React.FC = () => {
               </div>
 
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("profile.newPassword")}</label>
                 <input
                   type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
@@ -228,7 +231,7 @@ const Profile: React.FC = () => {
               </div>
 
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("profile.confirmPassword")}</label>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
@@ -248,12 +251,14 @@ const Profile: React.FC = () => {
                 className="w-full cursor-pointer bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 <Save className="h-4 w-4" />
-                <span>Save</span>
+                <span>{t("actions.save")}</span>
               </button>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      {/* Notifications */}
       <AnimatePresence>
         {notification && (
           <motion.div
