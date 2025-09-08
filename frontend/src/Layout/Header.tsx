@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Logo, SwitchDark, SwitchLangagues } from '@/components';
 import { LogOut, User, Bell } from 'lucide-react';
-import Switch from '@/components/ui/Switch';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
-import Logo from '@/components/ui/Logo';
-import SwitchLangagues from '@/components/ui/SwitchLangagues';
+import { useTranslation } from "react-i18next";
 
 const Header: React.FC = () => {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -36,13 +36,15 @@ const Header: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Switch onToggle={setIsDark} />
+            <SwitchDark onToggle={setIsDark} />
+
             <button className="relative p-2 cursor-pointer text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
               <Bell className="h-6 w-6" />
               <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                 2
               </span>
             </button>
+
             <SwitchLangagues />
 
             <div className="flex items-center space-x-3" ref={menuRef}>
@@ -60,11 +62,11 @@ const Header: React.FC = () => {
                   {profilePic ? (
                     <img
                       src={`${import.meta.env.VITE_API_URL}${profilePic}`}
-                      alt="Profile"
+                      alt={t("profile.imageAlt")}
                       className="h-9 w-9 rounded-full object-cover"
                     />
                   ) : (
-                    <User className="h-4 w- text-blue-600" />
+                    <User className="h-4 w-4 text-blue-600" />
                   )}
                 </button>
 
@@ -79,14 +81,14 @@ const Header: React.FC = () => {
                     className="flex items-center gap-2 px-4 py-2 text-sm text-title hover:bg-page duration-500"
                   >
                     <User className="h-4 w-4 text-title" />
-                    Your profile
+                    {t("header.profile")}
                   </Link>
                   <button
                     onClick={logout}
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-page duration-500 cursor-pointer"
                   >
                     <LogOut className="h-4 w-4" />
-                    Sign out
+                    {t("header.signOut")}
                   </button>
                 </div>
               </div>
