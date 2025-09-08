@@ -1,26 +1,17 @@
-import express from "express";
-import multer from "multer";
-import { getAllReceipts, getReceiptById } from "../controllers/receipt.controller.js";
-import { authenticateToken } from "../middleware/auth.js";
+import express from 'express';
+import {
+  uploadReceipt,
+  downloadReceipt,
+  getAllReceipts,
+  deleteReceiptController,
+} from '../controllers/receipt.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Configuration multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "../uploads/receipts/"),
-  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowed = ["image/jpeg", "image/png", "application/pdf"];
-    if (allowed.includes(file.mimetype)) cb(null, true);
-    else cb(new Error("Format de fichier non supporté"), false);
-  },
-});
-
-router.get("/", authenticateToken, getAllReceipts);
-router.get("/:id", authenticateToken, getReceiptById);
+router.get('/', authenticateToken, getAllReceipts);
+router.post('/upload', authenticateToken, uploadReceipt);
+router.get('/:id/download', authenticateToken, downloadReceipt);
+router.delete('/:id', authenticateToken, deleteReceiptController);
 
 export default router;
