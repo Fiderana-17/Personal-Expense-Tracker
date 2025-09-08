@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
-import { authRoutes, categoryRoutes, expenseRoutes, incomeRoutes ,reportRoutes } from "./src/routes/index.js";
+import { authRoutes, categoryRoutes, expenseRoutes, incomeRoutes ,reportRoutes, receiptRoutes } from "./src/routes/index.js";
 
 dotenv.config();
 
@@ -16,6 +16,7 @@ app.use("/api/categories", categoryRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/incomes', incomeRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/receipts', receiptRoutes);
 app.use('/api/uploads', express.static('uploads'));
 
 
