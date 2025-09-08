@@ -118,5 +118,72 @@ export const deleteExpense = async (req, res) => {
 };
 
 
+// Get monthly trends
+export const getMonthlyTrends = async (req, res) => {
+  try {
+    const expenses = await prisma.expense.findMany({
+      select: { amount: true, date: true },
+      where: { date: { not: null } },
+    });
+
+    // Grouper par mois (ex: "2025-09")
+    const grouped = {};
+    expenses.forEach(exp => {
+      const month = exp.date.toISOString().slice(0, 7);
+      grouped[month] = (grouped[month] || 0) + exp.amount;
+    });
+
+    const result = Object.entries(grouped).map(([month, total]) => ({
+      month,
+      total,
+    }));
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors du calcul des tendances mensuelles", error });
+  }
+};
+
+// Get expenses within a date range
+export const getExpensesByRange = async (req, res) => {
+  try {
+    const { start, end } = req.query;
+
+    if (!start || !end) {
+      return res.status(400).json({ message: "Start et End sont requis" });
+    }
+
+    const expenses = await prisma.expense.findMany({
+      where: {
+        date: {
+          gte: new Date(start),
+          lte: new Date(end),
+        },
+      },
+      select: { amount: true, date: true },
+      orderBy: { date: "asc" },
+    });
+
+    // Regrouper par jour
+    const grouped = {};
+    expenses.forEach(exp => {
+      const day = exp.date.toISOString().split("T")[0];
+      grouped[day] = (grouped[day] || 0) + exp.amount;
+    });
+
+    const result = Object.entries(grouped).map(([date, total]) => ({
+      date,
+      total,
+    }));
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors du filtrage par plage de dates", error });
+  }
+};
+
+
 
 
