@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Eye, Download, Trash2 } from "lucide-react";
+import { Eye, Download, Trash2, Search } from "lucide-react";
 import {
   getAllReceipts,
   downloadReceipt,
@@ -80,18 +80,23 @@ const ReceiptList: React.FC = () => {
         <p className="mb-3 text-green-600 font-medium">{message}</p>
       )}
 
-      <input
-        type="text"
-        placeholder="Search for a receipt..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full p-2 mb-4 border rounded-lg"
-      />
+      <div className="bg-page rounded-xl shadow-md border duration-500 border-border p-6 my-8">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search receipts..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 text-title pr-4 py-2 border border-gray-300 rounded-lg"
+          />
+        </div>
+      </div>
 
       {loading ? (
         <p className="text-gray-500">Chargement des reçus...</p>
       ) : filteredReceipts.length === 0 ? (
-        <p className="text-gray-500">No receipts found</p>
+        <p className="text-gray-500 text-xl text-center">No receipt found</p>
       ) : (
         <ul className="space-y-4">
           {filteredReceipts.map((receipt) => (
