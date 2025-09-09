@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, Download, TrendingUp, PieChart } from "lucide-react";
-import { getExpenses } from "@/api/expense";
-import { getAllIncomes } from "@/api/income";
-import { getAllCategories } from "@/api/category";
-import type { Expense, Income, ReportData, ExpenseBreakdown, Category } from "@/types";
+import { getExpenses } from "../../api/expense";
+import { getAllIncomes } from "../../api/income";
+import { getAllCategories } from "../../api/category";
+import type { Expense, Income, ReportData, ExpenseBreakdown, Category } from "../../types";
 import Loader from "../ui/Loader";
 
 const Reports: React.FC = () => {
@@ -15,6 +15,8 @@ const Reports: React.FC = () => {
     const month = String(today.getMonth() + 1).padStart(2, "0");
     return `${year}-${month}`;
   });
+
+  const [selectedQuarter, setSelectedQuarter] = useState("Q1");
 
   const [report, setReport] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,25 +38,84 @@ const Reports: React.FC = () => {
         const [expenses, incomes, categories]: [Expense[], Income[], Category[]] =
           await Promise.all([getExpenses(userId), getAllIncomes(), getAllCategories()]);
 
-        // Filtrage Custom Range
         let filteredExpenses = expenses;
         let filteredIncomes = incomes;
+
+        // --- 1. Filtrage Custom Range (prioritaire) ---
         if (showCustomRange && customRange.start && customRange.end) {
-          const start = customRange.start;
-          const end = customRange.end;
+          const start = new Date(customRange.start);
+          const end = new Date(customRange.end);
           filteredExpenses = expenses.filter(
-            (e) => e.date && e.date >= start && e.date <= end
+            (e) => e.date && new Date(e.date) >= start && new Date(e.date) <= end
           );
           filteredIncomes = incomes.filter(
-            (i) => i.date && i.date >= start && i.date <= end
+            (i) => i.date && new Date(i.date) >= start && new Date(i.date) <= end
+          );
+        }
+        // --- 2. Filtrage par période ---
+        else if (selectedPeriod === "monthly") {
+          const [year, month] = selectedMonth.split("-").map(Number);
+          filteredExpenses = expenses.filter(
+            (e) =>
+              e.date &&
+              new Date(e.date).getFullYear() === year &&
+              new Date(e.date).getMonth() + 1 === month
+          );
+          filteredIncomes = incomes.filter(
+            (i) =>
+              i.date &&
+              new Date(i.date).getFullYear() === year &&
+              new Date(i.date).getMonth() + 1 === month
+          );
+        } else if (selectedPeriod === "quarterly") {
+          const [year] = selectedMonth.split("-").map(Number);
+          let startMonth = 0;
+          let endMonth = 2;
+          if (selectedQuarter === "Q2") {
+            startMonth = 3;
+            endMonth = 5;
+          } else if (selectedQuarter === "Q3") {
+            startMonth = 6;
+            endMonth = 8;
+          } else if (selectedQuarter === "Q4") {
+            startMonth = 9;
+            endMonth = 11;
+          }
+
+          filteredExpenses = expenses.filter((e) => {
+            if (!e.date) return false;
+            const d = new Date(e.date);
+            return (
+              d.getFullYear() === year &&
+              d.getMonth() >= startMonth &&
+              d.getMonth() <= endMonth
+            );
+          });
+          filteredIncomes = incomes.filter((i) => {
+            if (!i.date) return false;
+            const d = new Date(i.date);
+            return (
+              d.getFullYear() === year &&
+              d.getMonth() >= startMonth &&
+              d.getMonth() <= endMonth
+            );
+          });
+        } else if (selectedPeriod === "yearly") {
+          const [year] = selectedMonth.split("-").map(Number);
+          filteredExpenses = expenses.filter(
+            (e) => e.date && new Date(e.date).getFullYear() === year
+          );
+          filteredIncomes = incomes.filter(
+            (i) => i.date && new Date(i.date).getFullYear() === year
           );
         }
 
+        // --- 3. Totaux ---
         const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
         const totalIncome = filteredIncomes.reduce((sum, i) => sum + i.amount, 0);
         const netBalance = totalIncome - totalExpenses;
 
-        // Expense Breakdown
+        // --- 4. Expense Breakdown ---
         const breakdownMap: Record<string, number> = {};
         categories.forEach((cat) => (breakdownMap[cat.name] = 0));
         filteredExpenses.forEach((e) => {
@@ -79,15 +140,15 @@ const Reports: React.FC = () => {
           })
         );
 
-        // Monthly Trend dynamique
+        // --- 5. Monthly Trend ---
         const currentYear = new Date().getFullYear();
         const trend = Array.from({ length: 12 }, (_, i) => {
           const monthDate = new Date(currentYear, i, 1);
           const monthName = monthDate.toLocaleString("default", { month: "long" });
-          const monthIncome = filteredIncomes
+          const monthIncome = incomes
             .filter((inc) => inc.date && new Date(inc.date).getMonth() === i)
             .reduce((sum, inc) => sum + inc.amount, 0);
-          const monthExpenses = filteredExpenses
+          const monthExpenses = expenses
             .filter((exp) => exp.date && new Date(exp.date).getMonth() === i)
             .reduce((sum, exp) => sum + exp.amount, 0);
           return {
@@ -113,11 +174,11 @@ const Reports: React.FC = () => {
     };
 
     fetchReport();
-  }, [showCustomRange, customRange, showAllMonths]);
+  }, [selectedPeriod, selectedMonth, selectedQuarter, showCustomRange, customRange, showAllMonths]);
 
   if (loading)
     return (
-      <div className="grid place-items-center min-h-[calc(100vh-130px)]">
+      <div className="grid place-items-center min-h-screen">
         <Loader />
       </div>
     );
@@ -151,7 +212,6 @@ const Reports: React.FC = () => {
               <option value="monthly">Monthly</option>
               <option value="quarterly">Quarterly</option>
               <option value="yearly">Yearly</option>
-              <option value="custom">Custom Range</option>
             </select>
           </div>
 
@@ -165,6 +225,25 @@ const Reports: React.FC = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+
+          {/* Quarter (visible seulement si Quarterly) */}
+          {selectedPeriod === "quarterly" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quarter
+              </label>
+              <select
+                value={selectedQuarter}
+                onChange={(e) => setSelectedQuarter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="Q1">Q1 (Jan - Mar)</option>
+                <option value="Q2">Q2 (Apr - Jun)</option>
+                <option value="Q3">Q3 (Jul - Sep)</option>
+                <option value="Q4">Q4 (Oct - Dec)</option>
+              </select>
+            </div>
+          )}
 
           {/* Custom Range */}
           <div>
