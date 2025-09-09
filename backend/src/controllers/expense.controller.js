@@ -1,4 +1,6 @@
 import prisma from '../prismaClient.js';
+import fs from 'fs';
+import { upload } from '../controllers/receipt.controller.js'
 
 // Get all expenses
 
@@ -44,64 +46,131 @@ export const getExpenseById = async (req, res) => {
 
 // Create a new expense
 export const createExpense = async (req, res) => {
-  try {
-    const { amount, description, type, date, startDate, endDate, userId, categoryId } = req.body;
+  upload(req, res, async function (err) {
+    if (err) return res.status(400).json({ message: err.message });
 
-    if (!amount || !userId || !categoryId) {
-      return res.status(400).json({ message: 'Les champs amount, userId et categoryId sont requis' });
+    try {
+      const { amount, description, type, date, startDate, endDate, userId, categoryId } = req.body;
+
+      if (!amount || !userId || !categoryId) {
+        return res.status(400).json({ message: 'Fields amount, userId and categoryId are required' });
+      }
+
+      // 1. Création de l’expense
+      const expense = await prisma.expense.create({
+        data: {
+          amount: parseFloat(amount),
+          description,
+          type: type || 'ONE_TIME',
+          date: date ? new Date(date) : null,
+          startDate: startDate ? new Date(startDate) : null,
+          endDate: endDate ? new Date(endDate) : null,
+          userId: parseInt(userId),
+          categoryId: parseInt(categoryId),
+        },
+      });
+
+      // 2. Si un fichier est envoyé → on crée aussi le receipt
+      if (req.file) {
+        await prisma.receipt.create({
+          data: {
+            filePath: req.file.path,
+            expenseId: expense.id,
+          },
+        });
+      }
+
+      // 3. Retour avec le receipt inclus
+      const expenseWithReceipt = await prisma.expense.findUnique({
+        where: { id: expense.id },
+        include: { category: true, receipt: true },
+      });
+
+      res.status(201).json({
+        message: "Expense created successfully",
+        data: expenseWithReceipt,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error creating expense', error });
     }
-
-
-    // Crée la nouvelle dépense
-    const expense = await prisma.expense.create({
-      data: {
-        amount: parseFloat(amount),
-        description,
-        type: type || 'ONE_TIME',
-        date: date ? new Date(date) : null,
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
-        userId: parseInt(userId),
-        categoryId: parseInt(categoryId),
-      },
-    });
-
-    res.status(201).json({
-      message: "Expense créée avec succès",
-      data: expense
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erreur lors de la création de la dépense', error });
-  }
+  });
 };
-
 
 // Update an existing expense
 export const updateExpense = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { amount, description, type, date, startDate, endDate, categoryId } = req.body;
+  upload(req, res, async function (err) {
+    if (err) return res.status(400).json({ message: err.message });
 
-    const expense = await prisma.expense.update({
-      where: { id: parseInt(id) },
-      data: {
-        amount: amount !== undefined ? parseFloat(amount) : undefined,
-        description,
-        type,
-        date: date ? new Date(date) : undefined,
-        startDate: startDate ? new Date(startDate) : undefined,
-        endDate: endDate ? new Date(endDate) : undefined,
-        categoryId: categoryId !== undefined ? parseInt(categoryId) : undefined,
-      },
-    });
+    try {
+      const { id } = req.params;
+      const { amount, description, type, date, startDate, endDate, categoryId } = req.body;
 
-    res.status(200).json(expense);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error updating expense', error });
-  }
+      // Vérifier que l'expense existe
+      const existingExpense = await prisma.expense.findUnique({
+        where: { id: parseInt(id) },
+        include: { receipt: true },
+      });
+
+      if (!existingExpense) {
+        return res.status(404).json({ message: "Expense not found" });
+      }
+
+      // 1. Mise à jour de l'expense
+      const expense = await prisma.expense.update({
+        where: { id: parseInt(id) },
+        data: {
+          amount: amount !== undefined ? parseFloat(amount) : existingExpense.amount,
+          description: description ?? existingExpense.description,
+          type: type ?? existingExpense.type,
+          date: date ? new Date(date) : existingExpense.date,
+          startDate: startDate ? new Date(startDate) : existingExpense.startDate,
+          endDate: endDate ? new Date(endDate) : existingExpense.endDate,
+          categoryId: categoryId !== undefined ? parseInt(categoryId) : existingExpense.categoryId,
+        },
+      });
+
+      // 2. Si un fichier est envoyé → on met à jour le receipt
+      if (req.file) {
+        if (existingExpense.receipt) {
+          // Supprimer l'ancien fichier
+          try {
+            fs.unlinkSync(existingExpense.receipt.filePath);
+          } catch (err) {
+            console.warn("Could not delete old receipt:", err.message);
+          }
+
+          // Mettre à jour en BD
+          await prisma.receipt.update({
+            where: { id: existingExpense.receipt.id },
+            data: { filePath: req.file.path },
+          });
+        } else {
+          // Sinon, créer un nouveau receipt
+          await prisma.receipt.create({
+            data: {
+              filePath: req.file.path,
+              expenseId: expense.id,
+            },
+          });
+        }
+      }
+
+      // 3. Retour avec le receipt inclus
+      const expenseWithReceipt = await prisma.expense.findUnique({
+        where: { id: expense.id },
+        include: { category: true, receipt: true },
+      });
+
+      res.status(200).json({
+        message: "Expense updated successfully",
+        data: expenseWithReceipt,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error updating expense", error });
+    }
+  });
 };
 
 // Delete an expense

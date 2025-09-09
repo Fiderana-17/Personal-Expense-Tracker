@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import prisma from '../prismaClient.js';
 
-// Storage Multer
+// --- Multer Storage Config ---
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = './uploads/receipts';
@@ -20,28 +20,36 @@ export const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
   fileFilter: function (req, file, cb) {
-    const filetypes = /jpeg|jpg|png|pdf/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    if (extname) return cb(null, true);
-    cb(new Error('Seuls les fichiers JPG, PNG et PDF sont autorisés'));
+    const allowed = /jpeg|jpg|png|pdf/;
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.test(ext)) return cb(null, true);
+    cb(new Error('Only JPG, PNG and PDF are allowed'));
   },
 }).single('receipt');
 
-// Upload receipt
+// --- Upload receipt ---
 export const uploadReceipt = async (req, res) => {
   upload(req, res, async function (err) {
     if (err) return res.status(400).json({ message: err.message });
 
     const { expenseId } = req.body;
-    const userId = req.user?.id; // Token auth
+    const userId = req.user?.id;
 
-    // Vérification que la dépense appartient à l'utilisateur
+    // Vérifie que la dépense existe et appartient à l’utilisateur
     const expense = await prisma.expense.findUnique({ where: { id: Number(expenseId) } });
-    if (!expense || expense.userId !== Number(userId)) {
-      return res.status(403).json({ message: "Action non autorisée" });
+    if (!expense) return res.status(404).json({ message: "Expense not found" });
+    if (expense.userId !== Number(userId)) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    // Création du record Receipt
+    // Vérifie si un receipt existe déjà
+    const existingReceipt = await prisma.receipt.findUnique({ where: { expenseId: Number(expenseId) } });
+    if (existingReceipt) {
+      fs.unlinkSync(existingReceipt.filePath);
+      await prisma.receipt.delete({ where: { id: existingReceipt.id } });
+    }
+
+    // Sauvegarde en DB
     const receipt = await prisma.receipt.create({
       data: {
         filePath: req.file.path,
@@ -53,19 +61,39 @@ export const uploadReceipt = async (req, res) => {
   });
 };
 
-// Download receipt
+// --- View receipt (inline in browser) ---
+export const viewReceipt = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  const receipt = await prisma.receipt.findUnique({
+    where: { id: Number(id) },
+    include: { expense: true },
+  });
+
+  if (!receipt) return res.status(404).json({ message: "Receipt not found" });
+  if (receipt.expense.userId !== Number(userId)) return res.status(403).json({ message: "Not authorized" });
+
+  res.sendFile(path.resolve(receipt.filePath));
+};
+
+// --- Download receipt ---
 export const downloadReceipt = async (req, res) => {
   const { id } = req.params;
   const userId = req.user?.id;
 
-  const receipt = await prisma.receipt.findUnique({ where: { id: Number(id) }, include: { expense: true } });
+  const receipt = await prisma.receipt.findUnique({
+    where: { id: Number(id) },
+    include: { expense: true },
+  });
+
   if (!receipt) return res.status(404).json({ message: "Receipt not found" });
-  if (receipt.expense.userId !== Number(userId)) return res.status(403).json({ message: "Action non autorisée" });
+  if (receipt.expense.userId !== Number(userId)) return res.status(403).json({ message: "Not authorized" });
 
   res.download(receipt.filePath);
 };
 
-// Get all receipts of user
+// --- Get all receipts ---
 export const getAllReceipts = async (req, res) => {
   const userId = req.user?.id;
   const receipts = await prisma.receipt.findMany({
@@ -75,18 +103,21 @@ export const getAllReceipts = async (req, res) => {
   res.json(receipts);
 };
 
-// Delete receipt
+// --- Delete receipt ---
 export const deleteReceiptController = async (req, res) => {
   const { id } = req.params;
   const userId = req.user?.id;
 
-  const receipt = await prisma.receipt.findUnique({ where: { id: Number(id) }, include: { expense: true } });
+  const receipt = await prisma.receipt.findUnique({
+    where: { id: Number(id) },
+    include: { expense: true },
+  });
+
   if (!receipt) return res.status(404).json({ message: "Receipt not found" });
-  if (receipt.expense.userId !== Number(userId)) return res.status(403).json({ message: "Action non autorisée" });
+  if (receipt.expense.userId !== Number(userId)) return res.status(403).json({ message: "Not authorized" });
 
-  // Supprimer le fichier
   fs.unlinkSync(receipt.filePath);
-
   await prisma.receipt.delete({ where: { id: Number(id) } });
+
   res.json({ message: "Receipt deleted successfully" });
 };
