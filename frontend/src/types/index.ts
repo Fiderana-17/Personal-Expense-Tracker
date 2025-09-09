@@ -31,8 +31,16 @@ export interface Expense {
   userId: number;
   categoryId: number;
   category?: { id: number; name: string };
-  receipt?: string;
+  receipt?: Receipt | null;
   createdAt?: string;
+}
+
+export interface Receipt {
+  id: number;
+  filePath: string;       
+  uploadedAt: string;     
+  expenseId: number;      
+  expense?: Expense
 }
 
 export interface Income {
@@ -126,3 +134,4 @@ export interface IncomeFormProps {
     date: string;
   }) => void | Promise<void>;
 }
+
