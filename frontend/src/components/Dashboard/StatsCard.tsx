@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 interface StatsCardProps {
   title: string;
   value: string;
-  change: string;
+  change?: string; // ✅ rendu optionnel
   changeType: "positive" | "negative" | "neutral";
   icon: LucideIcon;
   color: "blue" | "green" | "red" | "orange";
@@ -32,18 +32,18 @@ const StatsCard: React.FC<StatsCardProps> = ({
   };
 
   return (
-    <div
-      className={`bg-white rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fade-in`}
-    >
+    <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fade-in">
       <div className="flex items-center justify-between">
         <div className="flex-1 space-y-3">
           <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{title}</p>
           <p className="text-3xl font-bold text-gray-900">{value}</p>
-          <div
-            className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${changeColorClasses[changeType]}`}
-          >
-            {change}
-          </div>
+          {change && (
+            <div
+              className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${changeColorClasses[changeType]}`}
+            >
+              {change}
+            </div>
+          )}
         </div>
         <div
           className={`p-4 rounded-full ${colorClasses[color]} flex items-center justify-center transition-transform duration-300 hover:scale-110`}
