@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TrendingUp, TrendingDown, DollarSign, AlertTriangle } from "lucide-react";
+import { useAuth } from '@/hooks/useAuth';
 import StatsCard from "./StatsCard";
 import ExpenseChart from "./ExpenseChart";
 import RecentTransactions from "./RecentTransactions";
@@ -14,6 +15,7 @@ const Dashboard: React.FC = () => {
   const [chartData, setChartData] = useState<{ month: string; income: number; expenses: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user} = useAuth();
 
   useEffect(() => {
     async function fetchData() {
@@ -68,10 +70,14 @@ const Dashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
-          <button className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg">
-            Add Transaction
-          </button>
+    <div className="flex items-center gap-3">
+  <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent animate-slide-up">
+  Hi {user?.name}
+</h1>
+  <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
+    👋 Welcome!
+  </span>
+</div>
         </div>
 
         {/* Stats Cards */}
@@ -112,7 +118,7 @@ const Dashboard: React.FC = () => {
 
         {/* Charts + Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 animate-slide-up">
+          <div className="lg:col-span-2 animate-slide-up flex flex-col gap-6" style={{ animationDelay: "0.1s" }}>
             <Breakdown/>
             <ExpenseChart data={chartData} />
           </div>
