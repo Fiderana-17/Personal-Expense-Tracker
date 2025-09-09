@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import  getExpenses  from "@/api/expense";
+import { getExpenses } from "@/api/expense"; 
 import { getAllCategories } from "@/api/category";
 import type { Expense, Category } from "@/types";
 
@@ -46,20 +46,26 @@ function Breakdown() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [data, setData] = useState<ExpenseBreakdown[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch des données
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userId = Number(localStorage.getItem("userId"));
+        if (isNaN(userId)) {
+          throw new Error("Invalid user ID");
+        }
         const [expensesRes, categoriesRes] = await Promise.all([
-          getExpenses(userId), // Utilise l'ID utilisateur depuis le localStorage
+          getExpenses(userId),
           getAllCategories(),
         ]);
         setExpenses(expensesRes);
         setCategories(categoriesRes);
+        setError(null);
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
+        setError("Failed to load data");
       }
     };
     fetchData();
@@ -78,7 +84,7 @@ function Breakdown() {
           amount: total,
           color: COLORS[index % COLORS.length],
         };
-      }).filter((item) => item.amount > 0); // supprimer les catégories vides
+      }).filter((item) => item.amount > 0); // Supprimer les catégories vides
 
       setData(breakdown);
     }
@@ -87,7 +93,9 @@ function Breakdown() {
   return (
     <div className="bg-white rounded-lg border shadow-sm p-6">
       <h3 className="text-2xl font-semibold mb-6">Expenses by Category</h3>
-      {data.length === 0 ? (
+      {error ? (
+        <p className="text-red-500 text-sm">{error}</p>
+      ) : data.length === 0 ? (
         <p className="text-gray-500 text-sm">Aucune donnée à afficher</p>
       ) : (
         <div className="h-80">
