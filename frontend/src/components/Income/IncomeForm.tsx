@@ -3,22 +3,37 @@ import { AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { type IncomeFormProps } from "@/types";
 
-
-const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubmit }) => {
+const IncomeForm: React.FC<IncomeFormProps> = ({
+  mode,
+  initial,
+  onCancel,
+  onSubmit,
+}) => {
   const [amount, setAmount] = useState("");
   const [source, setSource] = useState("");
   const [description, setDescription] = useState("");
   const [notification, setNotification] = useState("");
+  const [date, setDate] = useState(
+    initial?.date
+      ? new Date(initial.date).toISOString().split("T")[0]
+      : new Date().toISOString().split("T")[0]
+  );
 
   useEffect(() => {
     if (initial) {
       setAmount(initial.amount != null ? String(initial.amount) : "");
       setSource(initial.source ?? "");
       setDescription(initial.description ?? "");
+      setDate(
+        initial.date
+          ? new Date(initial.date).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0]
+      );
     } else {
       setAmount("");
       setSource("");
       setDescription("");
+      setDate(new Date().toISOString().split("T")[0]);
     }
   }, [initial]);
 
@@ -31,13 +46,12 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
       return;
     }
 
-    const now = new Date().toISOString();
     onSubmit({
       id: initial?.id,
       amount: parsedAmount,
       source: source || undefined,
       description: description || undefined,
-      date: now,
+      date: new Date(date).toISOString(),
     });
   };
 
@@ -60,7 +74,9 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Amount ($)
+          </label>
           <input
             type="number"
             step="0.01"
@@ -73,7 +89,9 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Source
+          </label>
           <input
             type="text"
             value={source}
@@ -84,7 +102,23 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <label htmlFor="date" className="block text-sm font-medium mb-1">
+            Date
+          </label>
+          <input
+            type="date"
+            id="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            required
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}

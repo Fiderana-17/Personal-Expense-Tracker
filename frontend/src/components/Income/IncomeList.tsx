@@ -122,7 +122,7 @@ const IncomeList: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="grid place-items-center min-h-[calc(100vh-130px)]">
+    return <div className="grid place-items-center min-h-screen">
       <Loader />
     </div>;
   };
@@ -219,7 +219,7 @@ const IncomeList: React.FC = () => {
                   {income.description && <p className="text-sm text-gray-500">{income.description}</p>}
                   <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                     <Calendar className="w-4 h-4" />
-                    <span>{formatDate(income.date)}</span>
+                    <span>{formatDate(typeof income.date === "string" ? income.date : income.date.toISOString())}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
