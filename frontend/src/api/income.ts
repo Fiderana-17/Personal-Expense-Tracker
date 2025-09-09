@@ -35,7 +35,7 @@ export async function getIncomeById(id: string): Promise<Income> {
 
 // CREATE new income
 export async function createIncome(
-  data: Pick<Income, "amount" | "source" | "description">
+  data: Pick<Income, "amount" | "source" | "description" | "date">
 ): Promise<{ message: string; data: Income }> {
   const res = await fetch(`${API_BASE}/incomes`, {
     method: "POST",
@@ -53,7 +53,7 @@ export async function createIncome(
 // UPDATE income
 export async function updateIncome(
   id: string,
-  data: Pick<Income, "amount" | "source" | "description">
+  data: Pick<Income, "amount" | "source" | "description" | "date">
 ): Promise<{ message: string; data: Income }> {
   const res = await fetch(`${API_BASE}/incomes/${id}`, {
     method: "PUT",

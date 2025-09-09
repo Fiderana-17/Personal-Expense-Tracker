@@ -10,4 +10,4 @@ export { default as IncomeList } from "./Income/IncomeList";
 export { default as CategoriesList } from "./Categories/CategoriesList";
 export { default as SwitchLangagues } from "./ui/SwitchLangagues";
 export { default as Reports } from "./Report/Reports";
-// export { default as ReceiptList } from "./Receipt/ReceiptList";
+export { default as ReceiptList } from "./Receipt/ReceiptList";

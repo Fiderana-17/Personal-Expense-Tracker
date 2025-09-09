@@ -37,11 +37,17 @@ export const getIncomeById = async (req, res) => {
 // Crée un revenu (date générée automatiquement, userId = req.user.id)
 export const createIncome = async (req, res) => {
   try {
-    const { amount, source, description } = req.body;
+    const { amount, source, description, date } = req.body;
 
     const parsedAmount = parseFloat(amount);
     if (Number.isNaN(parsedAmount)) {
       return res.status(400).json({ message: "Le champ 'amount' est requis et doit être un nombre" });
+    }
+
+    // Validate date
+    const parsedDate = date ? new Date(date) : new Date();
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Format de date invalide" });
     }
 
     const income = await prisma.income.create({
@@ -49,8 +55,8 @@ export const createIncome = async (req, res) => {
         amount: parsedAmount,
         source,
         description,
-        date: new Date(),       // ✅ date auto côté backend
-        userId: req.user.id,    // ✅ sécurité: pas de userId venant du client
+        date: parsedDate,      // ✅ date choisie par l'utilisateur
+        userId: req.user.id,   // ✅ sécurité: pas de userId venant du client
       },
     });
 
@@ -67,7 +73,7 @@ export const updateIncome = async (req, res) => {
     const incomeId = parseInt(req.params.id, 10);
     if (Number.isNaN(incomeId)) return res.status(400).json({ message: "ID invalide" });
 
-    const { amount, source, description } = req.body;
+    const { amount, source, description, date } = req.body;
 
     const existingIncome = await prisma.income.findUnique({ where: { id: incomeId } });
     if (!existingIncome) return res.status(404).json({ message: "Revenu non trouvé" });
@@ -86,7 +92,12 @@ export const updateIncome = async (req, res) => {
     }
     if (source !== undefined) updateData.source = source;
     if (description !== undefined) updateData.description = description;
-    // ❌ pas de mise à jour de date ni de userId ici
+    if (date !== undefined) {
+      const parsedDate = new Date(date);
+      if (isNaN(parsedDate.getTime())) {
+        return res.status(400).json({ message: "Format de date invalide" });
+      }updateData.date = parsedDate;
+    }
 
     const updatedIncome = await prisma.income.update({
       where: { id: incomeId },
@@ -99,6 +110,7 @@ export const updateIncome = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la mise à jour du revenu", error });
   }
 };
+
 
 // Supprime un revenu (seulement si il appartient à l'utilisateur)
 export const deleteIncome = async (req, res) => {
