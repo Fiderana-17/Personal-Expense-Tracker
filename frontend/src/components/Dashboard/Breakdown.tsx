@@ -1,13 +1,23 @@
+import { useEffect, useState } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import  getExpenses  from "@/api/expense";
+import { getAllCategories } from "@/api/category";
+import type { Expense, Category } from "@/types";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+interface ExpenseBreakdown {
+  category: string;
+  amount: number;
+  color: string;
+}
 
-const data = [
-  { name: 'Food & Dining', value: 1200, color: '#22c55e' },
-  { name: 'Transportation', value: 800, color: '#3b82f6' },
-  { name: 'Shopping', value: 600, color: '#f59e0b' },
-  { name: 'Entertainment', value: 400, color: '#ef4444' },
-  { name: 'Bills & Utilities', value: 900, color: '#a855f7' },
-  { name: 'Healthcare', value: 300, color: '#10b981' }
+const COLORS = [
+  "#3B82F6", 
+  "#10B981", 
+  "#F59E0B", 
+  "#EF4444", 
+  "#8B5CF6", 
+  "#EC4899", 
+  "#14B8A6", 
 ];
 
 const renderCustomizedLabel = ({
@@ -23,7 +33,7 @@ const renderCustomizedLabel = ({
       x={x} 
       y={y} 
       fill="white" 
-      textAnchor={x > cx ? 'start' : 'end'} 
+      textAnchor={x > cx ? "start" : "end"} 
       dominantBaseline="central"
       className="text-xs font-medium"
     >
@@ -33,42 +43,87 @@ const renderCustomizedLabel = ({
 };
 
 function Breakdown() {
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [data, setData] = useState<ExpenseBreakdown[]>([]);
+
+  // Fetch des données
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userId = Number(localStorage.getItem("userId"));
+        const [expensesRes, categoriesRes] = await Promise.all([
+          getExpenses(userId), // Utilise l'ID utilisateur depuis le localStorage
+          getAllCategories(),
+        ]);
+        setExpenses(expensesRes);
+        setCategories(categoriesRes);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données :", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Calcul du breakdown par catégorie
+  useEffect(() => {
+    if (expenses.length > 0 && categories.length > 0) {
+      const breakdown: ExpenseBreakdown[] = categories.map((cat, index) => {
+        const total = expenses
+          .filter((e) => e.categoryId === cat.id)
+          .reduce((sum, e) => sum + e.amount, 0);
+
+        return {
+          category: cat.name,
+          amount: total,
+          color: COLORS[index % COLORS.length],
+        };
+      }).filter((item) => item.amount > 0); // supprimer les catégories vides
+
+      setData(breakdown);
+    }
+  }, [expenses, categories]);
+
   return (
     <div className="bg-white rounded-lg border shadow-sm p-6">
       <h3 className="text-2xl font-semibold mb-6">Expenses by Category</h3>
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={renderCustomizedLabel}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip 
-              formatter={(value: number) => [`$${value.toLocaleString()}`, 'Amount']}
-              contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px'
-              }}
-            />
-            <Legend 
-              verticalAlign="bottom" 
-              height={36}
-              formatter={(value) => <span className="text-sm text-gray-700">{value}</span>}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+      {data.length === 0 ? (
+        <p className="text-gray-500 text-sm">Aucune donnée à afficher</p>
+      ) : (
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={renderCustomizedLabel}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="amount"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip 
+                formatter={(value: number) => [`$${value.toLocaleString()}`, "Amount"]}
+                contentStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px"
+                }}
+              />
+              <Legend 
+                verticalAlign="bottom" 
+                height={36}
+                formatter={(value) => <span className="text-sm text-gray-700">{value}</span>}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 }
