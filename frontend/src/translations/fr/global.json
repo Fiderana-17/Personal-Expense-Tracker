@@ -49,7 +49,7 @@
     "saveExpense": "Enregistrer la dépense",
     "updateExpense": "Mettre à jour la dépense",
     "description": "Description",
-    "amount": "Montant (€)",
+    "amount": "Montant ",
     "category": "Catégorie",
     "date": "Date",
     "type": "Type",
@@ -66,14 +66,14 @@
     "error": "Erreur"
   },
   "income": {
-    "amount": "Amount ($)",
+    "amount": "Amount",
     "amountPlaceholder": "0.00",
     "source": "Source",
     "sourcePlaceholder": "Salary, Freelance, ...",
     "description": "Description",
     "descriptionPlaceholder": "Optional details...",
-    "save": "Save Income",
-    "update": "Update Income",
+    "save": "Enregistrer le revenu",
+    "update": "Mettre à jour le revenu",
     "errors": {
       "invalidAmount": "Amount must be a valid number."
     },
@@ -97,7 +97,42 @@
       "no": "Non"
     }
   },
-  "common": {
-    "cancel": "Cancel"
+  "categories": {
+    "add": "Ajouter une catégorie",
+    "edit": "Modifier la catégorie",
+    "save": "Enregistrer la catégorie",
+    "update": "Mettre à jour la catégorie",
+    "saving": "Enregistrement...",
+    "fields": {
+      "name": "Nom de la catégorie",
+      "description": "Description"
+    },
+    "placeholders": {
+      "name": "Entrez le nom de la catégorie",
+      "description": "Entrez une description de la catégorie"
+    },
+    "title": "Catégories",
+    "closeForm": "Fermer le formulaire",
+    "created": "Catégorie créée avec succès",
+    "updated": "Catégorie mise à jour avec succès",
+    "deleted": "Catégorie supprimée avec succès",
+    "searchPlaceholder": "Rechercher des catégories...",
+    "noFound": "Aucune catégorie trouvée",
+    "noFoundDesc": "Créez votre première catégorie pour commencer à organiser vos dépenses.",
+    "confirmDeleteTitle": "Confirmer la suppression",
+    "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer cette catégorie ?",
+    "errors": {
+      "fetch": "Échec du chargement des catégories",
+      "save": "Échec de l'enregistrement de la catégorie",
+      "delete": "Échec de la suppression de la catégorie",
+      "nameExists": "Une catégorie avec ce nom existe déjà",
+      "inUse": "Impossible de supprimer cette catégorie car elle est utilisée par une ou plusieurs dépenses",
+      "nameRequired": "Le nom de la catégorie est requis."
+    }
+  },
+  "buttons": {
+    "cancel": "Annuler",
+    "yes": "Oui",
+    "no": "Non"
   }
 }

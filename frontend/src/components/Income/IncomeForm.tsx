@@ -107,7 +107,7 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
             onClick={onCancel}
             className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors duration-200"
           >
-            {t("common.cancel")}
+            {t("buttons.cancel")}
           </button>
           <button
             type="submit"
