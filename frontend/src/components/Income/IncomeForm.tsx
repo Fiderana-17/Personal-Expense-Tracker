@@ -108,7 +108,7 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
-            className="w-full p-2 border rounded"
+            className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
           />
         </div>
 
