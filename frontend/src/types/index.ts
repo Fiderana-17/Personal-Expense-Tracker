@@ -38,7 +38,8 @@ export interface Expense {
 export interface Income {
   id: string;
   amount: number;
-  date: string;
+  date: Date | string;
+  createdAt: Date | string;
   source?: string;
   description?: string;
   userId: string;
