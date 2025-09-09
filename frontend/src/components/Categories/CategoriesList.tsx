@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Edit, Trash2, FolderOpen, X, AlertCircle, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { getAllCategories, createCategory, deleteCategory, updateCategory } from "@/api/category";
 import CategoryForm from "./CategoryForm";
 import { formatDate } from "../ui/FormatDate";
 import type { ApiError, Category } from "@/types";
 import Loader from "../ui/Loader";
 
-
 const CategoryPage: React.FC = () => {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -28,7 +29,7 @@ const CategoryPage: React.FC = () => {
     } catch (err) {
       const error = err as ApiError;
       console.error(error);
-      setNotification(error.message || "Failed to fetch categories");
+      setNotification(error.message || t("categories.errors.fetch"));
       setNotificationType("error");
     } finally {
       setLoading(false);
@@ -64,11 +65,11 @@ const CategoryPage: React.FC = () => {
     try {
       if (mode === "create") {
         await createCategory({ name: values.name, description: values.description });
-        setNotification("Category created successfully");
+        setNotification(t("categories.created"));
         setNotificationType("success");
       } else if (mode === "edit" && values.id != null) {
         await updateCategory(values.id, { name: values.name, description: values.description });
-        setNotification("Category updated successfully");
+        setNotification(t("categories.updated"));
         setNotificationType("success");
       }
       await fetchCategories();
@@ -77,9 +78,9 @@ const CategoryPage: React.FC = () => {
     } catch (err) {
       const error = err as ApiError;
       console.error(error);
-      let errorMessage = "Failed to save category";
+      let errorMessage = t("categories.errors.save");
       if (error.error === "category_name_exists") {
-        errorMessage = "A category with this name already exists";
+        errorMessage = t("categories.errors.nameExists");
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -100,16 +101,16 @@ const CategoryPage: React.FC = () => {
       try {
         await deleteCategory(categoryToDelete);
         setCategories((prev) => prev.filter((cat) => cat.id !== categoryToDelete));
-        setNotification("Category deleted successfully");
+        setNotification(t("categories.deleted"));
         setNotificationType("success");
         setShowDeleteModal(false);
         setCategoryToDelete(null);
       } catch (err) {
         const error = err as ApiError;
         console.error(error);
-        let errorMessage = "Failed to delete category";
+        let errorMessage = t("categories.errors.delete");
         if (error.error === "category_in_use") {
-          errorMessage = "Cannot delete category because it is used by one or more expenses";
+          errorMessage = t("categories.errors.inUse");
         } else if (error.message) {
           errorMessage = error.message;
         }
@@ -138,13 +139,13 @@ const CategoryPage: React.FC = () => {
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-title">Categories</h1>
+        <h1 className="text-3xl font-bold text-title">{t("categories.title")}</h1>
         <button
           onClick={openCreateForm}
           className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          <span>{showForm && mode === "create" ? "Close Form" : "Add Category"}</span>
+          <span>{showForm && mode === "create" ? t("categories.closeForm") : t("categories.add")}</span>
         </button>
       </div>
 
@@ -155,8 +156,9 @@ const CategoryPage: React.FC = () => {
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -50, opacity: 0 }}
-            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${notificationType === "success" ? "bg-green-500 text-white" : "border-red-300 text-red-800 bg-red-100"
-              }`}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 border px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${
+              notificationType === "success" ? "bg-green-500 text-white" : "border-red-300 text-red-800 bg-red-100"
+            }`}
           >
             <AlertCircle className="h-5 w-5" />
             <span>{notification}</span>
@@ -170,7 +172,7 @@ const CategoryPage: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
-            placeholder="Search categories..."
+            placeholder={t("categories.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 text-title pr-4 py-2 border border-gray-300 rounded-lg"
@@ -212,7 +214,7 @@ const CategoryPage: React.FC = () => {
               className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
             >
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-lg font-semibold text-gray-800">Confirm Deletion</h2>
+                <h2 className="text-lg font-semibold text-gray-800">{t("categories.confirmDeleteTitle")}</h2>
                 <button
                   onClick={closeDeleteModal}
                   className="text-gray-500 hover:text-gray-700"
@@ -220,19 +222,19 @@ const CategoryPage: React.FC = () => {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <p className="text-gray-600">Are you sure you want to delete this category?</p>
+              <p className="text-gray-600">{t("categories.confirmDeleteMessage")}</p>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={closeDeleteModal}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
-                  No
+                  {t("buttons.no")}
                 </button>
                 <button
                   onClick={handleDeleteCategory}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
                 >
-                  Yes
+                  {t("buttons.yes")}
                 </button>
               </div>
             </motion.div>
@@ -244,16 +246,16 @@ const CategoryPage: React.FC = () => {
       {filteredCategories.length === 0 ? (
         <div className="bg-page rounded-xl shadow-md border border-border duration-500 p-12 text-center">
           <FolderOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-title duration-500 mb-2">No categories found</h3>
+          <h3 className="text-lg font-medium text-title duration-500 mb-2">{t("categories.noFound")}</h3>
           <p className="text-title duration-500 mb-6">
-            Create your first category to get started organizing your expenses.
+            {t("categories.noFoundDesc")}
           </p>
           <button
             onClick={openCreateForm}
             className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2 mx-auto"
           >
             <Plus className="h-4 w-4" />
-            <span>Add Category</span>
+            <span>{t("categories.add")}</span>
           </button>
         </div>
       ) : (
