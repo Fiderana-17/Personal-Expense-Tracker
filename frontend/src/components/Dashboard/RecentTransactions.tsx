@@ -1,6 +1,5 @@
 import React from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { Link } from "react-router-dom";
 import type { Transaction } from "@/api/dashboard";
 
 interface Props {
@@ -15,7 +14,9 @@ const RecentTransactions: React.FC<Props> = ({ transactions }) => {
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 animate-slide-up">
       <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Transactions</h3>
-      <div className="space-y-5">
+
+      {/* Liste scrollable */}
+      <div className="space-y-5 max-h-50 overflow-y-auto pr-2">
         {transactions.map((tx) => {
           const isIncome = tx.type === "income";
           const Icon = isIncome ? ArrowUpRight : ArrowDownRight;
@@ -38,21 +39,15 @@ const RecentTransactions: React.FC<Props> = ({ transactions }) => {
                 </div>
               </div>
               <span
-                className={`font-semibold text-base ${isIncome ? "text-green-600" : "text-red-600"}`}
+                className={`font-semibold text-base ${
+                  isIncome ? "text-green-600" : "text-red-600"
+                }`}
               >
-                {isIncome ? "+" : "-"}${tx.amount.toFixed(2)}
+                {isIncome ? "+" : "-"}${tx.amount}
               </span>
             </div>
           );
         })}
-      </div>
-      <div className="mt-6 text-center">
-        <Link
-          to="/transactions"
-          className="text-blue-600 hover:text-blue-700 font-medium text-base transition-colors duration-300"
-        >
-          View all transactions
-        </Link>
       </div>
     </div>
   );

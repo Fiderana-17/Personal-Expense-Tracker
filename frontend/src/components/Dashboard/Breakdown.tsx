@@ -91,14 +91,14 @@ function Breakdown() {
   }, [expenses, categories]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-5">
+    <div className="bg-white rounded-lg shadow-md p-5">
       <h3 className="text-2xl font-semibold">Expenses by Category</h3>
       {error ? (
         <p className="text-red-500 text-sm">{error}</p>
       ) : data.length === 0 ? (
         <p className="text-gray-500 text-sm">Aucune donnée à afficher</p>
       ) : (
-        <div className="h-70">
+        <div className="h-58">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

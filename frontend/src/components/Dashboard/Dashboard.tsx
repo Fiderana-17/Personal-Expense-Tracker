@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           <StatsCard
             title="Total Balance"
-            value={`$${summary?.balance.toFixed(2) ?? 0}`}
+            value={`$${summary?.balance ?? 0}`}
             change="+12.5%"
             changeType="positive"
             icon={DollarSign}
@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
           />
           <StatsCard
             title="Monthly Income"
-            value={`$${summary?.income.toFixed(2) ?? 0}`}
+            value={`$${summary?.income ?? 0}`}
             change="+5.2%"
             changeType="positive"
             icon={TrendingUp}
@@ -100,7 +100,7 @@ const Dashboard: React.FC = () => {
           />
           <StatsCard
             title="Monthly Expenses"
-            value={`$${summary?.expense.toFixed(2) ?? 0}`}
+            value={`$${summary?.expense ?? 0}`}
             change="+8.1%"
             changeType="negative"
             icon={TrendingDown}
@@ -118,14 +118,17 @@ const Dashboard: React.FC = () => {
 
         {/* Charts + Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 animate-slide-up flex flex-col gap-6" style={{ animationDelay: "0.1s" }}>
-            <Breakdown/>
-            <ExpenseChart data={chartData} />
-          </div>
-          <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
-            <RecentTransactions transactions={transactions} />
-          </div>
-        </div>
+  <div className="lg:col-span-2 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+    <Breakdown />
+  </div>
+  <div className="lg:col-span-1 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+    <RecentTransactions transactions={transactions} />
+  </div>
+  <div className="lg:col-span-3 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+    <ExpenseChart data={chartData} />
+  </div>
+</div>
+
       </div>
     </div>
   );

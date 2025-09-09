@@ -1,24 +1,96 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ExpenseChartProps {
   data: { month: string; income: number; expenses: number }[];
 }
 
 const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
-  if (!data || data.length === 0) return <div className="text-gray-500 text-center">No data for this month</div>;
+  const [startMonth, setStartMonth] = useState(1); // Start with January (1-based index)
 
-  // Transform data to convert month from "YY-MM" to short month name (e.g., "25-06" to "Jun")
-  const formattedData = data.map(item => {
-    const [year, month] = item.month.split('-');
-    const date = new Date(`20${year}-${month}-01`); // Assuming '25' means 2025
+  // Log input data for debugging
+  useEffect(() => {
+    console.log('Input data:', data);
+    console.log('Formatted data:', formattedData);
+  }, [data]);
+
+  if (!data || data.length === 0) return <div className="text-gray-500 text-center">No data available</div>;
+
+  // Transform data and add month number
+  const transformedData = data
+    .map(item => {
+      const [year, month] = item.month.split('-');
+      const date = new Date(`20${year}-${month}-01`); // Assuming '25' means 2025
+      const shortMonth = date.toLocaleString('default', { month: 'short' });
+      const monthNum = parseInt(month, 10);
+      if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+        console.warn(`Invalid month in data: ${item.month}`);
+        return null;
+      }
+      return { ...item, month: shortMonth, monthNum, year };
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null);
+
+  // Create entries for all months (1-12) with zeros for missing months
+  const allMonths = Array.from({ length: 12 }, (_, i) => {
+    const monthNum = i + 1;
+    const monthStr = monthNum.toString().padStart(2, '0');
+    const date = new Date(`2025-${monthStr}-01`);
     const shortMonth = date.toLocaleString('default', { month: 'short' });
-    return { ...item, month: shortMonth };
+    const existing = transformedData.find(d => d.monthNum === monthNum);
+    return {
+      month: shortMonth,
+      monthNum,
+      year: '25', // Default to 2025, adjust if needed
+      income: existing ? existing.income : 0,
+      expenses: existing ? existing.expenses : 0,
+    };
   });
 
+  // Sort data starting with startMonth
+  const formattedData = allMonths.sort((a, b) => {
+    const aAdjusted = a.monthNum >= startMonth ? a.monthNum : a.monthNum + 12;
+    const bAdjusted = b.monthNum >= startMonth ? b.monthNum : b.monthNum + 12;
+    return aAdjusted - bAdjusted;
+  });
+
+  // Navigate to previous or next month
+  const handlePrevMonth = () => {
+    setStartMonth(prev => {
+      const newMonth = prev === 1 ? 12 : prev - 1;
+      console.log('Navigating to previous month:', newMonth);
+      return newMonth;
+    });
+  };
+
+  const handleNextMonth = () => {
+    setStartMonth(prev => {
+      const newMonth = prev === 12 ? 1 : prev + 1;
+      console.log('Navigating to next month:', newMonth);
+      return newMonth;
+    });
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 animate-slide-up">
-      <h3 className="text-2xl font-semibold mb-6 text-gray-900">Income vs Expenses</h3>
+    <div className="bg-white rounded-lg shadow-md p-6 animate-slide-up">
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={handlePrevMonth}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
+          aria-label="Shift to previous month"
+        >
+          <ChevronLeft className="h-5 w-5 text-gray-900" />
+        </button>
+        <h3 className="text-2xl font-semibold text-gray-900">Income vs Expenses</h3>
+        <button
+          onClick={handleNextMonth}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
+          aria-label="Shift to next month"
+        >
+          <ChevronRight className="h-5 w-5 text-gray-900" />
+        </button>
+      </div>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={formattedData}>
