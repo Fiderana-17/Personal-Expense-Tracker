@@ -1,7 +1,7 @@
 import type { SwitchProps } from '@/types';
 import React, { useState } from 'react';
 
-const Switch: React.FC<SwitchProps> = ({ onToggle }) => {
+const SwitchDark: React.FC<SwitchProps> = ({ onToggle }) => {
   const [isDark, setIsDark] = useState(false);
 
     const handleChange = () => {
@@ -130,4 +130,4 @@ const Switch: React.FC<SwitchProps> = ({ onToggle }) => {
   );
 }
 
-export default Switch;
+export default SwitchDark;

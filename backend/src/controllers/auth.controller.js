@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../prismaClient.js';
 
 const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
-const saltRounds = process.env.SALT_ROUNDS || 10;
+const saltRounds = Number (process.env.SALT_ROUNDS || 10);
 
 
 export const signup = async (req, res) => {

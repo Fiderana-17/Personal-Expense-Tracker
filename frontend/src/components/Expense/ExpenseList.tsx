@@ -7,6 +7,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { formatDate } from '../ui/FormatDate.ts';
 import { useAuth } from '@/hooks/useAuth.ts';
 import Loader from '../ui/Loader.tsx';
+import { t } from 'i18next';
 
 const ExpensesList: React.FC = () => {
   const { user } = useAuth();
@@ -187,23 +188,23 @@ const ExpensesList: React.FC = () => {
   });
 
   if (loading) {
-    return <div className="grid place-items-center min-h-screen">
+    return <div className="grid place-items-center min-h-[calc(100vh-130px)]">
       <Loader />
     </div>;
   };
-
-  if (error) return <p className="text-red-600">Error: {error}</p>;
+  
+  if (error) return <p className="text-red-600">{t("expenses.error")}: {error}</p>;
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-title duration-500">Expenses</h1>
+        <h1 className="text-3xl font-bold text-title duration-500">{t("expenses.title")}</h1>
         <button
           onClick={handleAddClick}
           className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          <span>Add Expense</span>
+          <span>{t("expenses.addExpense")}</span>
         </button>
       </div>
 
@@ -225,7 +226,7 @@ const ExpensesList: React.FC = () => {
               className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
             >
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-lg font-semibold text-gray-800">{editingExpense ? 'Edit Expense' : 'Add Expense'}</h2>
+                <h2 className="text-lg font-semibold text-gray-800">{editingExpense ? t("expenses.editExpense") : t("expenses.addExpense")}</h2>
                 <button
                   onClick={() => setShowForm(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -235,7 +236,7 @@ const ExpensesList: React.FC = () => {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t("expenses.description")}</label>
                   <input
                     type="text"
                     value={formData.description}
@@ -245,7 +246,7 @@ const ExpensesList: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t("expenses.amount")} ($)</label>
                   <input
                     type="text"
                     value={formData.amount ?? ''}
@@ -258,7 +259,7 @@ const ExpensesList: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t("expenses.category")}</label>
                   <select
                     value={formData.categoryId}
                     onChange={(e) => setFormData({ ...formData, categoryId: Number(e.target.value) })}
@@ -270,7 +271,7 @@ const ExpensesList: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t("expenses.date")}</label>
                   <input
                     type="date"
                     value={formData.date}
@@ -279,14 +280,14 @@ const ExpensesList: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t("expenses.type")}</label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value as 'ONE_TIME' | 'RECURRING' })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                   >
-                    <option value="ONE_TIME">ONE_TIME</option>
-                    <option value="RECURRING">RECURRING</option>
+                    <option value="ONE_TIME">{t("expenses.oneTime")}</option>
+                    <option value="RECURRING">{t("expenses.recurring")}</option>
                   </select>
                 </div>
 
@@ -316,7 +317,7 @@ const ExpensesList: React.FC = () => {
                   type="submit"
                   className="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
-                  <span>{editingExpense ? 'Update Expense' : 'Save Expense'}</span>
+                  <span>{editingExpense ? t("expenses.updateExpense") : t("expenses.saveExpense")}</span>
                 </button>
               </form>
             </motion.div>
@@ -344,7 +345,7 @@ const ExpensesList: React.FC = () => {
               className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
             >
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-lg font-semibold text-gray-800">Confirm Deletion</h2>
+                <h2 className="text-lg font-semibold text-gray-800">{t("expenses.confirmDelete")}</h2>
                 <button
                   onClick={() => setShowDeleteModal(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -352,19 +353,19 @@ const ExpensesList: React.FC = () => {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <p className="text-gray-600">Are you sure you want to delete this expense?</p>
+              <p className="text-gray-600">{t("expenses.deleteMessage")}</p>
               <div className="flex justify-end gap-4">
                 <button
                   onClick={() => setShowDeleteModal(false)}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
-                  No
+                  {t("expenses.no")}
                 </button>
                 <button
                   onClick={confirmDelete}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
                 >
-                  Yes
+                  {t("expenses.yes")}
                 </button>
               </div>
             </motion.div>
@@ -394,7 +395,7 @@ const ExpensesList: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Search expenses..."
+              placeholder={t("expenses.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-title duration-500"
@@ -407,7 +408,7 @@ const ExpensesList: React.FC = () => {
           >
             {filterCategories.map(category => (
               <option key={category} value={category} className='bg-page duration-500'>
-                {category === 'all' ? 'All Categories' : category}
+                {category === 'all' ? `${t("expenses.allCategories")}` : category}
               </option>
             ))}
           </select>
@@ -418,7 +419,7 @@ const ExpensesList: React.FC = () => {
           >
             {types.map(type => (
               <option key={type} value={type} className='bg-page duration-500'>
-                {type === 'all' ? 'All Types' : type}
+                {type === 'all' ? `${t("expenses.allTypes")}` : type}
               </option>
             ))}
           </select>
@@ -427,7 +428,7 @@ const ExpensesList: React.FC = () => {
 
       <div className="bg-page duration-500 rounded-xl shadow-md border border-border">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-title duration-500">{filteredExpenses.length} Expenses Found</h3>
+          <h3 className="text-lg font-semibold text-title duration-500">{t("expenses.found", { count: filteredExpenses.length })}</h3>
         </div>
         <div className="divide-y divide-gray-200">
           {filteredExpenses.map(expense => (
