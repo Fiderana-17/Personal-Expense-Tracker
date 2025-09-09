@@ -1,9 +1,9 @@
-import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X, Upload } from 'lucide-react';
+import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X } from 'lucide-react';
 import { deleteExpense, createExpense, updateExpense, getExpenses } from '@/api/expense.ts';
 import type { Category, Expense } from '@/types/index.ts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAllCategories } from '@/api/category.ts';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatDate } from '../ui/FormatDate.ts';
 import { useAuth } from '@/hooks/useAuth.ts';
 import Loader from '../ui/Loader.tsx';
@@ -25,8 +25,6 @@ const ExpensesList: React.FC = () => {
   const [notification, setNotification] = useState('');
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('success');
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const [formData, setFormData] = useState({
     description: '',
     amount: 0 as number | undefined,
@@ -34,7 +32,6 @@ const ExpensesList: React.FC = () => {
     userId: user?.id || '',
     type: 'ONE_TIME' as 'ONE_TIME' | 'RECURRING',
     date: new Date().toISOString().split('T')[0],
-    receipt: null as File | null,
   });
 
   const fetchExpenses = async () => {
@@ -132,7 +129,6 @@ const ExpensesList: React.FC = () => {
         userId: user.id,
         type: 'ONE_TIME',
         date: new Date().toISOString().split('T')[0],
-        receipt: null,
       });
     } catch (err) {
       if (err instanceof Error) {
@@ -156,7 +152,6 @@ const ExpensesList: React.FC = () => {
       userId: expense.userId.toString(),
       type: typeof expense.type === 'string' ? (expense.type.toUpperCase() as 'ONE_TIME' | 'RECURRING') : 'ONE_TIME',
       date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : '',
-      receipt: null,
     });
     setShowForm(true);
   };
@@ -170,7 +165,6 @@ const ExpensesList: React.FC = () => {
       userId: user?.id || '',
       type: 'ONE_TIME',
       date: new Date().toISOString().split('T')[0],
-      receipt: null,
     });
     setShowForm(true);
   };
@@ -187,6 +181,7 @@ const ExpensesList: React.FC = () => {
     return matchesSearch && matchesCategory && matchesType;
   });
 
+ 
   if (loading) {
     return <div className="grid place-items-center min-h-[calc(100vh-130px)]">
       <Loader />
@@ -257,6 +252,7 @@ const ExpensesList: React.FC = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                     required
                   />
+
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t("expenses.category")}</label>
@@ -290,32 +286,9 @@ const ExpensesList: React.FC = () => {
                     <option value="RECURRING">{t("expenses.recurring")}</option>
                   </select>
                 </div>
-
-                {/* Upload Receipt Button */}
-                <div>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*,application/pdf"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      setFormData({ ...formData, receipt: file });
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center gap-2"
-                  >
-                    <Upload className="h-4 w-4" />
-                    <span>{formData.receipt ? formData.receipt.name : 'Upload Receipt'}</span>
-                  </button>
-                </div>
-
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="w-full bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <span>{editingExpense ? t("expenses.updateExpense") : t("expenses.saveExpense")}</span>
                 </button>
@@ -324,8 +297,6 @@ const ExpensesList: React.FC = () => {
           </>
         )}
       </AnimatePresence>
-
-      {/* ... reste du composant identique ... */}
 
       <AnimatePresence>
         {showDeleteModal && (
@@ -388,7 +359,6 @@ const ExpensesList: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Liste des expenses */}
       <div className="bg-page duration-500 rounded-xl shadow-md border border-border p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
