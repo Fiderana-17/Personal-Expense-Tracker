@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, DollarSign, AlertTriangle } from "lucide-reac
 import StatsCard from "./StatsCard";
 import ExpenseChart from "./ExpenseChart";
 import RecentTransactions from "./RecentTransactions";
+import Breakdown from "./Breakdown";
 import type { Summary, Alert, Transaction } from "@/api/dashboard";
 import { getAlerts, getMonthlyExpensesSummary, getMonthlySummary, getRecentTransactions } from "@/api/dashboard";
 
@@ -20,16 +21,16 @@ const Dashboard: React.FC = () => {
         setLoading(true);
         const [monthly, alertData, txs, chart] = await Promise.all([
           getMonthlySummary().catch((err) => {
-            throw new Error(`Erreur dans getMonthlySummary: ${err.message}`);
+            throw new Error(`Error in getMonthlySummary: ${err.message}`);
           }),
           getAlerts().catch((err) => {
-            throw new Error(`Erreur dans getAlerts: ${err.message}`);
+            throw new Error(`Error in getAlerts: ${err.message}`);
           }),
           getRecentTransactions().catch((err) => {
-            throw new Error(`Erreur dans getRecentTransactions: ${err.message}`);
+            throw new Error(`Error in getRecentTransactions: ${err.message}`);
           }),
           getMonthlyExpensesSummary().catch((err) => {
-            throw new Error(`Erreur dans getMonthlyExpensesSummary: ${err.message}`);
+            throw new Error(`Error in getMonthlyExpensesSummary: ${err.message}`);
           }),
         ]);
         setSummary(monthly);
@@ -37,12 +38,8 @@ const Dashboard: React.FC = () => {
         setTransactions(txs);
         setChartData(chart);
       } catch (error) {
-        console.error("Erreur dans fetchData:", error);
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Erreur lors du chargement des données"
-        );
+        console.error("Error in fetchData:", error);
+        setError(error instanceof Error ? error.message : "Failed to load data");
       } finally {
         setLoading(false);
       }
@@ -53,7 +50,7 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-gray-600 text-lg animate-pulse">Chargement...</div>
+        <div className="text-gray-600 text-lg animate-pulse">Loading...</div>
       </div>
     );
   }
@@ -67,20 +64,20 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold text-gray-900">Tableau de bord</h1>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-            Ajouter une transaction
+          <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
+          <button className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg">
+            Add Transaction
           </button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           <StatsCard
-            title="Solde Total"
+            title="Total Balance"
             value={`$${summary?.balance.toFixed(2) ?? 0}`}
             change="+12.5%"
             changeType="positive"
@@ -88,7 +85,7 @@ const Dashboard: React.FC = () => {
             color="blue"
           />
           <StatsCard
-            title="Revenus Mensuels"
+            title="Monthly Income"
             value={`$${summary?.income.toFixed(2) ?? 0}`}
             change="+5.2%"
             changeType="positive"
@@ -96,7 +93,7 @@ const Dashboard: React.FC = () => {
             color="green"
           />
           <StatsCard
-            title="Dépenses Mensuelles"
+            title="Monthly Expenses"
             value={`$${summary?.expense.toFixed(2) ?? 0}`}
             change="+8.1%"
             changeType="negative"
@@ -104,9 +101,9 @@ const Dashboard: React.FC = () => {
             color="red"
           />
           <StatsCard
-            title="Alertes Budget"
-            value={alert?.alert ? "⚠️ 1 Alerte" : "✅ OK"}
-            change={alert?.message ?? "Aucune alerte"}
+            title="Budget Alerts"
+            value={alert?.alert ? "⚠️ 1 Alert" : "✅ OK"}
+            change={alert?.message ?? "No alerts"}
             changeType={alert?.alert ? "negative" : "neutral"}
             icon={AlertTriangle}
             color="orange"
@@ -116,6 +113,7 @@ const Dashboard: React.FC = () => {
         {/* Charts + Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 animate-slide-up">
+            <Breakdown/>
             <ExpenseChart data={chartData} />
           </div>
           <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>

@@ -1,33 +1,62 @@
 import React from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface ExpenseChartProps {
   data: { month: string; income: number; expenses: number }[];
 }
 
 const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
-  if (!data || data.length === 0) return <div>Pas de données pour ce mois.</div>;
-
-  const maxValue = Math.max(...data.flatMap(d => [d.income, d.expenses]));
+  if (!data || data.length === 0) return <div className="text-gray-500 text-center">No data for this month</div>;
 
   return (
-    <div className="bg-white rounded-xl shadow-xs border border-gray-100 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Income vs Expenses</h3>
-      <div className="space-y-4">
-        {data.map((item) => (
-          <div key={item.month} className="flex items-center space-x-4">
-            <div className="w-10 text-sm font-medium text-gray-600">{item.month}</div>
-            <div className="flex-1 flex space-x-2">
-              <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
-                <div className="bg-green-500 h-full rounded-full" style={{ width: `${(item.income / maxValue) * 100}%` }} />
-                <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white">${item.income.toLocaleString()}</div>
-              </div>
-              <div className="flex-1 bg-gray-100 rounded-full h-6 relative overflow-hidden">
-                <div className="bg-red-500 h-full rounded-full" style={{ width: `${(item.expenses / maxValue) * 100}%` }} />
-                <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white">${item.expenses.toLocaleString()}</div>
-              </div>
-            </div>
-          </div>
-        ))}
+    <div className="bg-white rounded-lg border shadow-sm p-6 animate-slide-up">
+      <h3 className="text-2xl font-semibold mb-6 text-gray-900">Income vs Expenses</h3>
+      <div className="h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis 
+              dataKey="month" 
+              tick={{ fill: '#374151' }}
+              tickLine={{ stroke: '#e5e7eb' }}
+            />
+            <YAxis 
+              tick={{ fill: '#374151' }}
+              tickLine={{ stroke: '#e5e7eb' }}
+              tickFormatter={(value) => `$${value}`}
+            />
+            <Tooltip 
+              formatter={(value: number, name: string) => [
+                `$${value.toLocaleString()}`, 
+                name === 'income' ? 'Income' : 'Expenses'
+              ]}
+              contentStyle={{
+                backgroundColor: 'white',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px'
+              }}
+            />
+            <Legend 
+              formatter={(value) => (
+                <span className="text-sm text-gray-700">
+                  {value === 'income' ? 'Income' : 'Expenses'}
+                </span>
+              )}
+            />
+            <Bar 
+              dataKey="income" 
+              fill="#22c55e" 
+              radius={[4, 4, 0, 0]}
+              name="income"
+            />
+            <Bar 
+              dataKey="expenses" 
+              fill="#ef4444" 
+              radius={[4, 4, 0, 0]}
+              name="expenses"
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
