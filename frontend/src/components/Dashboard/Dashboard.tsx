@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
   Hi {user?.name}
 </h1>
   <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-    👋 Welcome back!
+    👋 Welcome!
   </span>
 </div>
         </div>
@@ -118,7 +118,7 @@ const Dashboard: React.FC = () => {
 
         {/* Charts + Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 animate-slide-up">
+          <div className="lg:col-span-2 animate-slide-up flex flex-col gap-6" style={{ animationDelay: "0.1s" }}>
             <Breakdown/>
             <ExpenseChart data={chartData} />
           </div>

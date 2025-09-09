@@ -91,14 +91,14 @@ function Breakdown() {
   }, [expenses, categories]);
 
   return (
-    <div className="bg-white rounded-lg border shadow-sm p-6">
-      <h3 className="text-2xl font-semibold mb-6">Expenses by Category</h3>
+    <div className="bg-white rounded-lg shadow-sm p-5">
+      <h3 className="text-2xl font-semibold">Expenses by Category</h3>
       {error ? (
         <p className="text-red-500 text-sm">{error}</p>
       ) : data.length === 0 ? (
         <p className="text-gray-500 text-sm">Aucune donnée à afficher</p>
       ) : (
-        <div className="h-80">
+        <div className="h-70">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -110,13 +110,14 @@ function Breakdown() {
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="amount"
+                nameKey="category" // Added to ensure category names are used
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: number) => [`$${value.toLocaleString()}`, "Amount"]}
+                formatter={(value: number, name: string) => [`$${value.toLocaleString()}`, name]}
                 contentStyle={{
                   backgroundColor: "white",
                   border: "1px solid #e5e7eb",
