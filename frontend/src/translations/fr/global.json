@@ -69,13 +69,14 @@
     "amount": "Amount",
     "amountPlaceholder": "0.00",
     "source": "Source",
-    "sourcePlaceholder": "Salary, Freelance, ...",
+    "createdAt": "Date de création",
+    "sourcePlaceholder": "Salaire, Freelance, ...",
     "description": "Description",
-    "descriptionPlaceholder": "Optional details...",
+    "descriptionPlaceholder": "Détails optionnels...",
     "save": "Enregistrer le revenu",
     "update": "Mettre à jour le revenu",
     "errors": {
-      "invalidAmount": "Amount must be a valid number."
+      "invalidAmount": "Le montant doit être un nombre valide."
     },
     "title": "Revenus",
     "add": "Ajouter un revenu",

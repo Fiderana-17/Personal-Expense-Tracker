@@ -225,7 +225,7 @@ const IncomeList: React.FC = () => {
                     <span>{formatDate(typeof income.date === "string" ? income.date : income.date.toISOString())}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
-                    <p>Creation date:</p>
+                    <p>{t("income.createdAt")}:</p>
                     <span>{formatDate(typeof income.createdAt === "string" ? income.createdAt : income.createdAt.toISOString())}</span>
                   </div>
                 </div>

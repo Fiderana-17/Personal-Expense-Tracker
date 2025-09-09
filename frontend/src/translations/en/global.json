@@ -69,6 +69,7 @@
     "amount": "Amount ($)",
     "amountPlaceholder": "0.00",
     "source": "Source",
+    "createdAt": "Creation date",
     "sourcePlaceholder": "Salary, Freelance, ...",
     "description": "Description",
     "descriptionPlaceholder": "Optional details...",
