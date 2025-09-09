@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import  getExpenses  from "@/api/expense";
 import { getAllCategories } from "@/api/category";
 import type { Expense, Category } from "@/types";
+import { getExpenses } from "@/api/expense";
 
 interface ExpenseBreakdown {
   category: string;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, Download, TrendingUp, PieChart } from "lucide-react";
-import { getExpenses } from "../../api/expense";
+import  {getExpenses }  from "../../api/expense";
 import { getAllIncomes } from "../../api/income";
 import { getAllCategories } from "../../api/category";
 import type { Expense, Income, ReportData, ExpenseBreakdown, Category } from "../../types";
