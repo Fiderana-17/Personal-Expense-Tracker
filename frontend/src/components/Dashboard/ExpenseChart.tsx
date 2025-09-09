@@ -17,7 +17,7 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
   });
 
   return (
-    <div className="bg-white rounded-lg border shadow-sm p-6 animate-slide-up">
+    <div className="bg-white rounded-lg shadow-sm p-6 animate-slide-up">
       <h3 className="text-2xl font-semibold mb-6 text-gray-900">Income vs Expenses</h3>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
