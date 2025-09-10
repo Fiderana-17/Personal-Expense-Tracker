@@ -39,6 +39,16 @@ export const downloadReceipt = async (id: string) => {
   return await res.blob();
 };
 
+export const viewReceipt = async (id: string) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/receipts/${id}/view`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to view receipt");
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+};
+
 export const deleteReceipt = async (id: string) => {
   const token = localStorage.getItem("token");
   const res = await fetch(`${API_URL}/receipts/${id}`, {

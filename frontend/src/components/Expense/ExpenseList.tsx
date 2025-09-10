@@ -1,6 +1,6 @@
-import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X, FileUp, Download } from 'lucide-react';
+import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X, Download, Eye } from 'lucide-react';
 import { deleteExpense, createExpense, updateExpense, getExpenses } from '@/api/expense.ts';
-import { uploadReceipt, downloadReceipt } from '@/api/receipt.ts';
+import { uploadReceipt, downloadReceipt, viewReceipt } from '@/api/receipt.ts';
 import type { Category, Expense } from '@/types/index.ts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAllCategories } from '@/api/category.ts';
@@ -191,6 +191,19 @@ const ExpensesList: React.FC = () => {
     setShowForm(true);
   };
 
+  const handleViewReceipt = async (receiptId: number) => {
+    try {
+      const url = await viewReceipt(receiptId.toString());
+      window.open(url, '_blank');
+      // Nettoyer l'URL après ouverture
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    } catch (error) {
+      console.error('View failed:', error);
+      setNotification('Failed to view receipt');
+      setNotificationType('error');
+    }
+  };
+
   const handleAddClick = () => {
     setEditingExpense(null);
     setFormData({
@@ -217,13 +230,13 @@ const ExpensesList: React.FC = () => {
     return matchesSearch && matchesCategory && matchesType;
   });
 
- 
+
   if (loading) {
     return <div className="grid place-items-center min-h-[calc(100vh-130px)]">
       <Loader />
     </div>;
   };
-  
+
   if (error) return <p className="text-red-600">{t("expenses.error")}: {error}</p>;
 
   return (
@@ -486,15 +499,13 @@ const ExpensesList: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   {expense.receipt && (
                     <div className="flex items-center gap-1">
-                      <a
-                        href={`${import.meta.env.VITE_API_URL}/receipts/${expense.receipt.id}/view`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => handleViewReceipt(expense.receipt!.id)}
                         className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
                         title={t("expenses.viewReceipt")}
                       >
-                        <Receipt className="h-4 w-4" />
-                      </a>
+                        <Eye className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={async () => {
                           try {
