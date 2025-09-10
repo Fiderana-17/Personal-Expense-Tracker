@@ -1,7 +1,7 @@
 import prisma from "../prismaClient.js";
 import dayjs from "dayjs";
 
-// 📊 GET /api/summary/monthly
+// GET /api/summary/monthly
 export const getMonthlySummary = async (req, res) => {
   try {
     const { month } = req.query;
@@ -33,7 +33,7 @@ export const getMonthlySummary = async (req, res) => {
   }
 };
 
-// 📊 GET /api/summary?start=YYYY-MM-DD&end=YYYY-MM-DD
+// GET /api/summary?start=YYYY-MM-DD&end=YYYY-MM-DD
 export const getSummaryBetweenDates = async (req, res) => {
   try {
     const { start, end } = req.query;
@@ -66,7 +66,7 @@ export const getSummaryBetweenDates = async (req, res) => {
   }
 };
 
-// 🚨 GET /api/summary/alerts
+//  GET /api/summary/alerts
 export const getAlerts = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -89,18 +89,18 @@ export const getAlerts = async (req, res) => {
     if (totalSpending > totalIncome) {
       return res.json({
         alert: true,
-        message: `⚠️ You've exceeded your monthly budget by $${(totalSpending - totalIncome).toFixed(2)}`,
+        message: `You've exceeded your monthly budget by $${(totalSpending - totalIncome).toFixed(2)}`,
       });
     }
 
-    res.json({ alert: false, message: "✅ You're within your budget" });
+    res.json({ alert: false, message: "You're within your budget" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching alerts", error });
   }
 };
 
-// 📊 GET /api/summary/recent
+//  GET /api/summary/recent
 export const getRecentTransactions = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -149,15 +149,16 @@ export const getRecentTransactions = async (req, res) => {
   }
 };
 
-// 📊 GET /api/summary/chart
+//  GET /api/summary/chart
 export const getMonthlyExpensesSummary = async (req, res) => {
   try {
     const userId = req.user.id;
-    const monthsBack = 6; // Par exemple, les 6 derniers mois
+    const currentYear = dayjs().year();
     const summaries = [];
 
-    for (let i = 0; i < monthsBack; i++) {
-      const start = dayjs().subtract(i, "month").startOf("month");
+    // Fetch all 12 months of the current year
+    for (let i = 0; i < 12; i++) {
+      const start = dayjs(`${currentYear}-${(i + 1).toString().padStart(2, "0")}-01`).startOf("month");
       const end = start.endOf("month");
 
       const income = await prisma.income.aggregate({
@@ -177,7 +178,7 @@ export const getMonthlyExpensesSummary = async (req, res) => {
       });
     }
 
-    res.json(summaries.reverse()); // Inverser pour avoir les mois dans l'ordre chronologique
+    res.json(summaries);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching chart data", error });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -18,21 +18,50 @@ interface ExpenseChartProps {
 const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
   const [startMonth, setStartMonth] = useState(1); // Start with January (1-based index)
 
-  if (!data || data.length === 0)
-    return <div className="text-gray-500 text-center">No data available</div>;
+  // Log data at various stages for debugging
+  useEffect(() => {
+    console.log("Input data:", JSON.stringify(data, null, 2));
+    console.log("Transformed data:", JSON.stringify(transformedData, null, 2));
+    console.log("Formatted data:", JSON.stringify(formattedData, null, 2));
+  }, [data]);
 
-  // Transform data and add month number
+  if (!data || data.length === 0) {
+    return <div className="text-gray-500 text-center">No data available</div>;
+  }
+
+  // Transform and validate data - Handle both "YYYY-MM" and "YY-MM" formats
   const transformedData = data
-    .map((item) => {
-      const [year, month] = item.month.split("-");
-      const monthNum = parseInt(month, 10);
-      if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
-        console.warn(`Invalid month in data: ${item.month}`);
+    .map((item, index) => {
+      let year, month;
+      if (item.month.length === 7) { // "YYYY-MM"
+        [year, month] = item.month.split("-");
+      } else if (item.month.length === 6) { // "YY-MM"
+        [year, month] = item.month.split("-");
+        year = `20${year}`;
+      } else {
+        console.warn(`Invalid month format at index ${index}: ${item.month}`);
         return null;
       }
-      const date = new Date(`20${year}-${month}-01`);
-      const shortMonth = date.toLocaleString("default", { month: "short" });
-      return { ...item, shortMonth, monthNum, year };
+      const monthNum = parseInt(month, 10);
+      const income = Number(item.income);
+      const expenses = Number(item.expenses);
+      if (
+        isNaN(monthNum) ||
+        monthNum < 1 ||
+        monthNum > 12 ||
+        isNaN(income) ||
+        isNaN(expenses)
+      ) {
+        console.warn(`Invalid data entry at index ${index}: ${JSON.stringify(item)}`);
+        return null;
+      }
+      const date = new Date(`${year}-${month}-01`);
+      if (isNaN(date.getTime())) {
+        console.warn(`Invalid date for month: ${item.month}`);
+        return null;
+      }
+      const monthName = date.toLocaleString("default", { month: "short" });
+      return { month: monthName, monthNum, year, income, expenses };
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
 
@@ -41,12 +70,12 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
     const monthNum = i + 1;
     const monthStr = monthNum.toString().padStart(2, "0");
     const date = new Date(`2025-${monthStr}-01`);
-    const shortMonth = date.toLocaleString("default", { month: "short" });
+    const monthName = date.toLocaleString("default", { month: "short" });
     const existing = transformedData.find((d) => d.monthNum === monthNum);
     return {
-      month: shortMonth, // affichage sur XAxis
+      month: monthName,
       monthNum,
-      year: "25",
+      year: "2025",
       income: existing ? existing.income : 0,
       expenses: existing ? existing.expenses : 0,
     };
@@ -63,10 +92,11 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 animate-slide-up">
       <div className="flex items-center justify-center mb-6">
+       
         <h3 className="text-2xl font-semibold text-gray-900">
           Income vs Expenses
         </h3>
-  
+       
       </div>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
