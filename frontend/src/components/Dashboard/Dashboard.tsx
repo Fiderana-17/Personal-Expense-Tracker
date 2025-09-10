@@ -17,17 +17,16 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
 
   // --- FILTRES ---
-  const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "quarterly" | "yearly">("monthly");
+  const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly">("monthly");
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, "0");
     return `${year}-${month}`;
   });
-  const [selectedQuarter, setSelectedQuarter] = useState("Q1");
   const [showCustomRange, setShowCustomRange] = useState(false);
   const [customRange, setCustomRange] = useState<{ start?: string; end?: string }>({});
-  const [showAllMonths, setShowAllMonths] = useState(false);
+  const [showAllMonths, setShowAllMonths] = useState(true); // Show all months by default
 
   // --- FETCH DATA ---
   useEffect(() => {
@@ -39,6 +38,7 @@ const Dashboard: React.FC = () => {
           getRecentTransactions(),
           getMonthlyExpensesSummary(),
         ]);
+        console.log("Fetched chartData:", JSON.stringify(chart, null, 2));
         setAlert(alertData);
         setTransactions(txs);
         setChartData(chart);
@@ -55,22 +55,14 @@ const Dashboard: React.FC = () => {
   const filteredTransactions = transactions.filter((t) => {
     if (!t.date) return false;
     const txDate = new Date(t.date);
+    const [year, month] = selectedMonth.split("-").map(Number);
 
     if (showCustomRange && customRange.start && customRange.end) {
       return txDate >= new Date(customRange.start) && txDate <= new Date(customRange.end);
     }
 
-    const [year, month] = selectedMonth.split("-").map(Number);
-
     if (selectedPeriod === "monthly") {
       return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
-    }
-    if (selectedPeriod === "quarterly") {
-      let startMonth = 0, endMonth = 2;
-      if (selectedQuarter === "Q2") { startMonth = 3; endMonth = 5; }
-      if (selectedQuarter === "Q3") { startMonth = 6; endMonth = 8; }
-      if (selectedQuarter === "Q4") { startMonth = 9; endMonth = 11; }
-      return txDate.getFullYear() === year && txDate.getMonth() >= startMonth && txDate.getMonth() <= endMonth;
     }
     if (selectedPeriod === "yearly") {
       return txDate.getFullYear() === year;
@@ -78,7 +70,22 @@ const Dashboard: React.FC = () => {
     return true;
   });
 
-  const filteredChart = showAllMonths ? chartData : chartData.slice(0, 6);
+  // --- ENSURE ALL MONTHS IN CHART DATA ---
+  const allMonthsChartData = Array.from({ length: 12 }, (_, i) => {
+    const monthNum = i + 1;
+    const monthStr = monthNum.toString().padStart(2, "0");
+    const year = selectedMonth.split("-")[0]; // Get YYYY from "2025-09"
+    const monthKey = `${year}-${monthStr}`;
+    const existing = chartData.find((d) => d.month === monthKey);
+    return {
+      month: monthKey,
+      income: existing ? existing.income : 0,
+      expenses: existing ? existing.expenses : 0,
+    };
+  });
+
+  const filteredChart = showAllMonths ? allMonthsChartData : allMonthsChartData.slice(0, 6);
+  console.log("Filtered chart data:", JSON.stringify(filteredChart, null, 2));
 
   // --- CALCULATE TOTALS ---
   const totalIncome = filteredTransactions
@@ -97,9 +104,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        {/* Header with Filters */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Hi {user?.name}
@@ -108,74 +114,53 @@ const Dashboard: React.FC = () => {
               👋 Welcome!
             </span>
           </div>
-        </div>
-
-        {/* FILTERS */}
-        <div className="bg-white rounded-xl shadow p-6 mb-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium">Period</label>
-              <select
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value as any)}
-                className="w-full border px-3 py-2 rounded-lg"
-              >
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Month</label>
-              <input
-                type="month"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="w-full border px-3 py-2 rounded-lg"
-              />
-            </div>
-
-            {selectedPeriod === "quarterly" && (
+          <div className="bg-white rounded-lg shadow p-4 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
               <div>
-                <label className="block text-sm font-medium">Quarter</label>
+                <label className="block text-sm font-medium text-gray-700">Period</label>
                 <select
-                  value={selectedQuarter}
-                  onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="w-full border px-3 py-2 rounded-lg"
+                  value={selectedPeriod}
+                  onChange={(e) => setSelectedPeriod(e.target.value as any)}
+                  className="w-full sm:w-32 border px-3 py-2 rounded-lg"
                 >
-                  <option value="Q1">Q1</option>
-                  <option value="Q2">Q2</option>
-                  <option value="Q3">Q3</option>
-                  <option value="Q4">Q4</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
                 </select>
               </div>
-            )}
-
-            <div className="md:col-span-3">
-              <button
-                onClick={() => setShowCustomRange(!showCustomRange)}
-                className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg"
-              >
-                <Calendar className="h-4 w-4" />
-                <span>Custom Range</span>
-              </button>
-              {showCustomRange && (
-                <div className="mt-2 flex space-x-2">
-                  <input
-                    type="date"
-                    value={customRange.start || ""}
-                    onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
-                    className="border px-3 py-2 rounded-lg w-full"
-                  />
-                  <input
-                    type="date"
-                    value={customRange.end || ""}
-                    onChange={(e) => setCustomRange(prev => ({ ...prev, end: e.target.value }))}
-                    className="border px-3 py-2 rounded-lg w-full"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Month</label>
+                <input
+                  type="month"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="w-full sm:w-36 border px-3 py-2 rounded-lg"
+                />
+              </div>
+              <div>
+                <button
+                  onClick={() => setShowCustomRange(!showCustomRange)}
+                  className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg w-full sm:w-auto"
+                >
+                  <Calendar className="h-4 w-4" />
+                  <span>Custom Range</span>
+                </button>
+                {showCustomRange && (
+                  <div className="mt-2 flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="date"
+                      value={customRange.start || ""}
+                      onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
+                      className="border px-3 py-2 rounded-lg w-full"
+                    />
+                    <input
+                      type="date"
+                      value={customRange.end || ""}
+                      onChange={(e) => setCustomRange(prev => ({ ...prev, end: e.target.value }))}
+                      className="border px-3 py-2 rounded-lg w-full"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -187,7 +172,7 @@ const Dashboard: React.FC = () => {
           <StatsCard title="Total Expense" value={`$${totalExpenses}`} changeType="negative" icon={TrendingDown} color="red"/>
           <StatsCard
             title="Budget Alerts"
-            value={alert?.alert ? "⚠️ 1 Alert" : "✅ OK"}
+            value={alert?.alert ? "1 Alert" : " OK"}
             change={alert?.message ?? "No alerts"}
             changeType={alert?.alert ? "negative" : "neutral"}
             icon={AlertTriangle}
@@ -200,7 +185,6 @@ const Dashboard: React.FC = () => {
           <div className="lg:col-span-2">
             <Breakdown
               selectedMonth={selectedMonth}
-              selectedQuarter={selectedQuarter}
               selectedPeriod={selectedPeriod}
               showCustomRange={showCustomRange}
               customRange={customRange}
@@ -216,14 +200,10 @@ const Dashboard: React.FC = () => {
                 onClick={() => setShowAllMonths(!showAllMonths)}
                 className="text-gray-700 font-bold transition-transform duration-300"
               >
-                <span className={`inline-block transform transition-transform ${showAllMonths ? "rotate-180" : "rotate-0"}`}>
-                  ^
-                </span>
               </button>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
