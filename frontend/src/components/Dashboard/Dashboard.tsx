@@ -183,8 +183,8 @@ const Dashboard: React.FC = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           <StatsCard title="Total Balance" value={`$${netBalance}`} changeType={netBalance >= 0 ? "positive" : "negative"} icon={DollarSign} color="blue"/>
-          <StatsCard title="Monthly Income" value={`$${totalIncome}`} changeType="positive" icon={TrendingUp} color="green"/>
-          <StatsCard title="Monthly Expenses" value={`$${totalExpenses}`} changeType="negative" icon={TrendingDown} color="red"/>
+          <StatsCard title="Total Income" value={`$${totalIncome}`} changeType="positive" icon={TrendingUp} color="green"/>
+          <StatsCard title="Total Expense" value={`$${totalExpenses}`} changeType="negative" icon={TrendingDown} color="red"/>
           <StatsCard
             title="Budget Alerts"
             value={alert?.alert ? "⚠️ 1 Alert" : "✅ OK"}
