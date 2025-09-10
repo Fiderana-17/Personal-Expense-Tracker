@@ -63,7 +63,10 @@
     "allCategories": "Toutes les catégories",
     "allTypes": "Tous les types",
     "found": "{{count}} dépenses trouvées",
-    "error": "Erreur"
+    "error": "Erreur",
+    "receipt": "Reçu (optionnel)",
+    "viewReceipt": "Voir le reçu",
+    "downloadReceipt": "Télécharger le reçu"
   },
   "income": {
     "amount": "Amount",

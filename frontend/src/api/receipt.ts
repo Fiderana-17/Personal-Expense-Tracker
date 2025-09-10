@@ -2,12 +2,12 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const uploadReceipt = async (file: File, expenseId: number) => {
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("receipt", file);
   formData.append("expenseId", String(expenseId));
 
   const token = localStorage.getItem("token");
 
-  const res = await fetch(`${API_URL}/receipts`, {
+  const res = await fetch(`${API_URL}/receipts/upload`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -32,7 +32,7 @@ export const getAllReceipts = async () => {
 
 export const downloadReceipt = async (id: string) => {
   const token = localStorage.getItem("token");
-  const res = await fetch(`${API_URL}/receipts/${id}`, {
+  const res = await fetch(`${API_URL}/receipts/${id}/download`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("Failed to download receipt");

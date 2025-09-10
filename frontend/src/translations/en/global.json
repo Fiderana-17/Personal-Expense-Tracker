@@ -63,7 +63,10 @@
     "allCategories": "All Categories",
     "allTypes": "All Types",
     "found": "{{count}} Expenses Found",
-    "error": "Error"
+    "error": "Error",
+    "receipt": "Receipt (optional)",
+    "viewReceipt": "View Receipt",
+    "downloadReceipt": "Download Receipt"
   },
   "income": {
     "amount": "Amount ($)",
