@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+
 
 interface ExpenseChartProps {
   data: { month: string; income: number; expenses: number }[];
@@ -59,35 +59,14 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
     return aAdjusted - bAdjusted;
   });
 
-  // Navigate to previous or next month
-  const handlePrevMonth = () => {
-    setStartMonth((prev) => (prev === 1 ? 12 : prev - 1));
-  };
-
-  const handleNextMonth = () => {
-    setStartMonth((prev) => (prev === 12 ? 1 : prev + 1));
-  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 animate-slide-up">
-      <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={handlePrevMonth}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
-          aria-label="Shift to previous month"
-        >
-          <ChevronLeft className="h-5 w-5 text-gray-900" />
-        </button>
+      <div className="flex items-center justify-center mb-6">
         <h3 className="text-2xl font-semibold text-gray-900">
           Income vs Expenses
         </h3>
-        <button
-          onClick={handleNextMonth}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
-          aria-label="Shift to next month"
-        >
-          <ChevronRight className="h-5 w-5 text-gray-900" />
-        </button>
+  
       </div>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">

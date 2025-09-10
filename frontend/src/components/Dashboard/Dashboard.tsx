@@ -27,7 +27,7 @@ const Dashboard: React.FC = () => {
   const [selectedQuarter, setSelectedQuarter] = useState("Q1");
   const [showCustomRange, setShowCustomRange] = useState(false);
   const [customRange, setCustomRange] = useState<{ start?: string; end?: string }>({});
-  const [showAllMonths, setShowAllMonths] = useState(false);
+  const [showAllMonths] = useState(false);
 
   // --- FETCH DATA ---
   useEffect(() => {
@@ -212,14 +212,6 @@ const Dashboard: React.FC = () => {
           <div className="lg:col-span-3">
             <ExpenseChart data={filteredChart} />
             <div className="flex justify-center mt-2">
-              <button
-                onClick={() => setShowAllMonths(!showAllMonths)}
-                className="text-gray-700 font-bold transition-transform duration-300"
-              >
-                <span className={`inline-block transform transition-transform ${showAllMonths ? "rotate-180" : "rotate-0"}`}>
-                  ^
-                </span>
-              </button>
             </div>
           </div>
         </div>
