@@ -1,7 +1,12 @@
+import axios from "axios";
+import { AxiosError } from "axios";
 const API_BASE = import.meta.env.VITE_API_URL;
 
 import type { Expense } from "@/types";
 
+type ReceiptUploadResponse = {
+  receipt: string;
+};
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem("token");
@@ -66,3 +71,28 @@ export async function deleteExpense(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/expenses/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Erreur lors de la suppression de la dépense');
 }
+
+
+export const uploadReceipt = async (
+  expenseId: number, 
+  formData: FormData
+): Promise<ReceiptUploadResponse> => {
+  try {
+    const response = await axios.post<ReceiptUploadResponse>(
+      `${import.meta.env.VITE_API_URL}/api/expenses/${expenseId}/receipt`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const axiosError = error as AxiosError;
+      throw new Error(axiosError.response?.data?.message || 'Failed to upload receipt');
+    }
+    throw error;
+  }
+};

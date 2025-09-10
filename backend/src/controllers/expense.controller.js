@@ -254,5 +254,27 @@ export const getExpensesByRange = async (req, res) => {
 };
 
 
+export const uploadReceipt = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const receipt = `/uploads/receipts/${req.file.filename}`;
+    
+    const updatedExpense = await prisma.expense.update({
+      where: { id: parseInt(id) },
+      data: { receipt }
+    });
+
+    res.json({ receipt });
+  } catch (error) {
+    console.error('Error uploading receipt:', error);
+    res.status(500).json({ message: 'Error uploading receipt' });
+  }
+};
+
 
 
