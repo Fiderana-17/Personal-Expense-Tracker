@@ -139,7 +139,7 @@ const CategoryPage: React.FC = () => {
     <div className="flex flex-col gap-6 p-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-title">{t("categories.title")}</h1>
+        <h1 className="text-3xl font-bold text-title duration-500">{t("categories.title")}</h1>
         <button
           onClick={openCreateForm}
           className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
