@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Loader, Login, Signup, ExpensesList, Dashboard, Profile, CategoriesList, IncomeList, Reports, ReceiptList } from "./components";
+import { Loader, Login, Signup, ExpensesList, Dashboard, Profile, CategoriesList, IncomeList, ReceiptList } from "./components";
 import MainLayout from "./Layout/MainLayout";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./hooks/useAuth";
@@ -30,7 +30,6 @@ const MainApp = () => {
             <Route path="expenses" element={<ExpensesList />} />
             <Route path="income" element={<IncomeList />} />
             <Route path="categories" element={<CategoriesList />} />
-            <Route path="reports" element={<Reports/>} />
             <Route path="receipts" element={<ReceiptList />} />
             <Route path="profile" element={<Profile />} />
           </Route>

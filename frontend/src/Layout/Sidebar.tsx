@@ -4,7 +4,6 @@ import {
   CreditCard, 
   TrendingUp, 
   FolderOpen, 
-  PieChart,
   Receipt,
   Settings,
   LogOut
@@ -22,7 +21,6 @@ const Sidebar: React.FC = () => {
     { path: '/expenses', label: t("sidebar.expenses"), icon: CreditCard },
     { path: '/income', label: t("sidebar.income"), icon: TrendingUp },
     { path: '/categories', label: t("sidebar.categories"), icon: FolderOpen },
-    { path: '/reports', label: t("sidebar.reports"), icon: PieChart },
     { path: '/receipts', label: t("sidebar.receipts"), icon: Receipt },
     { path: '/profile', label: t("sidebar.profile"), icon: Settings },
   ];
