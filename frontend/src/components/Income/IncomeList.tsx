@@ -1,9 +1,9 @@
 import { Plus, Search, Edit, Trash2, Calendar, TrendingUp, AlertCircle, X, FolderOpen } from "lucide-react";
-import { getAllIncomes, createIncome, updateIncome, deleteIncome } from "../../api/income.ts";
+import { getAllIncomes, createIncome, updateIncome, deleteIncome } from "@/api/income.ts";
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatDate } from "../ui/FormatDate.ts";
-import { type Income } from "../../types";
+import { formatDate } from "@/utils/FormatDate.ts";
+import { type Income } from "@/types";
 import IncomeForm from "./IncomeForm.tsx";
 import Loader from "../ui/Loader.tsx";
 import { useTranslation } from "react-i18next";

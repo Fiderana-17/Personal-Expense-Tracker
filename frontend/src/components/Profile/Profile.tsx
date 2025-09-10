@@ -3,7 +3,7 @@ import { uploadProfilePic, getMe, changePassword } from '@/api/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { formatDate } from '../ui/FormatDate';
+import { formatDate } from '@/utils/FormatDate';
 import { useTranslation } from "react-i18next";
 
 const Profile: React.FC = () => {

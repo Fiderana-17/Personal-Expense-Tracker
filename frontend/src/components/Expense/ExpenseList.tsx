@@ -4,7 +4,7 @@ import type { Category, Expense } from '@/types/index.ts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAllCategories } from '@/api/category.ts';
 import React, { useEffect, useState } from 'react';
-import { formatDate } from '../ui/FormatDate.ts';
+import { formatDate } from '@/utils/FormatDate.ts';
 import { useAuth } from '@/hooks/useAuth.ts';
 import Loader from '../ui/Loader.tsx';
 import { t } from 'i18next';

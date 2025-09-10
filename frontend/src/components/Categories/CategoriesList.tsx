@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { getAllCategories, createCategory, deleteCategory, updateCategory } from "@/api/category";
 import CategoryForm from "./CategoryForm";
-import { formatDate } from "../ui/FormatDate";
+import { formatDate } from "@/utils/FormatDate";
 import type { ApiError, Category } from "@/types";
 import Loader from "../ui/Loader";
 
