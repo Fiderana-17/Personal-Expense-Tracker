@@ -38,13 +38,6 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             <SwitchDark onToggle={setIsDark} />
 
-            <button className="relative p-2 cursor-pointer text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full transition-colors">
-              <Bell className="h-6 w-6" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                2
-              </span>
-            </button>
-
             <SwitchLangagues />
 
             <div className="flex items-center space-x-3" ref={menuRef}>
