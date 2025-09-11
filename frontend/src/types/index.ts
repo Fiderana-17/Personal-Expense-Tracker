@@ -135,3 +135,20 @@ export interface IncomeFormProps {
   }) => void | Promise<void>;
 }
 
+declare global {
+  interface Navigator {
+    userAgentData?: {
+      brands: { brand: string; version: string }[];
+      platform: string;
+      getHighEntropyValues: (
+        hints: string[]
+      ) => Promise<{ model?: string }>;
+    };
+  }
+}
+
+
+export interface DeviceInfo {
+  brand: string;
+  model: string;
+}

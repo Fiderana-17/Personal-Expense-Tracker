@@ -1,10 +1,11 @@
-import { UserIcon, Lock, Database, Calendar, AlertCircle, Pencil, Eye, EyeOff, Save, Mail, X } from 'lucide-react';
+import { UserIcon, Lock, Database, Calendar, AlertCircle, Pencil, Eye, EyeOff, Save, Mail, X, Laptop } from 'lucide-react';
 import { uploadProfilePic, getMe, changePassword } from '@/api/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '@/utils/FormatDate';
 import { useTranslation } from "react-i18next";
+import type { DeviceInfo } from '@/types';
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
@@ -16,14 +17,19 @@ const Profile: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [notification, setNotification] = useState('');
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('success');
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState<boolean>(false);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
+    brand: "Inconnue",
+    model: "Inconnu",
+  });
 
-  const totalExpenses = user?.expenses.length;
-  const totalIncomes = user?.incomes.length;
-  const totalCategories = user?.categories.length;
-  
+  const totalExpenses = user?.expenses?.length ?? 0;
+  const totalIncomes = user?.incomes?.length ?? 0;
+  const totalCategories = user?.categories?.length ?? 0;
+
   const fetchUser = async () => {
     if (!token) return;
     try {
@@ -47,13 +53,13 @@ const Profile: React.FC = () => {
   }, [notification]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!token || !e.target.files || !e.target.files[0]) return;
+    if (!token || !e.target.files?.[0]) return;
     try {
       await uploadProfilePic(e.target.files[0], token);
       setNotification(t("messages.profileUpdated"));
       setNotificationType('success');
       fetchUser();
-    } catch (err) {
+    } catch (err: unknown) {
       setNotification(err instanceof Error ? err.message : t("errors.uploadFailed"));
       setNotificationType('error');
     }
@@ -80,11 +86,65 @@ const Profile: React.FC = () => {
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (err) {
+    } catch (err: unknown) {
       setNotification(err instanceof Error ? err.message : t("errors.wrongPassword"));
       setNotificationType('error');
     }
   };
+
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    if (navigator.userAgentData) {
+      const { brands, platform } = navigator.userAgentData;
+
+      let brandName = "Inconnue";
+      const browserBrand = brands.find(b => b.brand !== "Not;A=Brand");
+      if (browserBrand) {
+        brandName = browserBrand.brand;
+      }
+
+      navigator.userAgentData
+        .getHighEntropyValues(['model'])
+        .then(ua => {
+          setDeviceInfo({
+            brand: brandName,
+            model: ua.model || platform
+          });
+        })
+        .catch(() => {
+          setDeviceInfo({
+            brand: brandName,
+            model: platform
+          });
+        });
+    } else {
+      const userAgent = navigator.userAgent;
+      if (userAgent.includes("Windows")) {
+        setDeviceInfo({ brand: "Microsoft", model: "PC Windows" });
+      } else if (userAgent.includes("Mac")) {
+        setDeviceInfo({ brand: "Apple", model: "Mac" });
+      } else {
+        setDeviceInfo({ brand: "Inconnue", model: "Appareil Inconnu" });
+      }
+    }
+  }, []);
+
+  const formattedDate = currentTime.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const formattedTime = currentTime.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   return (
     <div>
@@ -133,7 +193,7 @@ const Profile: React.FC = () => {
 
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-semibold text-title mb-2 duration-500">{t("profile.personalInfo")}</h2>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-1">
                 <p className="text-xs text-title uppercase duration-500">{t("profile.name")}</p>
@@ -148,11 +208,24 @@ const Profile: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <p className="text-xs text-title uppercase mb-1 duration-500">{t("profile.memberSince")}</p>
-              <div className="flex items-center gap-2 text-title duration-500">
-                <Calendar className="h-4 w-4" />
-                <span>{formatDate(user?.createdAt)}</span>
+            <div className="flex flex-col gap-10">
+              <div>
+                <p className="text-xs text-title uppercase mb-1 duration-500">{t("profile.memberSince")}</p>
+                <div className="flex items-center gap-2 text-title duration-500">
+                  <Calendar className="h-4 w-4" />
+                  <span>{formatDate(user?.createdAt)}</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-title duration-500">
+                  <Laptop  className="h-4 w-4" />
+                  <div className='space-y-2'>
+                    <p className="text-sm text-title duration-500">Session actuelle</p>
+                    <p className="text-xs text-title duration-500">
+                      {deviceInfo.brand} ({deviceInfo.model}) · {formattedDate} à {formattedTime}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

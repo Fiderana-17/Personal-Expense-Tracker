@@ -184,13 +184,7 @@ const Dashboard: React.FC = () => {
                 <label className="block text-sm font-medium text-text">{t("dashboard.period")}</label>
                 <select
                   value={selectedPeriod}
-                  onChange={(e) => {
-                    const value = e.target.value as "monthly" | "yearly" | "custom";
-                    setSelectedPeriod(value);
-                    if (value !== "custom") {
-                      setShowCustomRange(false);
-                    }
-                  }}
+                  onChange={(e) => setSelectedPeriod(e.target.value as any)}
                   className="w-full sm:w-32 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="monthly">{t("dashboard.month")}</option>
@@ -198,7 +192,6 @@ const Dashboard: React.FC = () => {
                   <option value="custom">{t("dashboard.customRange")}</option>
                 </select>
               </div>
-              {selectedPeriod === "monthly" && (
                 <div>
                   <label className="block text-sm font-medium text-text">{t("dashboard.month")}</label>
                   <input
@@ -208,16 +201,21 @@ const Dashboard: React.FC = () => {
                     className="w-full sm:w-36 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-              )}
-              {selectedPeriod === "custom" && (
-                <div className="flex flex-col sm:flex-row gap-2">
                   <div>
-                    <label className="block text-sm font-medium text-text">{t("dashboard.startDate")}</label>
+                <button
+                  onClick={() => setShowCustomRange(!showCustomRange)}
+                  className="flex items-center space-x-2 bg-background-hover px-4 py-2 rounded-lg w-full sm:w-auto hover:bg-background-hover text-text"
+                >
+                  <Calendar className="h-4 w-4" />
+                  <span>{t("dashboard.customRange")}</span>
+                </button>
+                {showCustomRange && (
+                  <div className="mt-2 flex flex-col sm:flex-row gap-2">
                     <input
                       type="date"
                       value={customRange.start || ""}
                       onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
-                      className="w-full border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
+                      className="border border-border px-3 py-2 rounded-lg w-full bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div>
@@ -226,7 +224,7 @@ const Dashboard: React.FC = () => {
                       type="date"
                       value={customRange.end || ""}
                       onChange={(e) => setCustomRange(prev => ({ ...prev, end: e.target.value }))}
-                      className="w-full border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
+                      className="border border-border px-3 py-2 rounded-lg w-full bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
