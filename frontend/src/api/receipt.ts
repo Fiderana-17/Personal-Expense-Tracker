@@ -21,15 +21,6 @@ export const uploadReceipt = async (file: File, expenseId: number) => {
   return await res.json();
 };
 
-export const getAllReceipts = async () => {
-  const token = localStorage.getItem("token");
-  const res = await fetch(`${API_URL}/receipts`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("Failed to fetch receipts");
-  return res.json();
-};
-
 export const downloadReceipt = async (id: string) => {
   const token = localStorage.getItem("token");
   const res = await fetch(`${API_URL}/receipts/${id}/download`, {
