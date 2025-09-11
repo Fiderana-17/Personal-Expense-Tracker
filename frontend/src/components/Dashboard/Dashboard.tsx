@@ -16,14 +16,29 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  // --- FILTRES ---
-  const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly">("monthly");
-  const [selectedMonth, setSelectedMonth] = useState(() => {
+  // INIT STATE avec localStorage
+const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly">(
+  () => (localStorage.getItem("selectedPeriod") as "monthly" | "yearly") || "monthly"
+);
+
+const [selectedMonth, setSelectedMonth] = useState(() => {
+  return localStorage.getItem("selectedMonth") || (() => {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, "0");
     return `${year}-${month}`;
-  });
+  })();
+});
+
+// Sauvegarder à chaque changement
+useEffect(() => {
+  localStorage.setItem("selectedPeriod", selectedPeriod);
+}, [selectedPeriod]);
+
+useEffect(() => {
+  localStorage.setItem("selectedMonth", selectedMonth);
+}, [selectedMonth]);
+
   const [showCustomRange, setShowCustomRange] = useState(false);
   const [customRange, setCustomRange] = useState<{ start?: string; end?: string }>({});
   const [showAllMonths, setShowAllMonths] = useState(true); // Show all months by default
