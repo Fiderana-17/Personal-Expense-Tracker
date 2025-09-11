@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, Calendar } from "lucide-react";
+import React, { useEffect, useState, useMemo } from "react";
+import { TrendingUp, TrendingDown, DollarSign, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import StatsCard from "./StatsCard";
 import ExpenseChart from "./ExpenseChart";
@@ -17,34 +17,47 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
 
   // INIT STATE avec localStorage
-const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly">(
-  () => (localStorage.getItem("selectedPeriod") as "monthly" | "yearly") || "monthly"
-);
+  const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly" | "custom">(
+    () => {
+      const stored = localStorage.getItem("selectedPeriod");
+      const normalized = stored ? stored.trim().toLowerCase() : null;
+      return (["monthly", "yearly", "custom"].includes(normalized || "") ? normalized : "monthly") as "monthly" | "yearly" | "custom";
+    }
+  );
 
-const [selectedMonth, setSelectedMonth] = useState(() => {
-  return localStorage.getItem("selectedMonth") || (() => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    return `${year}-${month}`;
-  })();
-});
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const stored = localStorage.getItem("selectedMonth");
+    return stored ? stored.trim() : (() => {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      return `${year}-${month}`;
+    })();
+  });
 
-// Sauvegarder à chaque changement
-useEffect(() => {
-  localStorage.setItem("selectedPeriod", selectedPeriod);
-}, [selectedPeriod]);
+  // Sauvegarder à chaque changement
+  useEffect(() => {
+    localStorage.setItem("selectedPeriod", selectedPeriod);
+  }, [selectedPeriod]);
 
-useEffect(() => {
-  localStorage.setItem("selectedMonth", selectedMonth);
-}, [selectedMonth]);
+  useEffect(() => {
+    localStorage.setItem("selectedMonth", selectedMonth);
+  }, [selectedMonth]);
 
-  const [showCustomRange, setShowCustomRange] = useState(false);
+  const [showCustomRange, setShowCustomRange] = useState(selectedPeriod === "custom");
   const [customRange, setCustomRange] = useState<{ start?: string; end?: string }>({});
-  const [showAllMonths, setShowAllMonths] = useState(true); // Show all months by default
+  const [showAllMonths, setShowAllMonths] = useState(true);
+
+  // Mettre à jour showCustomRange quand selectedPeriod change
+  useEffect(() => {
+    setShowCustomRange(selectedPeriod === "custom");
+    if (selectedPeriod !== "custom") {
+      setCustomRange({}); // Reset custom range quand on quitte le mode custom
+    }
+  }, [selectedPeriod]);
 
   // --- FETCH DATA ---
   useEffect(() => {
@@ -69,29 +82,86 @@ useEffect(() => {
   }, []);
 
   // --- APPLY FILTERS ---
-  const filteredTransactions = transactions.filter((t) => {
-    if (!t.date) return false;
-    const txDate = new Date(t.date);
-    const [year, month] = selectedMonth.split("-").map(Number);
+  const filteredTransactions = useMemo(() => {
+    console.log("Filtering transactions with:", { selectedPeriod, selectedMonth, customRange });
 
-    if (showCustomRange && customRange.start && customRange.end) {
-      return txDate >= new Date(customRange.start) && txDate <= new Date(customRange.end);
-    }
+    if (transactions.length === 0) return [];
 
-    if (selectedPeriod === "monthly") {
-      return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
-    }
-    if (selectedPeriod === "yearly") {
-      return txDate.getFullYear() === year;
-    }
-    return true;
-  });
+    return transactions.filter((t) => {
+      if (!t.date) {
+        console.warn(`Transaction with ID ${t.id} has no valid date`);
+        return false;
+      }
+
+      const txDate = new Date(t.date);
+      if (isNaN(txDate.getTime())) {
+        console.warn(`Transaction with ID ${t.id} has invalid date: ${t.date}`);
+        return false;
+      }
+
+      // Normaliser la date de la transaction pour comparer uniquement le jour
+      const txDateStr = txDate.toISOString().split("T")[0];
+
+      const [yearStr, monthStr] = selectedMonth.split("-");
+      const year = Number(yearStr);
+      const month = Number(monthStr);
+      if (isNaN(year) || isNaN(month)) {
+        console.error(`Invalid selectedMonth format: ${selectedMonth}`);
+        return false;
+      }
+
+      let matches = false;
+
+      if (selectedPeriod === "custom" && customRange.start && customRange.end) {
+        const startDate = new Date(customRange.start);
+        const endDate = new Date(customRange.end);
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+          console.warn(`Invalid custom range: start=${customRange.start}, end=${customRange.end}`);
+          return false;
+        }
+        // Normaliser les dates pour comparer uniquement le jour
+        const startDateStr = startDate.toISOString().split("T")[0];
+        const endDateStr = endDate.toISOString().split("T")[0];
+        matches = txDateStr >= startDateStr && txDateStr <= endDateStr;
+        console.log(
+          `Custom filter - Transaction ID ${t.id}: Date ${txDateStr}, ` +
+          `Start ${startDateStr}, End ${endDateStr}, Matches: ${matches}`
+        );
+      } else if (selectedPeriod === "monthly") {
+        matches = txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
+        console.log(
+          `Monthly filter - Transaction ID ${t.id}: Date ${txDateStr}, Year ${txDate.getFullYear()}, Month ${txDate.getMonth() + 1}, ` +
+          `Selected Year ${year}, Selected Month ${month}, Matches: ${matches}`
+        );
+      } else if (selectedPeriod === "yearly") {
+        matches = txDate.getFullYear() === year;
+        console.log(
+          `Yearly filter - Transaction ID ${t.id}: Date ${txDateStr}, Year ${txDate.getFullYear()}, Selected Year ${year}, Matches: ${matches}`
+        );
+      } else {
+        console.warn(`Unknown period: ${selectedPeriod}, showing no transactions`);
+        matches = false;
+      }
+
+      return matches;
+    });
+  }, [transactions, selectedPeriod, selectedMonth, customRange.start, customRange.end]);
+
+  // Log des transactions filtrées pour débogage
+  useEffect(() => {
+    console.log("Filtered Transactions count:", filteredTransactions.length, filteredTransactions.map(t => ({
+      id: t.id,
+      date: t.date,
+      amount: t.amount,
+      type: t.type,
+    })));
+  }, [filteredTransactions]);
 
   // --- ENSURE ALL MONTHS IN CHART DATA ---
   const allMonthsChartData = Array.from({ length: 12 }, (_, i) => {
     const monthNum = i + 1;
     const monthStr = monthNum.toString().padStart(2, "0");
-    const year = selectedMonth.split("-")[0]; // Get YYYY from "2025-09"
+    const year = selectedMonth.split("-")[0];
     const monthKey = `${year}-${monthStr}`;
     const existing = chartData.find((d) => d.month === monthKey);
     return {
@@ -148,47 +218,65 @@ useEffect(() => {
                 <label className="block text-sm font-medium text-text">{t("dashboard.period")}</label>
                 <select
                   value={selectedPeriod}
-                  onChange={(e) => setSelectedPeriod(e.target.value as any)}
+                  onChange={(e) => {
+                    const value = e.target.value.trim().toLowerCase() as "monthly" | "yearly" | "custom";
+                    setSelectedPeriod(value);
+                  }}
                   className="w-full sm:w-32 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="monthly">{t("dashboard.month")}</option>
                   <option value="yearly">{t("dashboard.year")}</option>
+                  <option value="custom">{t("dashboard.customRange")}</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-text">{t("dashboard.month")}</label>
-                <input
-                  type="month"
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="w-full sm:w-36 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <button
-                  onClick={() => setShowCustomRange(!showCustomRange)}
-                  className="flex items-center space-x-2 bg-background-hover px-4 py-2 rounded-lg w-full sm:w-auto hover:bg-background-hover text-text"
-                >
-                  <Calendar className="h-4 w-4" />
-                  <span>{t("dashboard.customRange")}</span>
-                </button>
-                {showCustomRange && (
-                  <div className="mt-2 flex flex-col sm:flex-row gap-2">
+              {selectedPeriod === "monthly" && (
+                <div>
+                  <label className="block text-sm font-medium text-text">{t("dashboard.month")}</label>
+                  <input
+                    type="month"
+                    value={selectedMonth}
+                    onChange={(e) => {
+                      const value = e.target.value.trim();
+                      if (value) {
+                        setSelectedMonth(value);
+                      }
+                    }}
+                    className="w-full sm:w-36 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
+              {selectedPeriod === "custom" && (
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div>
+                    <label className="block text-sm font-medium text-text">{t("dashboard.startDate")}</label>
                     <input
                       type="date"
                       value={customRange.start || ""}
-                      onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
-                      className="border border-border px-3 py-2 rounded-lg w-full bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) => {
+                        const value = e.target.value.trim();
+                        if (value && !isNaN(new Date(value).getTime())) {
+                          setCustomRange(prev => ({ ...prev, start: value }));
+                        }
+                      }}
+                      className="w-full border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text">{t("dashboard.endDate")}</label>
                     <input
                       type="date"
                       value={customRange.end || ""}
-                      onChange={(e) => setCustomRange(prev => ({ ...prev, end: e.target.value }))}
-                      className="border border-border px-3 py-2 rounded-lg w-full bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
+                      onChange={(e) => {
+                        const value = e.target.value.trim();
+                        if (value && !isNaN(new Date(value).getTime())) {
+                          setCustomRange(prev => ({ ...prev, end: value }));
+                        }
+                      }}
+                      className="w-full border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -219,7 +307,10 @@ useEffect(() => {
             />
           </div>
           <div className="lg:col-span-1">
-            <RecentTransactions transactions={filteredTransactions} />
+            <RecentTransactions
+              transactions={filteredTransactions}
+              key={`${selectedPeriod}-${selectedMonth}-${customRange.start || ''}-${customRange.end || ''}`}
+            />
           </div>
           <div className="lg:col-span-3">
             <ExpenseChart data={filteredChart} />

@@ -46,7 +46,7 @@ const renderCustomizedLabel = ({
 interface BreakdownProps {
   selectedMonth: string;
   selectedQuarter?: string;
-  selectedPeriod: "monthly" | "quarterly" | "yearly";
+  selectedPeriod: "monthly" | "custom" | "yearly";
   showCustomRange: boolean;
   customRange: { start?: string; end?: string };
 }
@@ -97,13 +97,6 @@ const Breakdown: React.FC<BreakdownProps> = ({
             }
             const [year, month] = selectedMonth.split("-").map(Number);
             if (selectedPeriod === "monthly") return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
-            if (selectedPeriod === "quarterly") {
-              let startMonth = 0, endMonth = 2;
-              if (selectedQuarter === "Q2") { startMonth = 3; endMonth = 5; }
-              if (selectedQuarter === "Q3") { startMonth = 6; endMonth = 8; }
-              if (selectedQuarter === "Q4") { startMonth = 9; endMonth = 11; }
-              return txDate.getFullYear() === year && txDate.getMonth() >= startMonth && txDate.getMonth() <= endMonth;
-            }
             if (selectedPeriod === "yearly") return txDate.getFullYear() === year;
             return true;
           })
