@@ -1,5 +1,6 @@
-import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X } from 'lucide-react';
+import { Plus, Search, Receipt, Edit, Trash2, Calendar, AlertCircle, X, Download, Eye } from 'lucide-react';
 import { deleteExpense, createExpense, updateExpense, getExpenses } from '@/api/expense.ts';
+import { uploadReceipt, downloadReceipt, viewReceipt } from '@/api/receipt.ts';
 import type { Category, Expense } from '@/types/index.ts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAllCategories } from '@/api/category.ts';
@@ -32,6 +33,7 @@ const ExpensesList: React.FC = () => {
     userId: user?.id || '',
     type: 'ONE_TIME' as 'ONE_TIME' | 'RECURRING',
     date: new Date().toISOString().split('T')[0],
+    receipt: null as File | null,
   });
 
   const fetchExpenses = async () => {
@@ -96,27 +98,58 @@ const ExpensesList: React.FC = () => {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({
+        ...prev,
+        receipt: e.target.files![0]
+      }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     try {
+      const expenseData = {
+        description: formData.description,
+        amount: formData.amount,
+        categoryId: formData.categoryId,
+        type: formData.type,
+        date: formData.date,
+        userId: Number(user.id),
+      };
+
       if (editingExpense) {
-        const updated = await updateExpense(editingExpense.id, { ...formData, userId: Number(user.id) });
+        const updated = await updateExpense(editingExpense.id, expenseData);
         const expense = 'data' in updated ? updated.data : updated;
 
-        setExpenses(prev =>
-          prev.map(e => (e.id === editingExpense.id && typeof expense === 'object' ? { ...e, ...expense } : e))
-        );
+        if (formData.receipt) {
+          await uploadReceipt(formData.receipt, expense.id);
+          // Rafraîchir les données pour obtenir le reçu mis à jour
+          await fetchExpenses();
+        } else {
+          setExpenses(prev =>
+            prev.map(e => (e.id === editingExpense.id && typeof expense === 'object' ? { ...e, ...expense } : e))
+          );
+        }
         setNotification('Expense updated successfully');
       } else {
-        const res = await createExpense({ ...formData, userId: Number(user.id) });
+        const res = await createExpense(expenseData);
         const expense = {
           ...res.data,
           type: res.data.type.toUpperCase(),
           amount: typeof res.data.amount === 'string' ? parseFloat(res.data.amount) : res.data.amount,
         };
-        setExpenses(prev => [expense, ...prev]);
+
+        if (formData.receipt) {
+          await uploadReceipt(formData.receipt, expense.id);
+          // Rafraîchir les données pour obtenir le reçu mis à jour
+          await fetchExpenses();
+        } else {
+          setExpenses(prev => [expense, ...prev]);
+        }
         setNotification('Expense created successfully');
       }
       setNotificationType('success');
@@ -129,6 +162,7 @@ const ExpensesList: React.FC = () => {
         userId: user.id,
         type: 'ONE_TIME',
         date: new Date().toISOString().split('T')[0],
+        receipt: null,
       });
     } catch (err) {
       if (err instanceof Error) {
@@ -152,8 +186,22 @@ const ExpensesList: React.FC = () => {
       userId: expense.userId.toString(),
       type: typeof expense.type === 'string' ? (expense.type.toUpperCase() as 'ONE_TIME' | 'RECURRING') : 'ONE_TIME',
       date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : '',
+      receipt: null,
     });
     setShowForm(true);
+  };
+
+  const handleViewReceipt = async (receiptId: number) => {
+    try {
+      const url = await viewReceipt(receiptId.toString());
+      window.open(url, '_blank');
+      // Nettoyer l'URL après ouverture
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    } catch (error) {
+      console.error('View failed:', error);
+      setNotification('Failed to view receipt');
+      setNotificationType('error');
+    }
   };
 
   const handleAddClick = () => {
@@ -165,6 +213,7 @@ const ExpensesList: React.FC = () => {
       userId: user?.id || '',
       type: 'ONE_TIME',
       date: new Date().toISOString().split('T')[0],
+      receipt: null,
     });
     setShowForm(true);
   };
@@ -181,13 +230,13 @@ const ExpensesList: React.FC = () => {
     return matchesSearch && matchesCategory && matchesType;
   });
 
- 
+
   if (loading) {
     return <div className="grid place-items-center min-h-[calc(100vh-130px)]">
       <Loader />
     </div>;
   };
-  
+
   if (error) return <p className="text-red-600">{t("expenses.error")}: {error}</p>;
 
   return (
@@ -285,6 +334,26 @@ const ExpensesList: React.FC = () => {
                     <option value="ONE_TIME">{t("expenses.oneTime")}</option>
                     <option value="RECURRING">{t("expenses.recurring")}</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t("expenses.receipt")}</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      accept="image/*,.pdf"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                    {formData.receipt && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, receipt: null })}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <button
                   type="submit"
@@ -428,6 +497,38 @@ const ExpensesList: React.FC = () => {
                   <p className="text-2xl font-bold text-red-600">-${Number(expense.amount).toFixed(2)}</p>
                 </div>
                 <div className="flex items-center space-x-2">
+                  {expense.receipt && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleViewReceipt(expense.receipt!.id)}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                        title={t("expenses.viewReceipt")}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const blob = await downloadReceipt(expense.receipt!.id.toString());
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `receipt-${expense.description || expense.id}.pdf`; // nom du fichier à télécharger
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                          } catch (error) {
+                            console.error('Download failed:', error);
+                          }
+                        }}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                        title={t("expenses.downloadReceipt")}
+                      >
+                        <Download className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
                   <button
                     onClick={() => handleEdit(expense)}
                     className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200"

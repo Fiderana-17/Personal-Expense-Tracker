@@ -12,7 +12,7 @@ function getAuthHeaders(): Record<string, string> {
 export  async function getExpenses(userId: number): Promise<Expense[]> {
   const res = await fetch(`${API_BASE}/expenses?userId=${userId}`);
   if (!res.ok) throw new Error("Erreur lors de la récupération des dépenses");
-  const data: Expense[] = await res.json(); // ✅ explicit type
+  const data: Expense[] = await res.json();
   return data;
 }
 
