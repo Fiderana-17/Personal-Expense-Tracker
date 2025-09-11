@@ -123,7 +123,7 @@ useEffect(() => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              {t("dashboard.greeting", { name: user?.name })}
+              {t("dashboard.greeting")}, {user?.name}
             </h1>
             <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
               {t("dashboard.welcome")}
