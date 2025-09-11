@@ -529,7 +529,7 @@ const ExpensesList: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {filteredExpenses.length > 0 && (
+      {filteredExpenses.length >= 0 && (
         <div className="bg-gradient-to-t from-red-500 to-red-700 rounded-xl shadow-md p-6 text-white">
           <div className="flex justify-between items-center">
             <div>
