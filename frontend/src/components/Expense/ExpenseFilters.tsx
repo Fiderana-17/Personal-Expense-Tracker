@@ -1,28 +1,27 @@
-import React from "react";
 import { Search } from "lucide-react";
 import type { Category } from "@/types/index.ts";
-import { useTranslation } from "react-i18next";
 
 interface ExpenseFiltersProps {
-  categories: Category[];
   searchTerm: string;
-  setSearchTerm: (val: string) => void;
+  setSearchTerm: (term: string) => void;
   selectedCategory: string;
-  setSelectedCategory: (val: string) => void;
+  setSelectedCategory: (category: string) => void;
   selectedType: string;
-  setSelectedType: (val: string) => void;
+  setSelectedType: (type: string) => void;
+  categories: Category[];
+  t: any;
 }
 
 const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
-  categories,
   searchTerm,
   setSearchTerm,
   selectedCategory,
   setSelectedCategory,
   selectedType,
   setSelectedType,
+  categories,
+  t,
 }) => {
-  const { t } = useTranslation();
   const filterCategories = ["all", ...categories.map((c) => c.name)];
   const types = ["all", "ONE_TIME", "RECURRING"];
 
@@ -45,7 +44,7 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
           className="px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
         >
           {filterCategories.map((category) => (
-            <option key={category} value={category}>
+            <option key={category} value={category} className="bg-card-bg text-text">
               {category === "all" ? t("expenses.allCategories") : category}
             </option>
           ))}
@@ -56,7 +55,7 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
           className="px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
         >
           {types.map((type) => (
-            <option key={type} value={type}>
+            <option key={type} value={type} className="bg-card-bg text-text">
               {type === "all" ? t("expenses.allTypes") : type}
             </option>
           ))}
