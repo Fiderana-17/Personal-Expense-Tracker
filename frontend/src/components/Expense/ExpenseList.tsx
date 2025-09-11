@@ -182,7 +182,7 @@ const ExpensesList: React.FC = () => {
           <h1 className="text-3xl font-bold text-text text-title">{t("expenses.title")}</h1>
           <button
             onClick={() => setShowForm(true)}
-            className="bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors duration-200 flex items-center gap-2"
+            className="bg-indigo-600 dark:bg-indigo-500 cursor-pointer text-white px-6 py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors duration-200 flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
             <span>{t("expenses.addExpense")}</span>
@@ -191,7 +191,6 @@ const ExpensesList: React.FC = () => {
 
         <Notification notification={notification} notificationType={notificationType} />
 
-        {filteredExpenses.length > 0 && (
           <div className="bg-gradient-to-r from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 rounded-xl shadow-md p-6 text-white">
             <div className="flex justify-between items-center">
               <div>
@@ -204,7 +203,6 @@ const ExpensesList: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
 
         <ExpenseFilters
           searchTerm={searchTerm}

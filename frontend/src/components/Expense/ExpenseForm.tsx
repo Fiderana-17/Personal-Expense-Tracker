@@ -104,7 +104,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: -30 }}
             transition={{ duration: 0.3 }}
-            className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 card rounded-xl shadow-lg border border-border p-6 w-full max-w-md space-y-4"
+            className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-page text-title duration-500 rounded-xl shadow-lg border border-border p-6 w-full max-w-md space-y-4"
           >
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-lg font-semibold text-text">
@@ -155,7 +155,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text"
                 >
                   {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
+                    <option key={cat.id} value={cat.id} className="bg-page text-text duration-500">
                       {cat.name}
                     </option>
                   ))}
@@ -170,8 +170,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   onChange={(e) => setFormData({ ...formData, type: e.target.value as "ONE_TIME" | "RECURRING", endDate: e.target.value === "RECURRING" && !editingExpense ? new Date().toISOString().split("T")[0] : formData.endDate })}
                   className="w-full px-4 py-2 border border-border rounded-lg bg-card text-title"
                 >
-                  <option value="ONE_TIME">{t("expenses.oneTime")}</option>
-                  <option value="RECURRING">{t("expenses.recurring")}</option>
+                  <option value="ONE_TIME" className="bg-page text-text duration-500">{t("expenses.oneTime")}</option>
+                  <option value="RECURRING" className="bg-page text-text duration-500">{t("expenses.recurring")}</option>
                 </select>
               </div>
               <div>
@@ -203,14 +203,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="bg-indigo-600 dark:bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
+                    className="bg-indigo-600 dark:bg-indigo-500 text-white  px-4 py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
                   >
                     <Download className="inline h-5 w-5" />
-                    {formData.receipt ? t("expenses.changeReceipt") : t("expenses.addReceipt")}
+                    <p className="whitespace-nowrap">
+                      {formData.receipt ? t("expenses.changeReceipt") : t("expenses.addReceipt")}
+                    </p>
+                    {formData.receipt && (
+                      <span className="ml-2 text-text">{formData.receipt.name}</span>
+                    )}
                   </button>
-                  {formData.receipt && (
-                    <span className="ml-2 text-text">{formData.receipt.name}</span>
-                  )}
                   <input
                     type="file"
                     ref={fileInputRef}

@@ -139,7 +139,7 @@ const IncomeList: React.FC = () => {
         <h1 className="text-3xl font-bold text-title">{t("income.title")}</h1>
         <button
           onClick={openCreateForm}
-          className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
+          className="bg-green-500 text-white cursor-pointer px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           <span>{showForm && mode === "create" ? t("income.closeForm") : t("income.add")}</span>
@@ -171,7 +171,7 @@ const IncomeList: React.FC = () => {
             placeholder={t("income.searchPlaceholder") ?? ""}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 text-title pr-4 py-2 border border-gray-300 rounded-lg"
+            className="w-full pl-10 text-title pr-4 py-2 border border-border rounded-lg"
           />
         </div>
       </div>
@@ -232,13 +232,13 @@ const IncomeList: React.FC = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEditForm(income)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200"
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer duration-200"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(income.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer duration-200"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -268,10 +268,10 @@ const IncomeList: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: -30 }}
               transition={{ duration: 0.3 }}
-              className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-8 w-full max-w-md pointer-events-auto"
+              className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-page duration-500 rounded-xl shadow-lg border border-border p-8 w-full max-w-md pointer-events-auto"
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-gray-800">
+                <h2 className="text-lg font-semibold text-title duration-500">
                   {mode === "create" ? t("income.add") : t("income.edit")}
                 </h2>
                 <button
@@ -281,7 +281,7 @@ const IncomeList: React.FC = () => {
                   }}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-5 w-5 text-title cursor-pointer duration-500" />
                 </button>
               </div>
               <IncomeForm
