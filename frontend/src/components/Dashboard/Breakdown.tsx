@@ -78,7 +78,11 @@ const Breakdown: React.FC<BreakdownProps> = ({
         setCategories(categoriesRes);
         setError(null);
       } catch (err) {
-        setError("Failed to load data");
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred");
+        }
       }
     };
     fetchData();
@@ -114,7 +118,7 @@ const Breakdown: React.FC<BreakdownProps> = ({
   }, [expenses, categories, selectedMonth, selectedQuarter, selectedPeriod, showCustomRange, customRange]);
 
   return (
-    <div className="card rounded-lg shadow-md p-5">
+    <div className="card rounded-lg shadow-md p-5 border">
       <h3 className="text-2xl font-semibold text-text mb-4">{t("dashboard.breakdown.title")}</h3>
       {error ? (
         <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>

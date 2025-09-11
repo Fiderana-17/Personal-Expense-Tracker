@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
 
   const [showCustomRange, setShowCustomRange] = useState(selectedPeriod === "custom");
   const [customRange, setCustomRange] = useState<{ start?: string; end?: string }>({});
-  const [showAllMonths, setShowAllMonths] = useState(true);
+  const showAllMonths = true;
 
   // Mettre à jour showCustomRange quand selectedPeriod change
   useEffect(() => {
@@ -83,79 +83,42 @@ const Dashboard: React.FC = () => {
 
   // --- APPLY FILTERS ---
   const filteredTransactions = useMemo(() => {
-    console.log("Filtering transactions with:", { selectedPeriod, selectedMonth, customRange });
-
     if (transactions.length === 0) return [];
 
     return transactions.filter((t) => {
-      if (!t.date) {
-        console.warn(`Transaction with ID ${t.id} has no valid date`);
-        return false;
-      }
+      if (!t.date) return false;
 
       const txDate = new Date(t.date);
-      if (isNaN(txDate.getTime())) {
-        console.warn(`Transaction with ID ${t.id} has invalid date: ${t.date}`);
-        return false;
-      }
+      if (isNaN(txDate.getTime())) return false;
 
-      // Normaliser la date de la transaction pour comparer uniquement le jour
       const txDateStr = txDate.toISOString().split("T")[0];
 
       const [yearStr, monthStr] = selectedMonth.split("-");
       const year = Number(yearStr);
       const month = Number(monthStr);
-      if (isNaN(year) || isNaN(month)) {
-        console.error(`Invalid selectedMonth format: ${selectedMonth}`);
-        return false;
-      }
+      if (isNaN(year) || isNaN(month)) return false;
 
       let matches = false;
 
       if (selectedPeriod === "custom" && customRange.start && customRange.end) {
         const startDate = new Date(customRange.start);
         const endDate = new Date(customRange.end);
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-          console.warn(`Invalid custom range: start=${customRange.start}, end=${customRange.end}`);
-          return false;
-        }
-        // Normaliser les dates pour comparer uniquement le jour
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return false;
+
         const startDateStr = startDate.toISOString().split("T")[0];
         const endDateStr = endDate.toISOString().split("T")[0];
         matches = txDateStr >= startDateStr && txDateStr <= endDateStr;
-        console.log(
-          `Custom filter - Transaction ID ${t.id}: Date ${txDateStr}, ` +
-          `Start ${startDateStr}, End ${endDateStr}, Matches: ${matches}`
-        );
       } else if (selectedPeriod === "monthly") {
         matches = txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
-        console.log(
-          `Monthly filter - Transaction ID ${t.id}: Date ${txDateStr}, Year ${txDate.getFullYear()}, Month ${txDate.getMonth() + 1}, ` +
-          `Selected Year ${year}, Selected Month ${month}, Matches: ${matches}`
-        );
       } else if (selectedPeriod === "yearly") {
         matches = txDate.getFullYear() === year;
-        console.log(
-          `Yearly filter - Transaction ID ${t.id}: Date ${txDateStr}, Year ${txDate.getFullYear()}, Selected Year ${year}, Matches: ${matches}`
-        );
       } else {
-        console.warn(`Unknown period: ${selectedPeriod}, showing no transactions`);
         matches = false;
       }
 
       return matches;
     });
   }, [transactions, selectedPeriod, selectedMonth, customRange.start, customRange.end]);
-
-  // Log des transactions filtrées pour débogage
-  useEffect(() => {
-    console.log("Filtered Transactions count:", filteredTransactions.length, filteredTransactions.map(t => ({
-      id: t.id,
-      date: t.date,
-      amount: t.amount,
-      type: t.type,
-    })));
-  }, [filteredTransactions]);
 
   // --- ENSURE ALL MONTHS IN CHART DATA ---
   const allMonthsChartData = Array.from({ length: 12 }, (_, i) => {
@@ -185,12 +148,13 @@ const Dashboard: React.FC = () => {
   const netBalance = totalIncome - totalExpenses;
 
   if (loading) {
-      return (
-        <div className="grid place-items-center min-h-[calc(100vh-130px)] bg-page">
-          <Loader />
-        </div>
-      );
-    }
+    return (
+      <div className="grid place-items-center min-h-[calc(100vh-130px)] bg-page">
+        <Loader />
+      </div>
+    );
+  }
+  
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -224,9 +188,9 @@ const Dashboard: React.FC = () => {
                   }}
                   className="w-full sm:w-32 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="monthly">{t("dashboard.month")}</option>
-                  <option value="yearly">{t("dashboard.year")}</option>
-                  <option value="custom">{t("dashboard.customRange")}</option>
+                  <option value="monthly" className="card">{t("dashboard.month")}</option>
+                  <option value="yearly" className="card">{t("dashboard.year")}</option>
+                  <option value="custom" className="card">{t("dashboard.customRange")}</option>
                 </select>
               </div>
               {selectedPeriod === "monthly" && (
