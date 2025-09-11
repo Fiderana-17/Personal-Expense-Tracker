@@ -428,15 +428,8 @@ const ExpensesList: React.FC = () => {
                       className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
                     >
                       <Download className="inline h-5 w-5" />
-                      {formData.receipt
-                        ? t("expenses.changeReceipt")
-                        : t("expenses.addReceipt")}
+                      {formData.receipt ? formData.receipt.name : t("expenses.addReceipt")}
                     </button>
-                    {formData.receipt && (
-                      <span className="ml-2 text-gray-700">
-                        {formData.receipt.name}
-                      </span>
-                    )}
                     <input
                       type="file"
                       ref={fileInputRef}
