@@ -12,7 +12,8 @@
     "changePassword": "Change Password",
     "oldPassword": "Old Password",
     "newPassword": "New Password",
-    "confirmPassword": "Confirm Password"
+    "confirmPassword": "Confirm Password",
+    "session": "Current session"
   },
   "actions": {
     "save": "Save"

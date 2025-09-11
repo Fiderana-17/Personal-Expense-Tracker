@@ -220,7 +220,7 @@ const Profile: React.FC = () => {
                 <div className="flex items-center gap-2 text-title duration-500">
                   <Laptop  className="h-4 w-4" />
                   <div className='space-y-2'>
-                    <p className="text-sm text-title duration-500">Session actuelle</p>
+                    <p className="text-sm text-title duration-500">{t("profile.session")}</p>
                     <p className="text-xs text-title duration-500">
                       {deviceInfo.brand} ({deviceInfo.model}) · {formattedDate} à {formattedTime}
                     </p>
