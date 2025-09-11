@@ -77,7 +77,7 @@
   },
   "income": {
     "amount": "Montant ($)",
-    "amountPlaceholder": "0.00",
+    "amountPlaceholder": "0",
     "source": "Source",
     "createdAt": "Date de création",
     "sourcePlaceholder": "Salaire, Freelance, ...",

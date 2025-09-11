@@ -69,31 +69,31 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
         )}
       </AnimatePresence>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-title duration-500">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-title duration-500 mb-1">
             {t("income.amount")}
           </label>
           <input
             type="number"
-            step="0.01"
+            step="1"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
+            className="w-full border outline-0 border-border rounded-lg px-4 py-2 focus:border-green-500"
             placeholder={t("income.amountPlaceholder")}
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-title duration-500 mb-1">
             {t("income.source")}
           </label>
           <input
             type="text"
             value={source}
             onChange={(e) => setSource(e.target.value)}
-            className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
+            className="w-full border outline-0 border-border rounded-lg px-4 py-2 focus:border-green-500"
             placeholder={t("income.sourcePlaceholder")}
           />
         </div>
@@ -108,18 +108,18 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
-            className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
+            className="w-full border outline-0 border-border rounded-lg px-4 py-2 focus:border-green-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-title duration-500 mb-1">
             Description
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full border outline-0 border-gray-300 rounded-lg px-4 py-2 focus:border-green-500"
+            className="w-full border outline-0 border-border rounded-lg px-4 py-2 focus:border-green-500"
             rows={3}
             placeholder={t("income.descriptionPlaceholder")}
           />
@@ -129,13 +129,13 @@ const IncomeForm: React.FC<IncomeFormProps> = ({ mode, initial, onCancel, onSubm
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors duration-200"
+            className="px-6 py-2 rounded-lg border border-border text-gray-600 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
           >
             {t("buttons.cancel")}
           </button>
           <button
             type="submit"
-            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 cursor-pointer"
           >
             {mode === "create" ? t("income.save") : t("income.update")}
           </button>
