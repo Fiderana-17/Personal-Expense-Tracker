@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   BarChart,
   Bar,
