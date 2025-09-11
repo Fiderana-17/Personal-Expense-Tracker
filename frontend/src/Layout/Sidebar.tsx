@@ -1,13 +1,5 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  CreditCard, 
-  TrendingUp, 
-  FolderOpen, 
-  Receipt,
-  Settings,
-  LogOut
-} from 'lucide-react';
+import { LayoutDashboard, CreditCard, TrendingUp, FolderOpen, Settings, LogOut} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +13,6 @@ const Sidebar: React.FC = () => {
     { path: '/expenses', label: t("sidebar.expenses"), icon: CreditCard },
     { path: '/income', label: t("sidebar.income"), icon: TrendingUp },
     { path: '/categories', label: t("sidebar.categories"), icon: FolderOpen },
-    { path: '/receipts', label: t("sidebar.receipts"), icon: Receipt },
     { path: '/profile', label: t("sidebar.profile"), icon: Settings },
   ];
 
