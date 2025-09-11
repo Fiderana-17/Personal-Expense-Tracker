@@ -12,7 +12,8 @@
     "changePassword": "Changer le mot de passe",
     "oldPassword": "Ancien mot de passe",
     "newPassword": "Nouveau mot de passe",
-    "confirmPassword": "Confirmer le mot de passe"
+    "confirmPassword": "Confirmer le mot de passe",
+    "session": "Session actuelle"
   },
   "actions": {
     "save": "Enregistrer"
@@ -71,7 +72,7 @@
     "thisPeriod":"Cette période"
   },
   "income": {
-    "amount": "Amount",
+    "amount": "Montant ($)",
     "amountPlaceholder": "0.00",
     "source": "Source",
     "createdAt": "Date de création",

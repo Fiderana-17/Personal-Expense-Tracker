@@ -8,6 +8,7 @@ import Breakdown from "./Breakdown";
 import type { Alert, Transaction } from "@/api/dashboard";
 import { getAlerts, getMonthlyExpensesSummary, getAllTransactions } from "@/api/dashboard";
 import { useTranslation } from "react-i18next";
+import Loader from "../ui/Loader";
 
 const Dashboard: React.FC = () => {
   const [alert, setAlert] = useState<Alert | null>(null);
@@ -183,8 +184,20 @@ const Dashboard: React.FC = () => {
 
   const netBalance = totalIncome - totalExpenses;
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen bg-gray-50"><div className="text-gray-600 text-lg animate-pulse">{t("dashboard.loading")}</div></div>;
-  if (error) return <div className="flex items-center justify-center min-h-screen bg-gray-50"><div className="text-red-600 text-lg font-semibold">{error}</div></div>;
+  if (loading) {
+      return (
+        <div className="grid place-items-center min-h-[calc(100vh-130px)] bg-page">
+          <Loader />
+        </div>
+      );
+    }
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-600 text-lg font-semibold">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen duration-500 rounded-2xl bg-page py-8 px-4 sm:px-6 lg:px-8 transition-colors">
