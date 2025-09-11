@@ -117,44 +117,44 @@ useEffect(() => {
   if (error) return <div className="flex items-center justify-center min-h-screen bg-gray-50"><div className="text-red-600 text-lg font-semibold">{error}</div></div>;
 
   return (
-    <div className="min-h-screen duration-500 rounded-2xl bg-page from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen duration-500 rounded-2xl bg-page py-8 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-7xl mx-auto">
         {/* Header with Filters */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
               {t("dashboard.greeting")}, {user?.name}
             </h1>
-            <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
+            <span className="text-sm bg-green-100 dark:bg-green-900 dark:text-green-200 text-green-800 px-2 py-1 rounded-full">
               {t("dashboard.welcome")}
             </span>
           </div>
-          <div className="bg-white rounded-lg shadow p-4 w-full sm:w-auto">
+          <div className="card rounded-lg shadow p-4 w-full sm:w-auto">
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               <div>
-                <label className="block text-sm font-medium text-gray-700">{t("dashboard.period")}</label>
+                <label className="block text-sm font-medium text-text">{t("dashboard.period")}</label>
                 <select
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value as any)}
-                  className="w-full sm:w-32 border px-3 py-2 rounded-lg"
+                  className="w-full sm:w-32 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="monthly">{t("dashboard.month")}</option>
                   <option value="yearly">{t("dashboard.year")}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">{t("dashboard.month")}</label>
+                <label className="block text-sm font-medium text-text">{t("dashboard.month")}</label>
                 <input
                   type="month"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="w-full sm:w-36 border px-3 py-2 rounded-lg"
+                  className="w-full sm:w-36 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
                 <button
                   onClick={() => setShowCustomRange(!showCustomRange)}
-                  className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg w-full sm:w-auto"
+                  className="flex items-center space-x-2 bg-background-hover px-4 py-2 rounded-lg w-full sm:w-auto hover:bg-background-hover text-text"
                 >
                   <Calendar className="h-4 w-4" />
                   <span>{t("dashboard.customRange")}</span>
@@ -165,13 +165,13 @@ useEffect(() => {
                       type="date"
                       value={customRange.start || ""}
                       onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
-                      className="border px-3 py-2 rounded-lg w-full"
+                      className="border border-border px-3 py-2 rounded-lg w-full bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                     />
                     <input
                       type="date"
                       value={customRange.end || ""}
                       onChange={(e) => setCustomRange(prev => ({ ...prev, end: e.target.value }))}
-                      className="border px-3 py-2 rounded-lg w-full"
+                      className="border border-border px-3 py-2 rounded-lg w-full bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 )}
@@ -210,13 +210,6 @@ useEffect(() => {
           </div>
           <div className="lg:col-span-3">
             <ExpenseChart data={filteredChart} />
-            <div className="flex justify-center mt-2">
-              <button
-                onClick={() => setShowAllMonths(!showAllMonths)}
-                className="text-gray-700 font-bold transition-transform duration-300"
-              >
-              </button>
-            </div>
           </div>
         </div>
       </div>

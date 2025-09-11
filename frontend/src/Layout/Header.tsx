@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo, SwitchDark, SwitchLangagues } from '@/components';
-import { LogOut, User, Bell } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
@@ -25,7 +25,7 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="bg-background shadow-xs border-b border-white/10 duration-500">
+    <header className="bg-page shadow-xs border-b border-white/10 duration-500">
       <div className="px-4 sm:px-6 lg:px-10">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-7">
