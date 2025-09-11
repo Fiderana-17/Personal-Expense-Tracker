@@ -25,7 +25,7 @@ import React, { useEffect, useState } from "react";
 import { formatDate } from "@/utils/FormatDate.ts";
 import { useAuth } from "@/hooks/useAuth.ts";
 import Loader from "../ui/Loader.tsx";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const ExpensesList: React.FC = () => {
   const { user } = useAuth();
@@ -45,6 +45,7 @@ const ExpensesList: React.FC = () => {
   const [notificationType, setNotificationType] = useState<"success" | "error">(
     "success"
   );
+  const { t } = useTranslation(); 
 
   const [formData, setFormData] = useState({
     description: "",

@@ -138,5 +138,41 @@
     "cancel": "Annuler",
     "yes": "Oui",
     "no": "Non"
+  },
+  "dashboard": {
+    "greeting": "Salut",
+    "welcome": "👋 Bienvenue !",
+    "period": "Période",
+    "month": "Mois",
+    "year": "Année",
+    "customRange": "Plage personnalisée",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "stats": {
+      "totalBalance": "Solde total",
+      "totalIncome": "Revenus totaux",
+      "totalExpense": "Dépenses totales",
+      "alerts": "Alertes budget",
+      "ok": "OK",
+      "noAlerts": "Aucune alerte"
+    },
+    
+    "breakdown":{
+      "title": "Catégories par dépenses",
+      "noData": "Aucune dépense à afficher"
+    },
+
+    "transactions": {
+      "recent": "Transactions récentes",
+      "none": "Aucune transaction trouvée"
+    },
+    "chart": {
+      "toggle": "Afficher/Masquer les mois",
+      "NoData":"Aucune donnée disponible",
+      "expenses": "Dépenses",
+      "income": "Revenus"
+    },
+    "loading": "Chargement...",
+    "error": "Erreur lors du chargement des données"
   }
 }

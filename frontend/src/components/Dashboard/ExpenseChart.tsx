@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import React, { useState, useEffect } from "react";
 import {
   BarChart,
@@ -26,7 +27,7 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
   }, [data]);
 
   if (!data || data.length === 0) {
-    return <div className="text-gray-500 text-center">No data available</div>;
+    return <div className="text-gray-500 text-center">{t("dashboard.chart.NoData")}</div>;
   }
 
   // Transform and validate data - Handle both "YYYY-MM" and "YY-MM" formats
@@ -94,7 +95,7 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
       <div className="flex items-center justify-center mb-6">
        
         <h3 className="text-2xl font-semibold text-gray-900">
-          Income vs Expenses
+          {t("dashboard.chart.income")} vs {t("dashboard.chart.expenses")}
         </h3>
        
       </div>
@@ -115,7 +116,7 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
             <Tooltip
               formatter={(value: number, name: string) => [
                 `$${value.toLocaleString()}`,
-                name === "income" ? "Income" : "Expenses",
+                name === "income" ? t("dashboard.chart.income") : t("dashboard.chart.expenses"),
               ]}
               contentStyle={{
                 backgroundColor: "white",

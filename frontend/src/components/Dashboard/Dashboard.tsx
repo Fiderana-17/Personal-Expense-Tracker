@@ -7,6 +7,7 @@ import RecentTransactions from "./RecentTransactions";
 import Breakdown from "./Breakdown";
 import type { Alert, Transaction } from "@/api/dashboard";
 import { getAlerts, getMonthlyExpensesSummary, getAllTransactions } from "@/api/dashboard";
+import { useTranslation } from "react-i18next";
 
 const Dashboard: React.FC = () => {
   const [alert, setAlert] = useState<Alert | null>(null);
@@ -15,6 +16,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const { t } = useTranslation(); 
 
   // INIT STATE avec localStorage
 const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly">(
@@ -57,7 +59,7 @@ useEffect(() => {
         setTransactions(txs);
         setChartData(chart);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load data");
+        setError(err instanceof Error ? err.message : t("dashboard.error"));
       } finally {
         setLoading(false);
       }
@@ -111,37 +113,37 @@ useEffect(() => {
 
   const netBalance = totalIncome - totalExpenses;
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen bg-gray-50"><div className="text-gray-600 text-lg animate-pulse">Loading...</div></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-screen bg-gray-50"><div className="text-gray-600 text-lg animate-pulse">{t("dashboard.loading")}</div></div>;
   if (error) return <div className="flex items-center justify-center min-h-screen bg-gray-50"><div className="text-red-600 text-lg font-semibold">{error}</div></div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen duration-500 rounded-2xl bg-page from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header with Filters */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Hi {user?.name}
+              {t("dashboard.greeting", { name: user?.name })}
             </h1>
             <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-              👋 Welcome!
+              {t("dashboard.welcome")}
             </span>
           </div>
           <div className="bg-white rounded-lg shadow p-4 w-full sm:w-auto">
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Period</label>
+                <label className="block text-sm font-medium text-gray-700">{t("dashboard.period")}</label>
                 <select
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value as any)}
                   className="w-full sm:w-32 border px-3 py-2 rounded-lg"
                 >
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
+                  <option value="monthly">{t("dashboard.month")}</option>
+                  <option value="yearly">{t("dashboard.year")}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Month</label>
+                <label className="block text-sm font-medium text-gray-700">{t("dashboard.month")}</label>
                 <input
                   type="month"
                   value={selectedMonth}
@@ -155,7 +157,7 @@ useEffect(() => {
                   className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-lg w-full sm:w-auto"
                 >
                   <Calendar className="h-4 w-4" />
-                  <span>Custom Range</span>
+                  <span>{t("dashboard.customRange")}</span>
                 </button>
                 {showCustomRange && (
                   <div className="mt-2 flex flex-col sm:flex-row gap-2">
@@ -180,13 +182,13 @@ useEffect(() => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <StatsCard title="Total Balance" value={`$${netBalance}`} changeType={netBalance >= 0 ? "positive" : "negative"} icon={DollarSign} color="blue"/>
-          <StatsCard title="Total Income" value={`$${totalIncome}`} changeType="positive" icon={TrendingUp} color="green"/>
-          <StatsCard title="Total Expense" value={`$${totalExpenses}`} changeType="negative" icon={TrendingDown} color="red"/>
+          <StatsCard title={t("dashboard.stats.totalBalance")} value={`$${netBalance}`} changeType={netBalance >= 0 ? "positive" : "negative"} icon={DollarSign} color="blue"/>
+          <StatsCard title={t("dashboard.stats.totalIncome")} value={`$${totalIncome}`} changeType="positive" icon={TrendingUp} color="green"/>
+          <StatsCard title={t("dashboard.stats.totalExpense")} value={`$${totalExpenses}`} changeType="negative" icon={TrendingDown} color="red"/>
           <StatsCard
-            title="Budget Alerts"
+            title={t("dashboard.stats.alerts")}
             value={alert?.alert ? "1 Alert" : " OK"}
-            change={alert?.message ?? "No alerts"}
+            change={alert?.message ?? t("dashboard.stats.noAlerts")}
             changeType={alert?.alert ? "negative" : "neutral"}
             icon={AlertTriangle}
             color="orange"

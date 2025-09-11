@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recha
 import { getExpenses } from "@/api/expense"; 
 import { getAllCategories } from "@/api/category";
 import type { Expense, Category } from "@/types";
+import { t } from "i18next";
 
 interface ExpenseBreakdown {
   category: string;
@@ -118,11 +119,11 @@ const Breakdown: React.FC<BreakdownProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow-md p-5">
-      <h3 className="text-2xl font-semibold mb-4">Expenses by Category</h3>
+      <h3 className="text-2xl font-semibold mb-4">{t("dashboard.breakdown.title")}</h3>
       {error ? (
         <p className="text-red-500 text-sm">{error}</p>
       ) : data.length === 0 ? (
-        <p className="text-gray-500 text-sm">No expenses to display</p>
+        <p className="text-gray-500 text-sm">{t("dashboard.breakdown.noData")}</p>
       ) : (
         <div className="h-58">
           <ResponsiveContainer width="100%" height="100%">

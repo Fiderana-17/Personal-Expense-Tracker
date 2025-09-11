@@ -140,5 +140,43 @@
     "cancel": "Cancel",
     "yes": "Yes",
     "no": "No"
+  },
+  "dashboard": {
+    "greeting": "Hi",
+    "welcome": "👋 Welcome!",
+    "period": "Period",
+    "month": "Month",
+    "customRange": "Custom Range",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+
+    "stats": {
+      "totalBalance": "Total Balance",
+      "totalIncome": "Total Income",
+      "totalExpense": "Total Expenses",
+      "budgetAlerts": "Budget Alerts",
+      "ok": "OK",
+      "noAlerts": "No alerts"
+    },
+
+    "breakdown": {
+      "title": "Expense by Category",
+      "noData": "No expense data available"
+    },
+
+    "transactions": {
+      "recent": "Recent Transactions",
+      "none": "No transactions found"
+    },
+
+    "chart": {
+      "toggle": "Show/Hide months",
+      "NoData": "No data available",
+      "expenses": "Expenses",
+      "income": "Income"
+    },
+
+    "loading": "Loading...",
+    "error": "Error loading data"
   }
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import type { Transaction } from "@/api/dashboard";
+import { t } from "i18next";
 
 interface Props {
   transactions: Transaction[];
@@ -8,12 +9,12 @@ interface Props {
 
 const RecentTransactions: React.FC<Props> = ({ transactions }) => {
   if (!transactions || transactions.length === 0) {
-    return <div className="text-gray-500 text-center">No recent transactions</div>;
+    return <div className="text-gray-500 text-center">{t("dashboard.transactions.none")}</div>;
   }
 
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 animate-slide-up">
-      <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Transactions</h3>
+      <h3 className="text-xl font-semibold text-gray-900 mb-6">{t("dashboard.transactions.recent")}</h3>
 
       {/* Liste scrollable */}
       <div className="space-y-5 max-h-64 overflow-y-auto pr-2">
