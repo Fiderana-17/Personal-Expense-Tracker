@@ -177,11 +177,35 @@ export const updateExpense = async (req, res) => {
 export const deleteExpense = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    const expense = await prisma.expense.findUnique({
+      where: { id: parseInt(id) },
+      include: { receipt: true }
+    });
 
-    await prisma.expense.delete({ where: { id: parseInt(id) } });
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
 
-    res.status(200).json({ message: 'Expense deleted successfully' });
+    if (expense.receipt) {
+      try {
+        fs.unlinkSync(expense.receipt.filePath);
+      } catch (err) {
+        console.warn("Could not delete receipt file:", err.message);
+      }
+
+      await prisma.receipt.delete({
+        where: { id: expense.receipt.id }
+      });
+    }
+
+    await prisma.expense.delete({
+      where: { id: parseInt(id) }
+    });
+
+    res.status(200).json({ message: 'Expense and associated receipt deleted successfully' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Error deleting expense', error });
   }
 };
