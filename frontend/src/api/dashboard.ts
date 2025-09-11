@@ -40,12 +40,13 @@ export async function getAlerts(): Promise<Alert> {
   return res.json();
 }
 
-//  GET recent transactions (last 5)
-export async function getRecentTransactions(): Promise<Transaction[]> {
-  const res = await fetch(`${API_BASE}/summary/recent`, { headers: getAuthHeaders() });
+// GET all transactions
+export async function getAllTransactions(): Promise<Transaction[]> {
+  const res = await fetch(`${API_BASE}/summary/transactions`, { headers: getAuthHeaders() });
   if (!res.ok) throw new Error("Erreur récupération transactions");
   return res.json();
 }
+
 
 //  GET chart data (expenses + income)
 export async function getMonthlyExpensesSummary(): Promise<{ month: string; income: number; expenses: number }[]> {

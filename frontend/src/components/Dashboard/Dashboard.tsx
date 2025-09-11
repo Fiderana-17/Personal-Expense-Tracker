@@ -6,7 +6,7 @@ import ExpenseChart from "./ExpenseChart";
 import RecentTransactions from "./RecentTransactions";
 import Breakdown from "./Breakdown";
 import type { Alert, Transaction } from "@/api/dashboard";
-import { getAlerts, getRecentTransactions, getMonthlyExpensesSummary } from "@/api/dashboard";
+import { getAlerts, getMonthlyExpensesSummary, getAllTransactions } from "@/api/dashboard";
 
 const Dashboard: React.FC = () => {
   const [alert, setAlert] = useState<Alert | null>(null);
@@ -35,10 +35,9 @@ const Dashboard: React.FC = () => {
         setLoading(true);
         const [alertData, txs, chart] = await Promise.all([
           getAlerts(),
-          getRecentTransactions(),
+          getAllTransactions(),
           getMonthlyExpensesSummary(),
         ]);
-        console.log("Fetched chartData:", JSON.stringify(chart, null, 2));
         setAlert(alertData);
         setTransactions(txs);
         setChartData(chart);
@@ -85,7 +84,6 @@ const Dashboard: React.FC = () => {
   });
 
   const filteredChart = showAllMonths ? allMonthsChartData : allMonthsChartData.slice(0, 6);
-  console.log("Filtered chart data:", JSON.stringify(filteredChart, null, 2));
 
   // --- CALCULATE TOTALS ---
   const totalIncome = filteredTransactions

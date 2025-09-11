@@ -16,7 +16,7 @@ const RecentTransactions: React.FC<Props> = ({ transactions }) => {
       <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Transactions</h3>
 
       {/* Liste scrollable */}
-      <div className="space-y-5 max-h-50 overflow-y-auto pr-2">
+      <div className="space-y-5 max-h-64 overflow-y-auto pr-2">
         {transactions.map((tx) => {
           const isIncome = tx.type === "income";
           const Icon = isIncome ? ArrowUpRight : ArrowDownRight;

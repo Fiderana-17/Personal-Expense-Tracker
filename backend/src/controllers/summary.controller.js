@@ -100,24 +100,22 @@ export const getAlerts = async (req, res) => {
   }
 };
 
-//  GET /api/summary/recent
-export const getRecentTransactions = async (req, res) => {
+// GET /api/summary/transactions
+export const getAllTransactions = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Récupérer les 5 dernières dépenses
+    // Récupérer toutes les dépenses
     const expenses = await prisma.expense.findMany({
       where: { userId },
       include: { category: true },
       orderBy: { date: "desc" },
-      take: 5,
     });
 
-    // Récupérer les 5 derniers revenus
+    // Récupérer tous les revenus
     const incomes = await prisma.income.findMany({
       where: { userId },
       orderBy: { date: "desc" },
-      take: 5,
     });
 
     // Combiner et formater les transactions
@@ -138,16 +136,15 @@ export const getRecentTransactions = async (req, res) => {
         type: "income",
         category: undefined,
       })),
-    ]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5);
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Trier du plus récent au plus ancien
 
     res.json(transactions);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error fetching recent transactions", error });
+    res.status(500).json({ message: "Error fetching all transactions", error });
   }
 };
+
 
 //  GET /api/summary/chart
 export const getMonthlyExpensesSummary = async (req, res) => {
