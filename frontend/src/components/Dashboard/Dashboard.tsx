@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, DollarSign, AlertTriangle } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, Calendar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import StatsCard from "./StatsCard";
 import ExpenseChart from "./ExpenseChart";
@@ -16,30 +16,30 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t } = useTranslation(); 
 
   // INIT STATE avec localStorage
-  const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly" | "custom">(
-    () => (localStorage.getItem("selectedPeriod") as "monthly" | "yearly" | "custom") || "monthly"
-  );
+const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly">(
+  () => (localStorage.getItem("selectedPeriod") as "monthly" | "yearly") || "monthly"
+);
 
-  const [selectedMonth, setSelectedMonth] = useState(() => {
-    return localStorage.getItem("selectedMonth") || (() => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, "0");
-      return `${year}-${month}`;
-    })();
-  });
+const [selectedMonth, setSelectedMonth] = useState(() => {
+  return localStorage.getItem("selectedMonth") || (() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    return `${year}-${month}`;
+  })();
+});
 
-  // Sauvegarder à chaque changement
-  useEffect(() => {
-    localStorage.setItem("selectedPeriod", selectedPeriod);
-  }, [selectedPeriod]);
+// Sauvegarder à chaque changement
+useEffect(() => {
+  localStorage.setItem("selectedPeriod", selectedPeriod);
+}, [selectedPeriod]);
 
-  useEffect(() => {
-    localStorage.setItem("selectedMonth", selectedMonth);
-  }, [selectedMonth]);
+useEffect(() => {
+  localStorage.setItem("selectedMonth", selectedMonth);
+}, [selectedMonth]);
 
   const [showCustomRange, setShowCustomRange] = useState(false);
   const [customRange, setCustomRange] = useState<{ start?: string; end?: string }>({});
@@ -69,71 +69,22 @@ const Dashboard: React.FC = () => {
 
   // --- APPLY FILTERS ---
   const filteredTransactions = transactions.filter((t) => {
-    if (!t.date) {
-      console.warn(`Transaction with ID ${t.id} has no valid date`);
-      return false;
-    }
-
+    if (!t.date) return false;
     const txDate = new Date(t.date);
-    if (isNaN(txDate.getTime())) {
-      console.warn(`Transaction with ID ${t.id} has invalid date: ${t.date}`);
-      return false;
-    }
-
-    // Normaliser la date de la transaction pour ignorer l'heure
-    const txDateNormalized = new Date(txDate.getFullYear(), txDate.getMonth(), txDate.getDate());
-
     const [year, month] = selectedMonth.split("-").map(Number);
-    if (isNaN(year) || isNaN(month)) {
-      console.error(`Invalid selectedMonth format: ${selectedMonth}`);
-      return false;
-    }
 
-    if (selectedPeriod === "custom" && customRange.start && customRange.end) {
-      const startDate = new Date(customRange.start);
-      const endDate = new Date(customRange.end);
-      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        console.warn(`Invalid custom range: start=${customRange.start}, end=${customRange.end}`);
-        return false;
-      }
-      // Normaliser les dates de début et de fin pour ignorer l'heure
-      const startDateNormalized = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-      const endDateNormalized = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-      const matchesCustom = txDateNormalized >= startDateNormalized && txDateNormalized <= endDateNormalized;
-      console.log(
-        `Transaction ID ${t.id}: Date ${t.date}, Normalized ${txDateNormalized.toISOString()}, ` +
-        `Start ${startDateNormalized.toISOString()}, End ${endDateNormalized.toISOString()}, Matches: ${matchesCustom}`
-      );
-      return matchesCustom;
+    if (showCustomRange && customRange.start && customRange.end) {
+      return txDate >= new Date(customRange.start) && txDate <= new Date(customRange.end);
     }
 
     if (selectedPeriod === "monthly") {
-      const matchesMonth = txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
-      console.log(
-        `Transaction ID ${t.id}: Date ${t.date}, Year ${txDate.getFullYear()}, Month ${txDate.getMonth() + 1}, ` +
-        `Selected Year ${year}, Selected Month ${month}, Matches: ${matchesMonth}`
-      );
-      return matchesMonth;
+      return txDate.getFullYear() === year && txDate.getMonth() + 1 === month;
     }
-
     if (selectedPeriod === "yearly") {
-      const matchesYear = txDate.getFullYear() === year;
-      console.log(`Transaction ID ${t.id}: Date ${t.date}, Year ${txDate.getFullYear()}, Selected Year ${year}, Matches: ${matchesYear}`);
-      return matchesYear;
+      return txDate.getFullYear() === year;
     }
-
     return true;
   });
-
-  // Log des transactions filtrées pour débogage
-  useEffect(() => {
-    console.log("Filtered Transactions:", filteredTransactions.map(t => ({
-      id: t.id,
-      date: t.date,
-      amount: t.amount,
-      type: t.type,
-    })));
-  }, [filteredTransactions]);
 
   // --- ENSURE ALL MONTHS IN CHART DATA ---
   const allMonthsChartData = Array.from({ length: 12 }, (_, i) => {
@@ -189,19 +140,18 @@ const Dashboard: React.FC = () => {
                 >
                   <option value="monthly">{t("dashboard.month")}</option>
                   <option value="yearly">{t("dashboard.year")}</option>
-                  <option value="custom">{t("dashboard.customRange")}</option>
                 </select>
               </div>
-                <div>
-                  <label className="block text-sm font-medium text-text">{t("dashboard.month")}</label>
-                  <input
-                    type="month"
-                    value={selectedMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="w-full sm:w-36 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                  <div>
+              <div>
+                <label className="block text-sm font-medium text-text">{t("dashboard.month")}</label>
+                <input
+                  type="month"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="w-full sm:w-36 border border-border px-3 py-2 rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
                 <button
                   onClick={() => setShowCustomRange(!showCustomRange)}
                   className="flex items-center space-x-2 bg-background-hover px-4 py-2 rounded-lg w-full sm:w-auto hover:bg-background-hover text-text"
@@ -217,9 +167,6 @@ const Dashboard: React.FC = () => {
                       onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
                       className="border border-border px-3 py-2 rounded-lg w-full bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-text">{t("dashboard.endDate")}</label>
                     <input
                       type="date"
                       value={customRange.end || ""}
@@ -227,8 +174,8 @@ const Dashboard: React.FC = () => {
                       className="border border-border px-3 py-2 rounded-lg w-full bg-card-bg text-text focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
