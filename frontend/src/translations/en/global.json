@@ -66,7 +66,9 @@
     "error": "Error",
     "receipt": "Receipt (optional)",
     "viewReceipt": "View Receipt",
-    "downloadReceipt": "Download Receipt"
+    "downloadReceipt": "Download Receipt",
+    "addReceipt": "Add Receipt",
+    "changeReceipt": "Change Receipt"
   },
   "income": {
     "amount": "Amount ($)",
