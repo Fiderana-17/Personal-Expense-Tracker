@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { getExpenses } from "@/api/expense"; 
+import { getExpenses } from "@/api/expense";
 import { getAllCategories } from "@/api/category";
 import type { Expense, Category } from "@/types";
 import { t } from "i18next";
@@ -16,6 +16,11 @@ const COLORS = [
   "#8B5CF6", "#EC4899", "#14B8A6",
 ];
 
+const COLORS_DARK = [
+  "#60A5FA", "#34D399", "#FBBF24", "#F87171",
+  "#A78BFA", "#F472B6", "#2DD4BF",
+];
+
 const renderCustomizedLabel = ({
   cx, cy, midAngle, innerRadius, outerRadius, percent
 }: any) => {
@@ -25,11 +30,11 @@ const renderCustomizedLabel = ({
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
   return (
-    <text 
-      x={x} 
-      y={y} 
-      fill="white" 
-      textAnchor={x > cx ? "start" : "end"} 
+    <text
+      x={x}
+      y={y}
+      fill="var(--text)"
+      textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
       className="text-xs font-medium"
     >
@@ -40,7 +45,7 @@ const renderCustomizedLabel = ({
 
 interface BreakdownProps {
   selectedMonth: string;
-  selectedQuarter: string;
+  selectedQuarter?: string;
   selectedPeriod: "monthly" | "quarterly" | "yearly";
   showCustomRange: boolean;
   customRange: { start?: string; end?: string };
@@ -58,7 +63,6 @@ const Breakdown: React.FC<BreakdownProps> = ({
   const [data, setData] = useState<ExpenseBreakdown[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // --- FETCH DATA ---
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,7 +84,6 @@ const Breakdown: React.FC<BreakdownProps> = ({
     fetchData();
   }, []);
 
-  // --- FILTER & CALCULATE BREAKDOWN ---
   useEffect(() => {
     if (expenses.length > 0 && categories.length > 0) {
       const breakdown: ExpenseBreakdown[] = categories.map((cat, index) => {
@@ -109,7 +112,7 @@ const Breakdown: React.FC<BreakdownProps> = ({
         return {
           category: cat.name,
           amount: total,
-          color: COLORS[index % COLORS.length],
+          color: document.documentElement.classList.contains("dark") ? COLORS_DARK[index % COLORS_DARK.length] : COLORS[index % COLORS.length],
         };
       }).filter(item => item.amount > 0);
 
@@ -118,12 +121,12 @@ const Breakdown: React.FC<BreakdownProps> = ({
   }, [expenses, categories, selectedMonth, selectedQuarter, selectedPeriod, showCustomRange, customRange]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-5">
-      <h3 className="text-2xl font-semibold mb-4">{t("dashboard.breakdown.title")}</h3>
+    <div className="card rounded-lg shadow-md p-5">
+      <h3 className="text-2xl font-semibold text-text mb-4">{t("dashboard.breakdown.title")}</h3>
       {error ? (
-        <p className="text-red-500 text-sm">{error}</p>
+        <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>
       ) : data.length === 0 ? (
-        <p className="text-gray-500 text-sm">{t("dashboard.breakdown.noData")}</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">{t("dashboard.breakdown.noData")}</p>
       ) : (
         <div className="h-58">
           <ResponsiveContainer width="100%" height="100%">
@@ -135,7 +138,6 @@ const Breakdown: React.FC<BreakdownProps> = ({
                 labelLine={false}
                 label={renderCustomizedLabel}
                 outerRadius={80}
-                fill="#8884d8"
                 dataKey="amount"
                 nameKey="category"
               >
@@ -143,18 +145,19 @@ const Breakdown: React.FC<BreakdownProps> = ({
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 formatter={(value: number, name: string) => [`$${value.toLocaleString()}`, name]}
                 contentStyle={{
-                  backgroundColor: "white",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px"
+                  backgroundColor: "var(--card-bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "8px",
+                  color: "var(--text)",
                 }}
               />
-              <Legend 
-                verticalAlign="bottom" 
+              <Legend
+                verticalAlign="bottom"
                 height={36}
-                formatter={(value) => <span className="text-sm text-gray-700">{value}</span>}
+                formatter={(value) => <span className="text-sm text-text">{value}</span>}
               />
             </PieChart>
           </ResponsiveContainer>

@@ -15,36 +15,47 @@
     --color-border: var(--border)
 
 }
-
-:root {
+@layer base {
+  :root {
     --background: #FFF;
-    --border: #000;
-    --text: var(--color-gray-900);
+    --border: #E5E7EB;
+    --text: #1F2937;
     --button: #FFF;
-    --background-hover: var(--color-blue-50);
-    --logout: var(--color-red-100);
-    --title-logout: var(--color-red-600);
-    --aside: var(--color-gray-50);
+    --background-hover: #EFF6FF;
+    --logout: #FEE2E2;
+    --title-logout: #DC2626;
+    --aside: #F3F4F6;
     --page: #F9FAFB;
-    --border: var(--color-gray-200)
-}
+    --border: #E5E7EB;
+    --chart-income: #22C55E;
+    --chart-expense: #EF4444;
+    --chart-bg: #F9FAFB;
+    --chart-text: #374151;
+    --card-bg: #FFF;
+  }
 
-.dark {
+  .dark {
     --background: #030712;
-    --border: #FFF;
-    --text: #FFF;
-    --button: var(--color-blue-700);
+    --border: #374151;
+    --text: #F3F4F6;
+    --button: #1E3A8A;
     --background-hover: #1F2937;
-    --logout: transparent;
-    --title-logout: var(--color-white);
-    --aside: #0a101d;
+    --logout: #4B1C1C;
+    --title-logout: #FCA5A5;
+    --aside: #0A101D;
     --page: #111827;
-    --border: #0e0723;
+    --border: #374151;
+    --chart-income: #34D399;
+    --chart-expense: #F87171;
+    --chart-bg: #1F2937;
+    --chart-text: #D1D5DB;
+    --card-bg: #1F2937;
+  }
 }
 
 .scrollbar-custom {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-page) var(--color-background) ;
+  scrollbar-color: var(--border) var(--page);
 }
 
 .scrollbar-custom::-webkit-scrollbar {
@@ -52,51 +63,38 @@
 }
 
 .scrollbar-custom::-webkit-scrollbar-track {
-  background: var(--color-page)
+  background: var(--page);
 }
 
 .scrollbar-custom::-webkit-scrollbar-thumb {
-  background-color: var(--color-page);
+  background-color: var(--border);
   border-radius: 100px;
 }
 
+
+/* Improved card styles */
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Animation keyframes remain unchanged */
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulse-slow {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out forwards;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.5s ease-out forwards;
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 2s infinite ease-in-out;
-}
+.animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+.animate-slide-up { animation: slide-up 0.5s ease-out forwards; }
+.animate-pulse-slow { animation: pulse-slow 2s infinite ease-in-out; }

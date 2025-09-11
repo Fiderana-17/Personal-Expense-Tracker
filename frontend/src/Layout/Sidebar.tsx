@@ -17,7 +17,7 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 bg-background duration-500 shadow-xs border-gray-200 h-[calc(100vh-60px)] flex flex-col justify-between">
+    <aside className="w-64 bg-page duration-500 shadow-xs border-gray-200 h-[calc(100vh-60px)] flex flex-col justify-between">
       <nav className="mt-8">
         <div className="px-4">
           {menuItems.map((item) => {
