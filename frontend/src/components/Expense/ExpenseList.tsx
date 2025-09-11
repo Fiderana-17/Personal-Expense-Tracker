@@ -105,8 +105,7 @@ const ExpensesList: React.FC = () => {
 
       if (editingExpense) {
         const updated = await updateExpense(editingExpense.id, expenseData);
-        // Type guard to extract Expense
-        const expense: Expense = "data" in updated ? updated.data : updated;
+        const expense = updated as Expense;
         if (formData.receipt) {
           await uploadReceipt(formData.receipt, expense.id);
           await fetchExpenses();
@@ -147,9 +146,6 @@ const ExpensesList: React.FC = () => {
     setShowForm(true);
   };
 
-  const filterCategories = ["all", ...categories.map((c) => c.name)];
-  const types = ["all", "ONE_TIME", "RECURRING"];
-
   const filteredExpenses = expenses.filter((expense) => {
     const matchesSearch =
       expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -180,7 +176,7 @@ const ExpensesList: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-page py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
+    <div className="min-h-[calc(100vh-130px)] bg-page py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-500 rounded-2xl">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-text text-title">{t("expenses.title")}</h1>

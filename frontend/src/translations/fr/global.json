@@ -68,6 +68,10 @@
     "receipt": "Reçu (optionnel)",
     "viewReceipt": "Voir le reçu",
     "downloadReceipt": "Télécharger le reçu",
+    "addReceipt": "Ajouter un reçu",
+    "changeReceipt": "Changer le reçu",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
     "total":"Total des dépenses",
     "thisPeriod":"Cette période"
   },

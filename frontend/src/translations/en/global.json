@@ -70,6 +70,8 @@
     "downloadReceipt": "Download Receipt",
     "addReceipt": "Add Receipt",
     "changeReceipt": "Change Receipt",
+    "startDate": "Start Date",
+    "endDate": "End Date",
     "total":"Total Expenses",
     "thisPeriod":"This period"
   },

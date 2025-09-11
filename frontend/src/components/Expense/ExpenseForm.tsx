@@ -45,7 +45,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    console.log("useEffect triggered, showForm:", showForm, "editingExpense:", editingExpense); // Log pour débogage
     if (editingExpense) {
       setFormData({
         description: editingExpense.description ?? "",
@@ -85,7 +84,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted, editingExpense:", editingExpense, "formData:", formData); // Log pour débogage
     onSubmit(formData);
     setShowForm(false); // Ferme le formulaire
   };
@@ -110,7 +108,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           >
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-lg font-semibold text-text">
-                {console.log("Title check, editingExpense:", editingExpense)} {/* Log pour débogage */}
                 {editingExpense && editingExpense.id ? t("expenses.editExpense") : t("expenses.addExpense")}
               </h2>
               <button
@@ -129,7 +126,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text"
                   required
                 />
               </div>
@@ -143,7 +140,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, amount: e.target.value === "" ? 0 : Number(e.target.value) })
                   }
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text"
                   required
                   min="0"
                 />
@@ -155,7 +152,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <select
                   value={formData.categoryId}
                   onChange={(e) => setFormData({ ...formData, categoryId: Number(e.target.value) })}
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text"
                 >
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
@@ -171,7 +168,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value as "ONE_TIME" | "RECURRING", endDate: e.target.value === "RECURRING" && !editingExpense ? new Date().toISOString().split("T")[0] : formData.endDate })}
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-card text-title focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-border rounded-lg bg-card text-title"
                 >
                   <option value="ONE_TIME">{t("expenses.oneTime")}</option>
                   <option value="RECURRING">{t("expenses.recurring")}</option>
@@ -185,7 +182,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text"
                 />
               </div>
               {(formData.type === "RECURRING") && (
@@ -197,7 +194,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     type="date"
                     value={formData.endDate || ""}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text"
                   />
                 </div>
               )}
