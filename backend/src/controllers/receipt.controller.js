@@ -93,16 +93,6 @@ export const downloadReceipt = async (req, res) => {
   res.download(receipt.filePath);
 };
 
-// --- Get all receipts ---
-export const getAllReceipts = async (req, res) => {
-  const userId = req.user?.id;
-  const receipts = await prisma.receipt.findMany({
-    include: { expense: true },
-    where: { expense: { userId: Number(userId) } },
-  });
-  res.json(receipts);
-};
-
 // --- Delete receipt ---
 export const deleteReceiptController = async (req, res) => {
   const { id } = req.params;

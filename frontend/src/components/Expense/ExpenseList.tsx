@@ -530,15 +530,15 @@ const ExpensesList: React.FC = () => {
       </AnimatePresence>
 
       {filteredExpenses.length > 0 && (
-        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-xl shadow-md p-6 text-white">
+        <div className="bg-gradient-to-t from-red-500 to-red-700 rounded-xl shadow-md p-6 text-white">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-medium opacity-90">
-                {t("income.total")}
+                {t("expenses.total")}
               </h3>
               <p className="text-3xl font-bold">${totalExpenses.toFixed(2)}</p>
               <p className="text-sm opacity-80 mt-1">
-                {t("income.thisPeriod")}
+                {t("expenses.thisPeriod")}
               </p>
             </div>
             <div className="p-3 bg-white bg-opacity-20 rounded-full">
