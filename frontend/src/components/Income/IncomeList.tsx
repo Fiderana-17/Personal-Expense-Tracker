@@ -148,7 +148,7 @@ const IncomeList: React.FC = () => {
 
       {/* Total Summary */}
       {filteredIncomes.length > 0 && (
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-md p-6 text-white">
+        <div className="bg-gradient-to-t from-green-500 to-green-700 rounded-xl shadow-md p-6 text-white">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-medium opacity-90">{t("income.total")}</h3>

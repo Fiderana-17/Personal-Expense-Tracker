@@ -66,7 +66,9 @@
     "error": "Erreur",
     "receipt": "Reçu (optionnel)",
     "viewReceipt": "Voir le reçu",
-    "downloadReceipt": "Télécharger le reçu"
+    "downloadReceipt": "Télécharger le reçu",
+    "total":"Total des dépenses",
+    "thisPeriod":"Cette période"
   },
   "income": {
     "amount": "Amount",
