@@ -533,11 +533,11 @@ const ExpensesList: React.FC = () => {
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-medium opacity-90">
-                {t("income.total")}
+                {t("expenses.total")}
               </h3>
               <p className="text-3xl font-bold">${totalExpenses.toFixed(2)}</p>
               <p className="text-sm opacity-80 mt-1">
-                {t("income.thisPeriod")}
+                {t("expenses.thisPeriod")}
               </p>
             </div>
             <div className="p-3 bg-white bg-opacity-20 rounded-full">

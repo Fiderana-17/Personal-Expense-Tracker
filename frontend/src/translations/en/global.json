@@ -68,7 +68,9 @@
     "viewReceipt": "View Receipt",
     "downloadReceipt": "Download Receipt",
     "addReceipt": "Add Receipt",
-    "changeReceipt": "Change Receipt"
+    "changeReceipt": "Change Receipt",
+    "total":"Total Expenses",
+    "thisPeriod":"This period"
   },
   "income": {
     "amount": "Amount ($)",
