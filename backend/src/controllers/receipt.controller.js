@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import prisma from '../prismaClient.js';
 
-// --- Multer Storage Config ---
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = './uploads/receipts';
@@ -27,7 +27,7 @@ export const upload = multer({
   },
 }).single('receipt');
 
-// --- Upload receipt ---
+
 export const uploadReceipt = async (req, res) => {
   upload(req, res, async function (err) {
     if (err) return res.status(400).json({ message: err.message });
@@ -77,7 +77,7 @@ export const viewReceipt = async (req, res) => {
   res.sendFile(path.resolve(receipt.filePath));
 };
 
-// --- Download receipt ---
+
 export const downloadReceipt = async (req, res) => {
   const { id } = req.params;
   const userId = req.user?.id;
@@ -93,7 +93,7 @@ export const downloadReceipt = async (req, res) => {
   res.download(receipt.filePath);
 };
 
-// --- Delete receipt ---
+
 export const deleteReceiptController = async (req, res) => {
   const { id } = req.params;
   const userId = req.user?.id;
