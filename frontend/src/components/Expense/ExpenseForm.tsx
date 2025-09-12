@@ -78,7 +78,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       if (editingExpense) {
         const updated = await updateExpense(editingExpense.id, expenseData);
-        const expense = "data" in updated ? updated.data : updated;
+        let expense: Expense;
+
+        // Vérification du type de retour de updateExpense
+        if ("data" in updated && typeof updated.data === "object") {
+          expense = updated.data as Expense;
+        } else if (typeof updated === "object") {
+          expense = updated as Expense;
+        } else {
+          throw new Error("Unexpected response format from updateExpense");
+        }
 
         if (formData.receipt) {
           await uploadReceipt(formData.receipt, expense.id);
@@ -86,16 +95,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         } else {
           setExpenses((prev) =>
             prev.map((e) =>
-              e.id === editingExpense.id && typeof expense === "object"
-                ? { ...e, ...expense }
-                : e
+              e.id === editingExpense.id ? { ...e, ...expense } : e
             )
           );
         }
         setNotification("Expense updated successfully");
       } else {
         const res = await createExpense(expenseData);
-        const expense = {
+        const expense: Expense = {
           ...res.data,
           type: res.data.type.toUpperCase(),
           amount:
@@ -274,26 +281,29 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               </div>
             )}
             <div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
-                  >
-                    <Download className="inline h-5 w-5" />
-                    {formData.receipt
-                      ? formData.receipt.name
-                      : t("expenses.addReceipt")}
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/*,.pdf"
-                    className="hidden"
-                  />
-                </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-indigo-600 dark:bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
+                >
+                  <Download className="inline h-5 w-5" />
+                  {formData.receipt
+                    ? t("expenses.changeReceipt")
+                    : t("expenses.addReceipt")}
+                </button>
+                {formData.receipt && (
+                  <span className="ml-2 text-text">{formData.receipt.name}</span>
+                )}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*,.pdf"
+                  className="hidden"
+                />
               </div>
+            </div>
             <button
               type="submit"
               className="w-full bg-green-600 dark:bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200 flex items-center justify-center gap-2"
