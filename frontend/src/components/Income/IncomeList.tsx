@@ -22,7 +22,7 @@ const IncomeList: React.FC = () => {
   const [notificationType, setNotificationType] = useState<"success" | "error">("success");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch incomes
+  
   const fetchIncomes = async () => {
     setLoading(true);
     try {
@@ -58,7 +58,7 @@ const IncomeList: React.FC = () => {
 
   const totalIncome = filteredIncomes.reduce((sum, inc) => sum + inc.amount, 0);
 
-  // Form handlers
+  
   const openCreateForm = () => {
     setMode("create");
     setEditing(null);
@@ -134,7 +134,7 @@ const IncomeList: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
+      
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-title">{t("income.title")}</h1>
         <button
@@ -146,7 +146,7 @@ const IncomeList: React.FC = () => {
         </button>
       </div>
 
-      {/* Total Summary */}
+      
       {filteredIncomes.length >= 0 && (
         <div className="bg-gradient-to-t from-green-500 to-green-700 rounded-xl shadow-md p-6 text-white">
           <div className="flex justify-between items-center">
@@ -162,7 +162,7 @@ const IncomeList: React.FC = () => {
         </div>
       )}
 
-      {/* Search */}
+      
       <div className="bg-page rounded-xl shadow-md border duration-500 border-border p-6">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -176,7 +176,7 @@ const IncomeList: React.FC = () => {
         </div>
       </div>
 
-      {/* Notification */}
+      
       <AnimatePresence>
         {notification && (
           <motion.div
@@ -193,7 +193,7 @@ const IncomeList: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Income List */}
+      
       {filteredIncomes.length === 0 ? (
         <div className="bg-page duration-500 rounded-xl shadow-md border border-border p-12 text-center">
           <FolderOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
@@ -252,7 +252,7 @@ const IncomeList: React.FC = () => {
         </div>
       )}
 
-      {/* Form Modal */}
+      
       <AnimatePresence>
         {showForm && (
           <>
@@ -298,7 +298,7 @@ const IncomeList: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation Modal */}
+      
       <AnimatePresence>
         {showDeleteModal && (
           <>
