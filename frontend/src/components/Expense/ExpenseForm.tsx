@@ -168,7 +168,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 setShowForm(false);
                 setEditingExpense(null);
               }}
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              className="text-gray-500 cursor-pointer dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             >
               <X className="h-5 w-5" />
             </button>
@@ -221,7 +221,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
               >
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
+                  <option key={cat.id} value={cat.id} className="bg-page duration-500">
                     {cat.name}
                   </option>
                 ))}
@@ -245,8 +245,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 }
                 className="w-full px-4 py-2 border border-border rounded-lg bg-card text-title focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="ONE_TIME">{t("expenses.oneTime")}</option>
-                <option value="RECURRING">{t("expenses.recurring")}</option>
+                <option value="ONE_TIME" className="bg-page duration-500">{t("expenses.oneTime")}</option>
+                <option value="RECURRING" className="bg-page duration-500">{t("expenses.recurring")}</option>
               </select>
             </div>
             <div>
@@ -285,7 +285,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
+                    className="bg-indigo-600 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
                   >
                     <Download className="inline h-5 w-5" />
                     {formData.receipt
@@ -303,7 +303,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               </div>
             <button
               type="submit"
-              className="w-full bg-green-600 dark:bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200 flex items-center justify-center gap-2"
+              className="w-full bg-green-600 cursor-pointer dark:bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200 flex items-center justify-center gap-2"
             >
               <span>
                 {editingExpense && editingExpense.id

@@ -133,7 +133,7 @@ const ExpensesList: React.FC = () => {
     );
 
   return (
-    <div className="min-h-screen bg-page py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-500">
+    <div className="min-h-screen bg-page py-8 px-4 rounded-2xl sm:px-6 lg:px-8 transition-colors duration-500">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-text text-title">
