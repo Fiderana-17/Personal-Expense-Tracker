@@ -9,9 +9,10 @@ interface ExpenseFormProps {
   editingExpense: Expense | null;
   categories: Category[];
   user: User | null;
+  setEditingExpense: (expense: Expense | null) => void; // Ajouté pour réinitialiser editingExpense
   onSubmit: (formData: {
     description: string;
-    amount: number;
+    amount: number | undefined;
     categoryId: number;
     userId: string;
     type: "ONE_TIME" | "RECURRING";
@@ -19,7 +20,7 @@ interface ExpenseFormProps {
     endDate?: string;
     receipt: File | null;
   }) => void;
-  t: any;
+  t: (key: string) => string;
 }
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({
@@ -28,14 +29,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   editingExpense,
   categories,
   user,
+  setEditingExpense,
   onSubmit,
   t,
 }) => {
   const [formData, setFormData] = useState({
     description: "",
-    amount: 0,
+    amount: 0 as number | undefined,
     categoryId: categories.length > 0 ? categories[0].id : 1,
-    userId: user?.id ?? "",
+    userId: user?.id || "",
     type: "ONE_TIME" as "ONE_TIME" | "RECURRING",
     date: new Date().toISOString().split("T")[0],
     endDate: undefined as string | undefined,
@@ -52,9 +54,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         amount: Number(editingExpense.amount) || 0,
         categoryId: editingExpense.categoryId ?? (categories.length > 0 ? categories[0].id : 1),
         userId: editingExpense.userId.toString() ?? user?.id ?? "",
-        type: editingExpense.type && typeof editingExpense.type === "string"
-          ? (editingExpense.type.toUpperCase() as "ONE_TIME" | "RECURRING")
-          : "ONE_TIME",
+        type:
+          typeof editingExpense.type === "string"
+            ? (editingExpense.type.toUpperCase() as "ONE_TIME" | "RECURRING")
+            : "ONE_TIME",
         date: editingExpense.date
           ? new Date(editingExpense.date).toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0],
@@ -79,7 +82,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData((prev) => ({ ...prev, receipt: e.target.files![0] }));
+      setFormData((prev) => ({
+        ...prev,
+        receipt: e.target.files![0],
+      }));
     }
   };
 
@@ -87,7 +93,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     e.preventDefault();
     console.log("Form submitted, editingExpense:", editingExpense, "formData:", formData); // Log pour débogage
     onSubmit(formData);
-    setShowForm(false); // Ferme le formulaire
+    setShowForm(false);
+    setEditingExpense(null); // Réinitialise editingExpense après soumission
   };
 
   return (
@@ -99,7 +106,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowForm(false)}
+            onClick={() => {
+              console.log("Closing form via backdrop, setting editingExpense to null"); // Log pour débogage
+              setShowForm(false);
+              setEditingExpense(null);
+            }}
           />
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: -30 }}
@@ -110,11 +121,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           >
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-lg font-semibold text-text">
-                {console.log("Title check, editingExpense:", editingExpense)} {/* Log pour débogage */}
                 {editingExpense && editingExpense.id ? t("expenses.editExpense") : t("expenses.addExpense")}
               </h2>
               <button
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  console.log("Closing form via X button, setting editingExpense to null"); // Log pour débogage
+                  setShowForm(false);
+                  setEditingExpense(null);
+                }}
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               >
                 <X className="h-5 w-5" />
@@ -138,14 +152,17 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   {t("expenses.amount")} ($)
                 </label>
                 <input
-                  type="number"
-                  value={formData.amount}
-                  onChange={(e) =>
-                    setFormData({ ...formData, amount: e.target.value === "" ? 0 : Number(e.target.value) })
-                  }
+                  type="text"
+                  value={formData.amount ?? ""}
+                  onChange={(e) => {
+                    const chiffres = e.target.value.replace(/\D/g, "");
+                    setFormData({
+                      ...formData,
+                      amount: chiffres === "" ? undefined : Number(chiffres),
+                    });
+                  }}
                   className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
                   required
-                  min="0"
                 />
               </div>
               <div>
@@ -170,7 +187,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 </label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as "ONE_TIME" | "RECURRING", endDate: e.target.value === "RECURRING" && !editingExpense ? new Date().toISOString().split("T")[0] : formData.endDate })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      type: e.target.value as "ONE_TIME" | "RECURRING",
+                      endDate: e.target.value === "RECURRING" && !editingExpense ? new Date().toISOString().split("T")[0] : formData.endDate,
+                    })
+                  }
                   className="w-full px-4 py-2 border border-border rounded-lg bg-card text-title focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="ONE_TIME">{t("expenses.oneTime")}</option>
@@ -186,9 +209,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                   className="w-full px-4 py-2 border border-border rounded-lg bg-card-bg text-text focus:ring-2 focus:ring-indigo-500"
+                  required
                 />
               </div>
-              {(formData.type === "RECURRING") && (
+              {formData.type === "RECURRING" && (
                 <div>
                   <label className="block text-sm font-medium text-text mb-1">
                     {t("expenses.endDate")}
@@ -227,7 +251,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 type="submit"
                 className="w-full bg-green-600 dark:bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200 flex items-center justify-center gap-2"
               >
-                <span>{editingExpense && editingExpense.id ? t("expenses.updateExpense") : t("expenses.saveExpense")}</span>
+                <span>
+                  {editingExpense && editingExpense.id ? t("expenses.updateExpense") : t("expenses.saveExpense")}
+                </span>
               </button>
             </form>
           </motion.div>
