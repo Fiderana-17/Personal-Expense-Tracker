@@ -2,7 +2,7 @@ import prisma from '../prismaClient.js';
 import fs from 'fs';
 import { upload } from '../controllers/receipt.controller.js'
 
-// Get all expenses
+// prend tous les expneses
 
 export const getAllExpenses = async (req, res) => {
   try {
@@ -25,7 +25,7 @@ export const getAllExpenses = async (req, res) => {
 };
 
 
-//  Get a single expense by ID
+//  prend un expense par son id
 export const getExpenseById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -44,7 +44,7 @@ export const getExpenseById = async (req, res) => {
 };
 
 
-// Create a new expense
+// Cree un nouvel expense
 export const createExpense = async (req, res) => {
   upload(req, res, async function (err) {
     if (err) return res.status(400).json({ message: err.message });
@@ -97,7 +97,7 @@ export const createExpense = async (req, res) => {
   });
 };
 
-// Update an existing expense
+// mise à jour un expense
 export const updateExpense = async (req, res) => {
   upload(req, res, async function (err) {
     if (err) return res.status(400).json({ message: err.message });
@@ -133,7 +133,7 @@ export const updateExpense = async (req, res) => {
       // 2. Si un fichier est envoyé → on met à jour le receipt
       if (req.file) {
         if (existingExpense.receipt) {
-          // Supprimer l'ancien fichier
+          // Supprimer l'ancien fichier 
           try {
             fs.unlinkSync(existingExpense.receipt.filePath);
           } catch (err) {
@@ -173,7 +173,7 @@ export const updateExpense = async (req, res) => {
   });
 };
 
-// Delete an expense
+// supprimer un expense
 export const deleteExpense = async (req, res) => {
   try {
     const { id } = req.params;
@@ -211,7 +211,7 @@ export const deleteExpense = async (req, res) => {
 };
 
 
-// Get monthly trends
+// prend les tendances mensuelles
 export const getMonthlyTrends = async (req, res) => {
   try {
     const expenses = await prisma.expense.findMany({
@@ -238,7 +238,7 @@ export const getMonthlyTrends = async (req, res) => {
   }
 };
 
-// Get expenses within a date range
+// prend les expenses par plage de dates
 export const getExpensesByRange = async (req, res) => {
   try {
     const { start, end } = req.query;

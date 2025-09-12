@@ -97,9 +97,6 @@ const ExpensesList: React.FC = () => {
     fetchCategories();
   }, [user?.id]);
 
-  const filterCategories = ["all", ...categories.map((c) => c.name)];
-  const types = ["all", "ONE_TIME", "RECURRING"];
-
   const filteredExpenses = expenses.filter((expense) => {
     const matchesSearch =
       expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||

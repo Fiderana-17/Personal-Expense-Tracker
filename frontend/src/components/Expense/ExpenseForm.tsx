@@ -78,7 +78,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       if (editingExpense) {
         const updated = await updateExpense(editingExpense.id, expenseData);
-        const expense = "data" in updated ? updated.data : updated;
+        let expense: Expense;
+
+        // Vérification du type de retour de updateExpense
+        if ("data" in updated && typeof updated.data === "object") {
+          expense = updated.data as Expense;
+        } else if (typeof updated === "object") {
+          expense = updated as Expense;
+        } else {
+          throw new Error("Unexpected response format from updateExpense");
+        }
 
         if (formData.receipt) {
           await uploadReceipt(formData.receipt, expense.id);
@@ -86,16 +95,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         } else {
           setExpenses((prev) =>
             prev.map((e) =>
-              e.id === editingExpense.id && typeof expense === "object"
-                ? { ...e, ...expense }
-                : e
+              e.id === editingExpense.id ? { ...e, ...expense } : e
             )
           );
         }
         setNotification("Expense updated successfully");
       } else {
         const res = await createExpense(expenseData);
-        const expense = {
+        const expense: Expense = {
           ...res.data,
           type: res.data.type.toUpperCase(),
           amount:
