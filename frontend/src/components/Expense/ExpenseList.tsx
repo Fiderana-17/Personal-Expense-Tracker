@@ -401,33 +401,27 @@ const ExpensesList: React.FC = () => {
                       <option value="RECURRING">{t("expenses.recurring")}</option>
                     </select>
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="bg-indigo-600 dark:bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
-                      >
-                        <Download className="inline h-5 w-5" />
-                        {formData.receipt
-                          ? t("expenses.changeReceipt")
-                          : t("expenses.addReceipt")}
-                      </button>
-                      {formData.receipt && (
-                        <span className="ml-2 text-text">
-                          {formData.receipt.name}
-                        </span>
-                      )}
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        accept="image/*,.pdf"
-                        className="hidden"
-                      />
-                    </div>
-                  </div>
-
+                <div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full flex gap-x-3 items-center text-center justify-center"
+                  >
+                    <Download className="inline h-5 w-5" />
+                    {formData.receipt
+                      ? formData.receipt.name
+                      : t("expenses.addReceipt")}
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*,.pdf"
+                    className="hidden"
+                  />
+                </div>
+              </div>
                   <button
                     type="submit"
                     className="w-full bg-green-600 dark:bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-200 flex items-center justify-center gap-2"
