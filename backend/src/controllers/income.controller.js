@@ -1,7 +1,6 @@
-// backend/controllers/income.controller.js
 import prisma from "../prismaClient.js";
 
-// Récupère tous les revenus de l'utilisateur connecté
+
 export const getAllIncomes = async (req, res) => {
   try {
     const incomes = await prisma.income.findMany({
@@ -15,7 +14,7 @@ export const getAllIncomes = async (req, res) => {
   }
 };
 
-// Récupère un revenu par ID (uniquement si il appartient à l'utilisateur)
+
 export const getIncomeById = async (req, res) => {
   try {
     const incomeId = parseInt(req.params.id, 10);
@@ -34,7 +33,7 @@ export const getIncomeById = async (req, res) => {
   }
 };
 
-// Crée un revenu (date générée automatiquement, userId = req.user.id)
+
 export const createIncome = async (req, res) => {
   try {
     const { amount, source, description, date } = req.body;
@@ -44,7 +43,7 @@ export const createIncome = async (req, res) => {
       return res.status(400).json({ message: "Le champ 'amount' est requis et doit être un nombre" });
     }
 
-    // Validate date
+    
     const parsedDate = date ? new Date(date) : new Date();
     if (isNaN(parsedDate.getTime())) {
       return res.status(400).json({ message: "Format de date invalide" });
@@ -55,8 +54,8 @@ export const createIncome = async (req, res) => {
         amount: parsedAmount,
         source,
         description,
-        date: parsedDate,      // ✅ date choisie par l'utilisateur
-        userId: req.user.id,   // ✅ sécurité: pas de userId venant du client
+        date: parsedDate,      
+        userId: req.user.id,  
       },
     });
 
@@ -67,7 +66,7 @@ export const createIncome = async (req, res) => {
   }
 };
 
-// Met à jour un revenu (n'autorise pas la modification du userId / date)
+
 export const updateIncome = async (req, res) => {
   try {
     const incomeId = parseInt(req.params.id, 10);
@@ -112,7 +111,7 @@ export const updateIncome = async (req, res) => {
 };
 
 
-// Supprime un revenu (seulement si il appartient à l'utilisateur)
+
 export const deleteIncome = async (req, res) => {
   try {
     const incomeId = parseInt(req.params.id, 10);
