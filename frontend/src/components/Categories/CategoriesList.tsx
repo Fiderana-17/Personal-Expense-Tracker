@@ -142,7 +142,7 @@ const CategoryPage: React.FC = () => {
         <h1 className="text-3xl font-bold text-title duration-500">{t("categories.title")}</h1>
         <button
           onClick={openCreateForm}
-          className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
+          className="bg-green-500 text-white px-6 py-2 rounded-lg cursor-pointer hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           <span>{showForm && mode === "create" ? t("categories.closeForm") : t("categories.add")}</span>
@@ -217,7 +217,7 @@ const CategoryPage: React.FC = () => {
                 <h2 className="text-lg font-semibold text-gray-800">{t("categories.confirmDeleteTitle")}</h2>
                 <button
                   onClick={closeDeleteModal}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -226,13 +226,13 @@ const CategoryPage: React.FC = () => {
               <div className="flex justify-end gap-4">
                 <button
                   onClick={closeDeleteModal}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 cursor-pointer"
                 >
                   {t("buttons.no")}
                 </button>
                 <button
                   onClick={handleDeleteCategory}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 cursor-pointer"
                 >
                   {t("buttons.yes")}
                 </button>
@@ -281,13 +281,13 @@ const CategoryPage: React.FC = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEditForm(category)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200"
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200 cursor-pointer"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => openDeleteModal(category.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

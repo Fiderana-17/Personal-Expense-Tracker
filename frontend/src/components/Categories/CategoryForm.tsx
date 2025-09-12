@@ -54,17 +54,17 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: -30 }}
         transition={{ duration: 0.3 }}
-        className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-8 w-full max-w-md pointer-events-auto"
+        className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-page duration-500 rounded-xl shadow-lg border border-border text-title p-8 w-full max-w-md pointer-events-auto"
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2 className="text-lg font-semibold text-title duration-500">
             {mode === "create" ? t("categories.add") : t("categories.edit")}
           </h2>
           <button
             onClick={onCancel}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 cursor-pointer"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5 text-title duration-500" />
           </button>
         </div>
         <div className="relative">
@@ -85,7 +85,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-title duration-500 mb-1">
                 {t("categories.fields.name")}
               </label>
               <input
@@ -99,7 +99,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-title duration-500 mb-1">
                 {t("categories.fields.description")}
               </label>
               <textarea
@@ -115,7 +115,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors duration-200"
+                className="px-6 py-2 rounded-lg border border-gray text-gray-600 hover:bg-gray-50 transition-colors duration-200"
                 disabled={saving}
               >
                 {t("buttons.cancel")}
@@ -123,7 +123,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ mode, initial, onCancel, on
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50"
+                className="bg-green-600 text-white px-6 py-2 cursor-pointer rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50"
               >
                 {saving
                   ? t("categories.saving")

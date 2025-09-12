@@ -9,7 +9,7 @@ interface Props {
 
 const RecentTransactions: React.FC<Props> = ({ transactions }) => {
   if (!transactions || transactions.length === 0) {
-    return <div className="text-text text-center">{t("dashboard.transactions.none")}</div>;
+    return <div className="text-text text-center text-title duration-500 card p-10.5 rounded-lg border">{t("dashboard.transactions.none")}</div>;
   }
 
   return (

@@ -257,10 +257,10 @@ const Profile: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: -30 }}
               transition={{ duration: 0.3 }}
-              className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-lg border border-gray-200 p-6 w-full max-w-md space-y-4"
+              className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-page rounded-xl shadow-lg border border-border text-title p-6 w-full max-w-md space-y-4"
             >
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-lg font-semibold text-gray-800">{t("profile.changePassword")}</h2>
+                <h2 className="text-lg font-semibold text-title duration-500">{t("profile.changePassword")}</h2>
                 <button
                   onClick={() => setShowForm(false)}
                   className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -270,7 +270,7 @@ const Profile: React.FC = () => {
               </div>
 
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t("profile.oldPassword")}</label>
+                <label className="block text-sm font-medium text-title duration-500 mb-1">{t("profile.oldPassword")}</label>
                 <input
                   type={showOldPassword ? 'text' : 'password'}
                   value={oldPassword}
@@ -287,7 +287,7 @@ const Profile: React.FC = () => {
               </div>
 
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t("profile.newPassword")}</label>
+                <label className="block text-sm font-medium text-title duration-500 mb-1">{t("profile.newPassword")}</label>
                 <input
                   type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
@@ -304,7 +304,7 @@ const Profile: React.FC = () => {
               </div>
 
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t("profile.confirmPassword")}</label>
+                <label className="block text-sm font-medium text-title duration-500 mb-1">{t("profile.confirmPassword")}</label>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}

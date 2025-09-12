@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -16,20 +16,14 @@ interface ExpenseChartProps {
 }
 
 const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
-  const [startMonth, setStartMonth] = useState(1);
-
-  useEffect(() => {
-    console.log("Input data:", JSON.stringify(data, null, 2));
-    console.log("Transformed data:", JSON.stringify(transformedData, null, 2));
-    console.log("Formatted data:", JSON.stringify(formattedData, null, 2));
-  }, [data]);
+  const [startMonth] = useState(1);
 
   if (!data || data.length === 0) {
     return <div className="text-text text-center">{t("dashboard.chart.NoData")}</div>;
   }
 
   const transformedData = data
-    .map((item, index) => {
+    .map((item) => {
       let year, month;
       if (item.month.length === 7) {
         [year, month] = item.month.split("-");
@@ -37,19 +31,16 @@ const ExpenseChart: React.FC<ExpenseChartProps> = ({ data }) => {
         [year, month] = item.month.split("-");
         year = `20${year}`;
       } else {
-        console.warn(`Invalid month format at index ${index}: ${item.month}`);
         return null;
       }
       const monthNum = parseInt(month, 10);
       const income = Number(item.income);
       const expenses = Number(item.expenses);
       if (isNaN(monthNum) || monthNum < 1 || monthNum > 12 || isNaN(income) || isNaN(expenses)) {
-        console.warn(`Invalid data entry at index ${index}: ${JSON.stringify(item)}`);
         return null;
       }
       const date = new Date(`${year}-${month}-01`);
       if (isNaN(date.getTime())) {
-        console.warn(`Invalid date for month: ${item.month}`);
         return null;
       }
       const monthName = date.toLocaleString("default", { month: "short" });

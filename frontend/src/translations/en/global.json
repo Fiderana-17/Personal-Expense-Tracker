@@ -70,12 +70,14 @@
     "downloadReceipt": "Download Receipt",
     "addReceipt": "Add Receipt",
     "changeReceipt": "Change Receipt",
+    "startDate": "Start Date",
+    "endDate": "End Date",
     "total":"Total Expenses",
     "thisPeriod":"This period"
   },
   "income": {
     "amount": "Amount ($)",
-    "amountPlaceholder": "0.00",
+    "amountPlaceholder": "0",
     "source": "Source",
     "createdAt": "Creation date",
     "sourcePlaceholder": "Salary, Freelance, ...",
