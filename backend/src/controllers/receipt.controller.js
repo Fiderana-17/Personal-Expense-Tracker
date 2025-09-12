@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import prisma from '../prismaClient.js';
 
-// --- Multer Storage Config ---
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = './uploads/receipts';
@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 
 export const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  limits: { fileSize: 5 * 1024 * 1024 }, 
   fileFilter: function (req, file, cb) {
     const allowed = /jpeg|jpg|png|pdf/;
     const ext = path.extname(file.originalname).toLowerCase();
@@ -27,7 +27,7 @@ export const upload = multer({
   },
 }).single('receipt');
 
-// --- Upload receipt ---
+
 export const uploadReceipt = async (req, res) => {
   upload(req, res, async function (err) {
     if (err) return res.status(400).json({ message: err.message });
@@ -35,21 +35,21 @@ export const uploadReceipt = async (req, res) => {
     const { expenseId } = req.body;
     const userId = req.user?.id;
 
-    // Vérifie que la dépense existe et appartient à l’utilisateur
+    
     const expense = await prisma.expense.findUnique({ where: { id: Number(expenseId) } });
     if (!expense) return res.status(404).json({ message: "Expense not found" });
     if (expense.userId !== Number(userId)) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
-    // Vérifie si un receipt existe déjà
+    
     const existingReceipt = await prisma.receipt.findUnique({ where: { expenseId: Number(expenseId) } });
     if (existingReceipt) {
       fs.unlinkSync(existingReceipt.filePath);
       await prisma.receipt.delete({ where: { id: existingReceipt.id } });
     }
 
-    // Sauvegarde en DB
+    
     const receipt = await prisma.receipt.create({
       data: {
         filePath: req.file.path,
@@ -61,7 +61,7 @@ export const uploadReceipt = async (req, res) => {
   });
 };
 
-// --- View receipt (inline in browser) ---
+// --- View receipt ---
 export const viewReceipt = async (req, res) => {
   const { id } = req.params;
   const userId = req.user?.id;
@@ -77,7 +77,7 @@ export const viewReceipt = async (req, res) => {
   res.sendFile(path.resolve(receipt.filePath));
 };
 
-// --- Download receipt ---
+
 export const downloadReceipt = async (req, res) => {
   const { id } = req.params;
   const userId = req.user?.id;
@@ -93,7 +93,7 @@ export const downloadReceipt = async (req, res) => {
   res.download(receipt.filePath);
 };
 
-// --- Delete receipt ---
+
 export const deleteReceiptController = async (req, res) => {
   const { id } = req.params;
   const userId = req.user?.id;
