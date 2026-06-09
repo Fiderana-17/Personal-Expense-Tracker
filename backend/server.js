@@ -24,9 +24,10 @@ app.use("/api/summary", summaryRoutes);
 app.use('/api/receipts', receiptRoutes);
 app.use('/api/uploads', express.static('uploads'));
 
-// Servir le frontend buildé
 app.use(express.static(join(__dirname, '../frontend/dist')));
-app.get('*', (req, res) => {
+
+// ✅ Pas de wildcard — fallback middleware
+app.use((req, res) => {
   res.sendFile(join(__dirname, '../frontend/dist/index.html'));
 });
 
