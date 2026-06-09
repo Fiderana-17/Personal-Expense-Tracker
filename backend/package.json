@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
+    "build": "npx prisma generate",
+    "start": "node server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init"
   },
