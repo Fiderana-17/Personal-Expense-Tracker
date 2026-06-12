@@ -6,7 +6,9 @@ export async function signup(name: string, email: string, password: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password })
   });
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Signup failed');
+  return data;
 }
 
 export async function login(email: string, password: string) {
@@ -15,7 +17,9 @@ export async function login(email: string, password: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Login failed');
+  return data;
 }
 
 export const getMe = async (token: string) => {

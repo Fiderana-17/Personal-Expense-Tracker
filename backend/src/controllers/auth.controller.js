@@ -112,8 +112,7 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ message: 'New password must be different from the old password' });
     }
 
-    const hashed = await bcrypt.hash(newPassword, SALT_ROUNDS);
-
+const hashed = await bcrypt.hash(newPassword, saltRounds);
     await prisma.user.update({
       where: { id: userId },
       data: { password: hashed },

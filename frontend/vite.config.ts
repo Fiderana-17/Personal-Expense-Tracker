@@ -8,5 +8,9 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") },
   },
-  // proxy retiré — uniquement utile en dev local
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3000',
+    },
+  },
 })
